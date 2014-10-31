@@ -1,4 +1,11 @@
-### Github gitignore ###
+# 專案設定檔
+Config.java
+
+
+# KDE Dolphin產生出來的
+.directory
+
+### Github gitignore ####
 # Built application files
 *.apk
 *.ap_
