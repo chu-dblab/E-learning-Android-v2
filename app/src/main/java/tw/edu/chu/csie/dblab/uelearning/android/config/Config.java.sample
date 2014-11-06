@@ -88,8 +88,4 @@ public class Config {
 	 *  前端資料庫名稱
 	 */
 	public static final String CDB_NAME = "chu-elearn.db";
-	/**
-	 *  前端資料庫目前版本
-	 */
-	public static final int CDB_VERSION = 1;
 }

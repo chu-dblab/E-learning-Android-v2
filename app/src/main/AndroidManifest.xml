@@ -8,9 +8,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ui.StartActivity"
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.StartActivity"
             android:label="@string/app_name"
-            android:noHistory="true">
+            android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,9 +18,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.LoginActivity"
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".scanner.QRDecodeActivity"
+            android:label="@string/title_activity_qrdecode" >
         </activity>
     </application>
 
