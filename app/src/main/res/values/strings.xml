@@ -16,5 +16,11 @@
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <!-- 學習地圖 -->
+    <string name="learning_next_point">下個學習點:</string>
+    <string name="learning_next_point_time">下個點預估所需時間:</string>
+    <string name="learning_remaining_time">學習時間尚有:</string>
+    <string name="learning_remaining_point">學習點剩餘:</string>
+    <string name="learning_next_point_getting">取得中...</string>
+    <string name="title_activity_map">學習地圖</string>
 </resources>
