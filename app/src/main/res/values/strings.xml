@@ -2,11 +2,19 @@
 <resources>
 
     <string name="app_name">無所不在學習導引系統</string>
+    <string name="inside_error">內部出錯</string>
+    <string name="about">關於</string>
+    <string name="package_name">套件名稱:</string>
+    <string name="version">版本:</string>
+    <string name="getPackageInfo_error">套件資訊取得錯誤</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="account">帳號</string>
     <string name="password">密碼</string>
     <string name="login_tips_string">For 參與學習計劃: 帳號是學號，密碼是1234</string>
     <string name="login">登入</string>
     <string name="clear">清除</string>
+    <string name="title_activity_qrdecode">QRDecodeActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
