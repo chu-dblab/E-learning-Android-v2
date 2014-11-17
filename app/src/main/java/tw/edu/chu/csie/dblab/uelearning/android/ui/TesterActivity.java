@@ -4,17 +4,47 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 
-public class TesterActivity extends ActionBarActivity {
+public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
+
+    Button mBtn_hello;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tester);
+
+        mBtn_hello = (Button) findViewById(R.id.btn_tester_hello);
+        mBtn_hello.setOnClickListener(this);
     }
 
+
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+
+        if(id == R.id.btn_tester_hello) {
+            getHelloString();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -36,5 +66,34 @@ public class TesterActivity extends ActionBarActivity {
         //}
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getHelloString() {
+        UElearningRestClient.get("/hello/tester", null, new JsonHttpResponseHandler() {
+            @Override
+            public void onStart() {
+                Toast.makeText(TesterActivity.this, "開始爬", Toast.LENGTH_SHORT).show();
+                super.onStart();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                // If the response is JSONObject instead of expected JSONArray
+                try {
+                    String msg = response.getString("msg");
+                    Toast.makeText(TesterActivity.this, "msg: "+msg, Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    Toast.makeText(TesterActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                super.onSuccess(statusCode, headers, response);
+            }
+
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Toast.makeText(TesterActivity.this, "失敗", Toast.LENGTH_SHORT).show();
+                super.onFailure(statusCode, headers, responseString, throwable);
+            }
+        });
     }
 }
