@@ -23,8 +23,12 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
         </activity>
         <activity
-            android:name=".scanner.QRDecodeActivity"
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.scanner.QRDecodeActivity"
             android:label="@string/title_activity_qrdecode" >
+        </activity>
+        <activity
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.TesterActivity"
+            android:label="內部測試" >
         </activity>
     </application>
 

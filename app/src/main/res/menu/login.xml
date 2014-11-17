@@ -2,8 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="tw.edu.chu.csie.dblab.uelearning.android.ui.LoginActivity" >
-    <!--<item android:id="@+id/action_settings"-->
-        <!--android:title="@string/action_settings"-->
-        <!--android:orderInCategory="100"-->
-        <!--app:showAsAction="never" />-->
+    <item android:id="@+id/menu_inside_tester"
+        android:title="內部測試"
+        android:orderInCategory="1"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item android:id="@+id/menu_about"
+        android:title="@string/about"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
 </menu>
