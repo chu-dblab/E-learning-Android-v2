@@ -1,5 +1,6 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -12,16 +13,27 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.apache.http.Header;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class LoginActivity extends ActionBarActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     ImageButton mBtn_menu_overflow;
     PopupMenu mPopup_menu_overflow;
-    Button mBtn_login_ok;
     EditText mEdit_account,mEdit_password;
+    Button mBtn_login_ok;
+    ProgressDialog mProgress_login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +56,15 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
         /** Adding menu items to the popumenu */
         mPopup_menu_overflow.getMenuInflater().inflate(R.menu.login, mPopup_menu_overflow.getMenu());
+
+        // 登入中畫面
+        mProgress_login = new ProgressDialog(LoginActivity.this);
+        mProgress_login.setMessage(getResources().getString(R.string.logining));
+        mProgress_login.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgress_login.setIndeterminate(true);
+        mProgress_login.setCancelable(false);
+
+
         // DEBUG 開啟教材內容測試
         if(Config.DEBUG_ACTIVITY) {
             mPopup_menu_overflow.getMenu().findItem(R.id.menu_inside_tester).setVisible(true);
@@ -80,7 +101,70 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         String mID,mPassword;
         mID = mEdit_account.getText().toString();
         mPassword = mEdit_password.getText().toString();
-        Toast.makeText(LoginActivity.this, mID + mPassword, Toast.LENGTH_SHORT).show();
+
+        // 顯示使用者輸入的登入資訊
+        if(Config.DEBUG_SHOW_MESSAGE) {
+            Toast.makeText(LoginActivity.this, mID + "\n" + mPassword, Toast.LENGTH_SHORT).show();
+        }
+
+        // 帶入登入參數
+        RequestParams login_params = new RequestParams();
+        login_params.put("user_id", mID);
+        login_params.put("password", mPassword);
+        login_params.put("browser", "android");
+
+        // 對伺服端進行登入動作
+        UElearningRestClient.post("/tokens", login_params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+                mProgress_login.show();
+                super.onStart();
+            }
+
+            /**
+             * Fired when a request returns successfully, override to handle in your own code
+             *
+             * @param statusCode   the status code of the response
+             * @param headers      return headers, if any
+             * @param responseBody the body of the HTTP response from the server
+             */
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                mProgress_login.dismiss();
+
+                try {
+                    String content = new String(responseBody, "UTF-8");
+                    JSONObject response = new JSONObject(content);
+
+                    // TODO: 登入成功後的動作
+                    String token = response.getString("token");
+                    Toast.makeText(LoginActivity.this, "S: "+token, Toast.LENGTH_SHORT).show();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            /**
+             * Fired when a request fails to complete, override to handle in your own code
+             *
+             * @param statusCode   return HTTP status code
+             * @param headers      return headers, if any
+             * @param responseBody the response body, if any
+             * @param error        the underlying cause of the failure
+             */
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                mProgress_login.dismiss();
+
+                // TODO: 在界面上顯示詳細錯誤訊息
+                Toast.makeText(LoginActivity.this, "登入失敗", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+
     }
 
     /**

@@ -12,6 +12,7 @@
     <string name="password">密碼</string>
     <string name="login_tips_string">For 參與學習計劃: 帳號是學號，密碼是1234</string>
     <string name="login">登入</string>
+    <string name="logining">登入中，請稍後...</string>
     <string name="clear">清除</string>
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
 
