@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -32,6 +32,10 @@
         <activity
             android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.TesterActivity"
             android:label="內部測試" >
+        </activity>
+        <activity
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity"
+            android:label="@string/title_activity_main" >
         </activity>
     </application>
 
