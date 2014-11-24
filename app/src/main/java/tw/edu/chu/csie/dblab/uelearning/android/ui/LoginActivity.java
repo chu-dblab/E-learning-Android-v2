@@ -1,13 +1,16 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
@@ -17,11 +20,21 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
     ImageButton mBtn_menu_overflow;
     PopupMenu mPopup_menu_overflow;
+    Button mBtn_login_ok;
+    EditText mEdit_account,mEdit_password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        //登入按鈕對應
+        mBtn_login_ok = (Button) findViewById(R.id.btn_login_ok);
+        mBtn_login_ok.setOnClickListener(this);
+
+        //輸入帳密對應
+        mEdit_account = (EditText) findViewById(R.id.edit_login_account);
+        mEdit_password = (EditText) findViewById(R.id.edit_login_password);
 
         // 介面對應
         mBtn_menu_overflow = (ImageButton) findViewById(R.id.btn_login_menu_overflow);
@@ -40,7 +53,6 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         mPopup_menu_overflow.setOnMenuItemClickListener(this);
     }
 
-
     /**
      * Called when a view has been clicked.
      *
@@ -53,12 +65,22 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
             /** Showing the popup menu */
             mPopup_menu_overflow.show();
         }
+        if (id == R.id.btn_login_ok) {
+            mlogin();
+        }
     }
 
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
         mPopup_menu_overflow.show();
         return super.onMenuOpened(featureId, menu);
+    }
+
+    public void mlogin(){
+        String mID,mPassword;
+        mID = mEdit_account.getText().toString();
+        mPassword = mEdit_password.getText().toString();
+        Toast.makeText(LoginActivity.this, mID + mPassword, Toast.LENGTH_SHORT).show();
     }
 
     /**
