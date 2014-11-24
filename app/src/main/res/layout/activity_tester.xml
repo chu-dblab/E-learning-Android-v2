@@ -31,4 +31,39 @@
                 android:id="@+id/btn_tester_hello" />
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:background="#ff000000" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SQLite" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ins_user"
+                android:id="@+id/btn_tester_sqlite_insert_user" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="rem_user"
+                android:id="@+id/btn_tester_sqlite_remove_user" />
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>

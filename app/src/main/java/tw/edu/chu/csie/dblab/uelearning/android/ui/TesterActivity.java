@@ -11,16 +11,16 @@ import android.widget.Toast;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 
 public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
 
-    Button mBtn_hello;
+    Button mBtn_hello, mBtn_sql_insert_user, mBtn_sql_remove_user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +29,13 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
 
         mBtn_hello = (Button) findViewById(R.id.btn_tester_hello);
         mBtn_hello.setOnClickListener(this);
+
+        mBtn_sql_insert_user = (Button) findViewById(R.id.btn_tester_sqlite_insert_user);
+        mBtn_sql_insert_user.setOnClickListener(this);
+
+        mBtn_sql_remove_user = (Button) findViewById(R.id.btn_tester_sqlite_remove_user);
+        mBtn_sql_remove_user.setOnClickListener(this);
+
     }
 
 
@@ -43,6 +50,14 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
 
         if(id == R.id.btn_tester_hello) {
             getHelloString();
+        }
+        else if(id == R.id.btn_tester_sqlite_insert_user) {
+            DBProvider db = new DBProvider(this);
+            db.insert_user("tsdnfknasdn", "eric", "2014-11-23 17:37:59", "user", "使用者", null, null, null, null, null, "圓兒～", null,null);
+        }
+        else if(id == R.id.btn_tester_sqlite_remove_user) {
+            DBProvider db = new DBProvider(this);
+            db.remove_all_user();
         }
     }
 
@@ -69,6 +84,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
     }
 
     public void getHelloString() {
+
         UElearningRestClient.get("/hello/tester", null, new JsonHttpResponseHandler() {
             @Override
             public void onStart() {

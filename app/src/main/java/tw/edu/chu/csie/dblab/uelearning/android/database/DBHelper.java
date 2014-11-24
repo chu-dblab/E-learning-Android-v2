@@ -3,12 +3,10 @@ package tw.edu.chu.csie.dblab.uelearning.android.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 
-/**
- * Created by yuan on 2014/11/6.
- */
 public class DBHelper extends SQLiteOpenHelper {
 
     protected static String fileName = Config.CDB_NAME;
@@ -28,14 +26,82 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Called when the database is created for the first time. This is where the
-     * creation of tables and the initial population of the tables should happen.
+     * 當建立資料庫的時候會做的事，大概就是創立裡面的表格
      *
      * @param db The database.
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // TODO: 建立資料庫的實際動作
+
+        // Create Table
+        String sql_create_user = "CREATE TABLE User (\n" +
+                "Token Varchar(50)  NOT NULL,\n" +
+                "UID Varchar(30)  NOT NULL  PRIMARY KEY,\n" +
+                "LoginDate Timestamp DEFAULT NULL,\n" +
+                "GID Varchar(30)  NOT NULL,\n" +
+                "GName Varchar(100) DEFAULT NULL,\n" +
+                "CID integer DEFAULT NULL,\n" +
+                "CName Varchar(100) DEFAULT NULL,\n" +
+                "LMode integer DEFAULT NULL,\n" +
+                "MMode Varchar(10) DEFAULT NULL,\n" +
+                "Enable_NoAppoint Boolean DEFAULT NULL,\n" +
+                "NickName Varchar(50) DEFAULT NULL,\n" +
+                "RealName Varchar(50) DEFAULT NULL,\n" +
+                "Email Varchar(100) DEFAULT NULL)";
+
+        String sql_create_auth = "CREATE TABLE Auth (" +
+                "UID Varchar(30)  PRIMARY KEY DEFAULT NULL," +
+                "ClientAdmin Boolean DEFAULT NULL)";
+
+        String sql_create_activity = "CREATE TABLE Activity (" +
+                "SaID integer  PRIMARY KEY DEFAULT NULL," +
+                "UID Varchar(30)," +
+                "ThID integer  NOT NULL DEFAULT 0," +
+                "ThName Varchar(100)," +
+                "ThIntroduction TEXT," +
+                "StartTime Timestamp DEFAULT NULL," +
+                "LearnTime integer  NOT NULL DEFAULT 0," +
+                "TimeForce Boolean  NOT NULL DEFAULT 0," +
+                "LMode integer," +
+                "LForce Boolean DEFAULT NULL," +
+                "MMode Varchar(10) DEFAULT NULL," +
+                "TargetTotal integer," +
+                "LearnedTotal integer DEFAULT 0)";
+
+        String sql_create_enableActivity = "CREATE TABLE EnableActivity (" +
+                "serial integer  PRIMARY KEY AUTOINCREMENT," +
+                "UID Varchar(30)," +
+                "Type Smallint DEFAULT 0," +
+                "SaID integer," +
+                "SwID integer," +
+                "ThID integer  NOT NULL DEFAULT 0," +
+                "ThName Varchar(100)," +
+                "ThIntroduction TEXT," +
+                "StartTime Timestamp DEFAULT NULL," +
+                "ExpiredTime Timestamp  DEFAULT NULL," +
+                "LearnTime integer  NOT NULL DEFAULT 0," +
+                "TimeForce Boolean  NOT NULL DEFAULT 0," +
+                "LMode integer," +
+                "LForce Boolean DEFAULT NULL," +
+                "MMode Varchar(10) DEFAULT NULL," +
+                "Lock Boolean  DEFAULT 0," +
+                "TargetTotal integer," +
+                "LearnedTotal integer DEFAULT 0)";
+
+        String sql_create_log = "CREATE TABLE \"Log\" (" +
+                "LID integer  PRIMARY KEY AUTOINCREMENT DEFAULT NULL," +
+                "UID Varchar(30)," +
+                "Date Timestamp  NOT NULL  DEFAULT CURRENT_TIMESTAMP," +
+                "Encode Varchar(3)," +
+                "Data Varchar(100))";
+
+        db.execSQL(sql_create_user);
+        db.execSQL(sql_create_auth);
+        db.execSQL(sql_create_activity);
+        db.execSQL(sql_create_enableActivity);
+        db.execSQL(sql_create_log);
+
+        Log.d("success", "SQLite: User, Auth, Activity, EnableActivity, Log 建表成功!!");
     }
 
     /**
