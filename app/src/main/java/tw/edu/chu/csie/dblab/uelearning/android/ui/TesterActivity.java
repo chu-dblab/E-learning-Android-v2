@@ -34,7 +34,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         mBtn_sql_insert_user.setOnClickListener(this);
 
         mBtn_sql_remove_user = (Button) findViewById(R.id.btn_tester_sqlite_remove_user);
-        mBtn_sql_remove_user.setOnClickListener(this);
+
 
     }
 
