@@ -1,8 +1,11 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 
 
 public class StartActivity extends ActionBarActivity {
@@ -10,8 +13,22 @@ public class StartActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent to_login = new Intent(StartActivity.this, LoginActivity.class);
-        to_login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(to_login);
+
+        // 取得資料庫中的登入資訊
+        DBProvider db = new DBProvider(StartActivity.this);
+        Cursor mDb_user = db.get_user();
+
+        // 如果尚未登入
+        if(mDb_user.getCount() == 0) {
+            Intent to_login = new Intent(StartActivity.this, LoginActivity.class);
+            to_login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(to_login);
+        }
+        // 如果是已登入
+        else {
+            Intent to_main = new Intent(StartActivity.this, MainActivity.class);
+            to_main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(to_main);
+        }
     }
 }

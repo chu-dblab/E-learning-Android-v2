@@ -57,7 +57,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         }
         else if(id == R.id.btn_tester_sqlite_remove_user) {
             DBProvider db = new DBProvider(this);
-            db.remove_all_user();
+            db.remove_user();
         }
     }
 

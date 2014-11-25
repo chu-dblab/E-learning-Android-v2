@@ -1,11 +1,13 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -32,6 +34,18 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        else if(id == R.id.menu_logout) {
+
+            // 清除登入資料
+            DBProvider db = new DBProvider(MainActivity.this);
+            db.remove_user();
+
+            // 回到登入畫面
+            finish();
+            Intent to_login = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(to_login);
             return true;
         }
 

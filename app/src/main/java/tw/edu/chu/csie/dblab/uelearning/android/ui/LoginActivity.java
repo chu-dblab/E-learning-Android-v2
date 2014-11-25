@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
@@ -49,7 +49,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         /** Instantiating PopupMenu class */
         mPopup_menu_overflow = new PopupMenu(this, mBtn_menu_overflow);
         /** Adding menu items to the popumenu */
-        mPopup_menu_overflow.getMenuInflater().inflate(R.menu.login, mPopup_menu_overflow.getMenu());
+        mPopup_menu_overflow.getMenuInflater().inflate(R.menu.menu_login, mPopup_menu_overflow.getMenu());
         // DEBUG 開啟教材內容測試
         if(Config.DEBUG_ACTIVITY) {
             mPopup_menu_overflow.getMenu().findItem(R.id.menu_inside_tester).setVisible(true);
@@ -125,7 +125,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         mEdit_account.setError(null);
         mEdit_password.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Store values at the time of the menu_login attempt.
         String mID,mPassword;
         mID = mEdit_account.getText().toString();
         mPassword = mEdit_password.getText().toString();
@@ -138,12 +138,12 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         // 判斷登入資料有無填寫正確
         if (TextUtils.isEmpty(mID)) {
             mEdit_account.setError(getString(R.string.error_field_required));
-            focusView = mEdit_account;
+            mEdit_account.requestFocus();
             isOK = false;
         }
         if (TextUtils.isEmpty(mPassword)) {
             mEdit_password.setError(getString(R.string.error_field_required));
-            focusView = mEdit_password;
+            if (!TextUtils.isEmpty(mID)) mEdit_password.requestFocus();
             isOK = false;
         }
 
@@ -178,10 +178,50 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     try {
                         String content = new String(responseBody, "UTF-8");
                         JSONObject response = new JSONObject(content);
+                        JSONObject userJson = response.getJSONObject("user");
 
-                        // TODO: 登入成功後的動作
+                        // 抓取伺服端資料
                         String token = response.getString("token");
-                        Toast.makeText(LoginActivity.this, "S: "+token, Toast.LENGTH_SHORT).show();
+                        String uid = userJson.getString("user_id");
+                        String loginDate = response.getString("login_time");
+                        String gId = userJson.getString("group_id");
+                        String gName = userJson.getString("group_name");
+                        Integer cId = null;
+                        if(!userJson.isNull("class_id")) {
+                            cId = userJson.getInt("class_id");
+                        }
+                        String cName = null;
+                        if(!userJson.isNull("class_name")) {
+                            cName = userJson.getString("class_name");
+                        }
+                        Integer lMode = null;
+                        if(!userJson.isNull("learnStyle_mode")) {
+                            lMode = userJson.getInt("learnStyle_mode");
+                        }
+                        String mMode = userJson.getString("material_mode");
+                        Boolean enableNoAppoint = userJson.getBoolean("enable_noAppoint");
+                        String nickName = userJson.getString("nickname");
+                        String realName = userJson.getString("realname");
+                        String email = userJson.getString("email");
+
+                        // 顯示拿到的Token
+                        if(Config.DEBUG_SHOW_MESSAGE) {
+                            Toast.makeText(LoginActivity.this, "S: "+token, Toast.LENGTH_SHORT).show();
+                        }
+
+                        // 紀錄進資料庫
+                        DBProvider db = new DBProvider(LoginActivity.this);
+                        db.remove_user();
+                        db.insert_user(token, uid, loginDate,
+                                gId, gName, cId, cName,
+                                lMode, mMode, enableNoAppoint,
+                                nickName, realName, email);
+
+                        // 前往MainActivity
+                        finish();
+                        Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(to_mainActivity);
+
                     }
                     catch (UnsupportedEncodingException e) {
                         ErrorUtils.error(LoginActivity.this, e);
@@ -206,7 +246,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     // 找不到此帳號
                     if(statusCode == 404) {
                         mEdit_account.setError(getString(R.string.error_no_account));
-                        View focusView = mEdit_account;
+                        mEdit_account.requestFocus();
                     }
                     else if(statusCode == 401) {
 
@@ -217,12 +257,14 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                             // 密碼錯誤
                             if(response.getInt("substatus") == 201) {
                                 mEdit_password.setError(getString(R.string.error_password));
-                                View focusView = mEdit_password;
+                                mEdit_password.requestFocus();
                             }
+                            // 此帳號被停用
                             else if(response.getInt("substatus") == 202) {
                                 mEdit_account.setError(getString(R.string.error_account_no_enable));
-                                View focusView = mEdit_account;
+                                mEdit_account.requestFocus();
                             }
+                            // 其他錯誤
                             else {
                                 ErrorUtils.error(LoginActivity.this, content);
                             }
@@ -231,6 +273,17 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                         } catch (JSONException e) {
                             ErrorUtils.error(LoginActivity.this, e);
                         }
+                    }
+                    // 其他錯誤
+                    else {
+                        String content = null;
+                        try {
+                            content = new String(responseBody, "UTF-8");
+                            ErrorUtils.error(LoginActivity.this, content);
+                        } catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(LoginActivity.this, e);
+                        }
+
                     }
                 }
             });

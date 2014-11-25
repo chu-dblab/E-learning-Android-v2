@@ -2,6 +2,7 @@ package tw.edu.chu.csie.dblab.uelearning.android.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class DBProvider {
@@ -13,6 +14,7 @@ public class DBProvider {
     public DBProvider(Context context) {
         this.context = context;
         dbHelper = new DBHelper(this.context, null);
+        db = dbHelper.getWritableDatabase();
     }
 
 
@@ -20,7 +22,6 @@ public class DBProvider {
                             String gId, String gName, Integer cId, String cName,
                             Integer lMode, String mMode, Boolean enableNoAppoint,
                             String nickName, String realName, String email) {
-        db = dbHelper.getWritableDatabase();
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("Token", token);
         contentvalues.put("UID", uId);
@@ -38,7 +39,11 @@ public class DBProvider {
         return db.insert("User", null, contentvalues);
     }
 
-    public long remove_all_user() {
+    public Cursor get_user() {
+        return db.query("User", null, null, null, null, null, null);
+    }
+
+    public long remove_user() {
         db = dbHelper.getWritableDatabase();
         return db.delete("User", null, null);
     }
