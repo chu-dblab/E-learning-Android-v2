@@ -20,6 +20,14 @@
     <string name="error_password">密碼錯誤</string>
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
 
+    <!--登入成功-->
+    <string name="welcome">歡迎!</string>
+    <string name="name">姓名</string>
+    <string name="grade">年級</string>
+    <string name="student">學生</string>
+    <string name="login_number">已登入次數：</string>
+    <string name="learn_end_topic">已學習過的主題：</string>
+
     <!-- 學習地圖 -->
     <string name="learning_next_point">下個學習點:</string>
     <string name="learning_next_point_time">下個點預估所需時間:</string>
