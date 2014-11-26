@@ -43,6 +43,12 @@ public class DBProvider {
         return db.query("User", null, null, null, null, null, null);
     }
 
+    public String get_token() {
+        Cursor the_query = db.query("User", null, null, null, null, null, null);
+        the_query.moveToNext();
+        return the_query.getString(the_query.getColumnIndex("Token"));
+    }
+
     public long remove_user() {
         db = dbHelper.getWritableDatabase();
         return db.delete("User", null, null);

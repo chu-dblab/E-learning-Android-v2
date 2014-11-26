@@ -12,12 +12,26 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/welcome"
-            android:textSize="40sp"
-            android:id="@+id/textView" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="@string/welcome"
+                android:textSize="40sp"
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暱稱"
+                android:textSize="40sp"
+                android:id="@+id/text_nickname" />
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -29,67 +43,39 @@
                 android:layout_height="wrap_content"
                 android:text="@string/name"
                 android:textSize="30sp"
-                android:id="@+id/textView2" />
+                android:id="@+id/text_realname" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=", "
+                android:textSize="30sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/grade"
                 android:textSize="30sp"
-                android:id="@+id/textView3" />
+                android:id="@+id/text_classname" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=", "
+                android:textSize="30sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/student"
                 android:textSize="30sp"
-                android:id="@+id/textView4" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/login_number"
-                android:textSize="30sp"
-                android:id="@+id/textView5" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Text"
-                android:textSize="20sp"
-                android:id="@+id/textView6" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/learn_end_topic"
-                android:textSize="30sp"
-                android:id="@+id/textView7" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Text"
-                android:textSize="20sp"
-                android:id="@+id/textView8" />
+                android:id="@+id/text_groups" />
         </LinearLayout>
 
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/listView"/>
+            android:id="@+id/listView_activity"/>
 
     </LinearLayout>
 </LinearLayout>
