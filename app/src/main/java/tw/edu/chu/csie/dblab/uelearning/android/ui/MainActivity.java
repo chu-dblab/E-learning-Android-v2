@@ -1,10 +1,13 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -23,10 +26,39 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 
 public class MainActivity extends ActionBarActivity {
 
+    TextView mText_nickname, mText_realname, mText_classname, mText_groupname;
+    ListView mListView_activity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // UI對應
+        mText_nickname = (TextView) findViewById(R.id.text_nickname);
+        mText_realname = (TextView) findViewById(R.id.text_realname);
+        mText_classname = (TextView) findViewById(R.id.text_classname);
+        mText_groupname = (TextView) findViewById(R.id.text_groups);
+
+        mListView_activity = (ListView) findViewById(R.id.listView_activity);
+
+        // 從資料庫取得個人資訊
+        DBProvider db = new DBProvider(MainActivity.this);
+        Cursor the_user_query = db.get_user();
+        the_user_query.moveToFirst();
+
+        String nickname = the_user_query.getString( the_user_query.getColumnIndex("NickName") );
+        String realname = the_user_query.getString( the_user_query.getColumnIndex("RealName") );
+        String classname = the_user_query.getString( the_user_query.getColumnIndex("CName") );
+        String groupname = the_user_query.getString( the_user_query.getColumnIndex("GName") );
+
+        // 顯示個人資訊在介面上
+        mText_nickname.setText(nickname);
+        mText_realname.setText(realname);
+        mText_classname.setText(classname);
+        mText_groupname.setText(groupname);
+
+
     }
 
 
