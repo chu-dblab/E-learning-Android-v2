@@ -79,6 +79,12 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(getApplicationContext(),"你選擇的是"+list[position], Toast.LENGTH_SHORT).show();
+                if(position == 0)
+                {
+                    Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
+                    startActivity(to_mainActivity);
+                }
+
             }
         });
     }
