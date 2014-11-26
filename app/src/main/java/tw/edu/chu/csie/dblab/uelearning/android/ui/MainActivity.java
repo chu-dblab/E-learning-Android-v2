@@ -11,9 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -72,6 +70,12 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(getApplicationContext(),"你選擇的是"+list[position], Toast.LENGTH_SHORT).show();
+                if(position == 0)
+                {
+                    Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
+                    startActivity(to_mainActivity);
+                }
+
             }
         });
     }
