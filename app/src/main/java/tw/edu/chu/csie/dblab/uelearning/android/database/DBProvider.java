@@ -67,8 +67,8 @@ public class DBProvider {
     public long insert_enableActivity(String uId, int type, Integer saId, Integer swId,
                                       int thId, String thName, String thIntroduction,
                                       String startTime, String expiredTime,
-                                      int learnTime, Boolean TimeForce,
-                                      Integer lMode, Boolean LForce, String mMode,
+                                      int learnTime, Boolean timeForce,
+                                      Integer lMode, Boolean lForce, String mMode,
                                       Boolean lock, Integer targetTotal, Integer learnedTotal) {
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("UID", uId);
@@ -81,9 +81,9 @@ public class DBProvider {
         contentvalues.put("StartTime", startTime);
         contentvalues.put("ExpiredTime", expiredTime);
         contentvalues.put("LearnTime", learnTime);
-        contentvalues.put("TimeForce", TimeForce);
+        contentvalues.put("TimeForce", timeForce);
         contentvalues.put("LMode", lMode);
-        contentvalues.put("LForce", LForce);
+        contentvalues.put("LForce", lForce);
         contentvalues.put("MMode", mMode);
         contentvalues.put("Lock", lock);
         contentvalues.put("TargetTotal", targetTotal);
