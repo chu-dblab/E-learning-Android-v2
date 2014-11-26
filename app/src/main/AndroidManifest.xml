@@ -37,6 +37,14 @@
             android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
+        <activity
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.MapActivity"
+            android:label="@string/title_activity_map" >
+        </activity>
+        <activity
+            android:name="tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity"
+            android:label="@string/title_activity_material" >
+        </activity>
     </application>
 
 </manifest>
