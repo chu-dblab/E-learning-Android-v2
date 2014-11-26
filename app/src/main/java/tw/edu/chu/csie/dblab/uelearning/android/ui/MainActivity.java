@@ -119,8 +119,14 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
                             // 抓取資料
                             String type = thisActivity.getString("type");
-                            Integer saId = thisActivity.getInt("activity_id");
-                            Integer swId = thisActivity.getInt("activity_will_id");
+                            Integer saId = null;
+                            if(!thisActivity.isNull("activity_id")) {
+                                saId = thisActivity.getInt("activity_id");
+                            }
+                            Integer swId = null;
+                            if(!thisActivity.isNull("activity_will_id")) {
+                                swId = thisActivity.getInt("activity_will_id");
+                            }
                             int thId = thisActivity.getInt("theme_id");
                             String thName = thisActivity.getString("theme_name");
                             String thIntroduction = thisActivity.getString("theme_introduction");
@@ -128,7 +134,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             String expiredTime = thisActivity.getString("expired_time");
                             int learnTime = thisActivity.getInt("remaining_time");
                             Boolean timeForce = thisActivity.getBoolean("time_force");
-                            Integer lMode = thisActivity.getInt("learnStyle_mode");
+                            Integer lMode = null;
+                            if(!thisActivity.isNull("learnStyle_mode")) {
+                                lMode = thisActivity.getInt("learnStyle_mode");
+                            }
                             Boolean lForce = thisActivity.getBoolean("learnStyle_force");
                             String mMode = thisActivity.getString("material_mode");
                             Boolean lock = thisActivity.getBoolean("lock");
