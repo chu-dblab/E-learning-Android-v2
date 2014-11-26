@@ -20,7 +20,7 @@
     <string name="error_account_no_enable">此帳號已被停用</string>
     <string name="error_no_account">沒有此帳號</string>
     <string name="error_password">密碼錯誤</string>
-    <string name="title_activity_qrdecode">QRDecodeActivity</string>
+    <string name="refresh">重新整理</string>
 
     <!-- 登入成功 -->
     <string name="welcome">歡迎!</string>
@@ -37,7 +37,10 @@
     <string name="learning_remaining_point">學習點剩餘:</string>
     <string name="learning_next_point_getting">取得中...</string>
     <string name="title_activity_map">學習地圖</string>
+
+    <!-- 其他 -->
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_qrdecode">QRDecodeActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_material">MaterialActivity</string>

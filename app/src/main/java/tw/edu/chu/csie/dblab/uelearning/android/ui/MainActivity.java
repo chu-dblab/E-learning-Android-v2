@@ -11,9 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -76,6 +74,32 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    // 取得學習活動
+    public void getStudyActivityList() {
+        DBProvider db = new DBProvider(MainActivity.this);
+
+        // 抓取目前已登入的Token
+        String token = db.get_token();
+
+
+        try {
+            UElearningRestClient.get("/tokens/"+URLEncoder.encode(token, HTTP.UTF_8)+"/activitys", null, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(MainActivity.this, e);
+        }
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -97,7 +121,6 @@ public class MainActivity extends ActionBarActivity {
         }
         else if(id == R.id.menu_logout) {
 
-            // 清除登入資料
             DBProvider db = new DBProvider(MainActivity.this);
 
             // 抓取目前已登入的Token
@@ -125,6 +148,7 @@ public class MainActivity extends ActionBarActivity {
 
             // 清除登入資料
             db.remove_user();
+            db.removeAll_enableActivity();
 
             // 回到登入畫面
             finish();

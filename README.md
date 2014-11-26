@@ -28,3 +28,8 @@
 1. 將`/app/src/main/java/tw/edu/chu/csie/dblab/uelearning/android/config/Config.java.sample`檔複製成同目錄下的`Config.java`
 2. 開啟`Config.java`並根據自己的狀況來修改參數。
 3. 看看能不能跑吧～
+
+## 圖示來源
+### Logout icon
+* 下載來源 <https://www.iconfinder.com/icons/175529/logout_icon>
+* By: [Visual Pharm](http://icons8.com/)
