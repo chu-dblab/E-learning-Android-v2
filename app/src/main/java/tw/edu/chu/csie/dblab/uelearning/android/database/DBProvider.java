@@ -64,6 +64,10 @@ public class DBProvider {
 
     // --------------------------------------------------------------------------------------------
 
+    public static final int TYPE_STUDY = 1;
+    public static final int TYPE_WILL = 2;
+    public static final int TYPE_THEME = 3;
+
     public long insert_enableActivity(String uId, int type, Integer saId, Integer swId,
                                       int thId, String thName, String thIntroduction,
                                       String startTime, String expiredTime,

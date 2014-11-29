@@ -31,7 +31,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 
-public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemClickListener {
 
     private TextView mText_nickname, mText_realname, mText_classname, mText_groupname;
     private SwipeRefreshLayout mSwipe_activity;
@@ -75,21 +75,13 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         // Listview: 可用的學習活動清單
         listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,list);
         mListView_activity.setAdapter(listAdapter);
-        mListView_activity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(),"你選擇的是"+list[position], Toast.LENGTH_SHORT).show();
-                if(position == 0)
-                {
-                    Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
-                    startActivity(to_mainActivity);
-                }
+        mListView_activity.setOnItemClickListener(this);
 
-            }
-        });
     }
 
-    // 取得學習活動
+    /**
+     * 取得學習活動
+     */
     public void getStudyActivityList() {
         DBProvider db = new DBProvider(MainActivity.this);
 
@@ -151,9 +143,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             int learnedTotal = thisActivity.getInt("learned_total");
 
                             int typeId;
-                            if(type.equals("theme")) typeId = 3;
-                            else if(type.equals("will")) typeId = 2;
-                            else if(type.equals("study")) typeId = 1;
+                            if(type.equals("theme")) typeId = DBProvider.TYPE_THEME;
+                            else if(type.equals("will")) typeId = DBProvider.TYPE_WILL;
+                            else if(type.equals("study")) typeId = DBProvider.TYPE_STUDY;
                             else typeId = 0;
 
                             // 紀錄進資料庫裡
@@ -196,6 +188,34 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     }
 
+    /**
+     * Callback method to be invoked when an item in this AdapterView has
+     * been clicked.
+     * <p/>
+     * Implementers can call getItemAtPosition(position) if they need
+     * to access the data associated with the selected item.
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this
+     *                 will be a view provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        int viewId = view.getId();
+
+        if(viewId == R.id.listView_activity) {
+            Toast.makeText(getApplicationContext(),"你選擇的是"+list[position], Toast.LENGTH_SHORT).show();
+            if(position == 0)
+            {
+                Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
+                startActivity(to_mainActivity);
+            }
+        }
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -271,4 +291,5 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     public void onRefresh() {
         getStudyActivityList();
     }
+
 }
