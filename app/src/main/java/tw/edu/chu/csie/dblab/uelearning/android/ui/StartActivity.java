@@ -12,6 +12,7 @@ public class StartActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         // 取得資料庫中的登入資訊
         DBProvider db = new DBProvider(StartActivity.this);
