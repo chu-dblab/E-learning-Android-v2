@@ -308,18 +308,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
         if(type == DBProvider.TYPE_STUDY) {
 
-            learnTime     = query.getInt   ( query.getColumnIndex("LearnTime") );
-            timeForce_int = query.getInt   ( query.getColumnIndex("TimeForce") );
-            lMode         = query.getInt   ( query.getColumnIndex("LMode")     );
-            lForce_int    = query.getInt   ( query.getColumnIndex("LForce")    );
-            mMode         = query.getString( query.getColumnIndex("") );
-
-            boolean timeForce;
-            if(timeForce_int>=1) timeForce = true;
-            else timeForce = false;
-            boolean lForce;
-            if(lForce_int>=1) lForce = true;
-            else lForce = false;
+            int saId = query.getInt( query.getColumnIndex("SaID") );
+            resumeStudyActivity(saId);
         }
         else if(type == DBProvider.TYPE_WILL) {
 
@@ -373,6 +363,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         if(_lForce != null)    startActivity_params.put("learnStyle_force", _lForce);
         if(_mMode != null)     startActivity_params.put("material_mode", _mMode);
 
+        // 對伺服器加入新的學習活動
         try {
             UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys",
                     startActivity_params, new AsyncHttpResponseHandler() {
@@ -456,6 +447,97 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 }
             });
         } catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(MainActivity.this, e);
+        }
+    }
+
+    public void resumeStudyActivity(final int saId) {
+
+        final DBProvider db = new DBProvider(MainActivity.this);
+
+        // 抓取目前已登入的Token
+        String token = db.get_token();
+
+        // 查訊伺服器那邊的學習狀況資料
+        try {
+            UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                            "/activitys/" + saId, null, new AsyncHttpResponseHandler() {
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    mProgress_start_studyActivity.show();
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    mProgress_start_studyActivity.dismiss();
+
+                    String content = null;
+                    try {
+                        content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONObject activityJson = response.getJSONObject("activity");
+
+                        int saId = activityJson.getInt("activity_id");
+                        int thId = activityJson.getInt("theme_id");
+                        String thName = activityJson.getString("theme_name");
+                        String startTime = activityJson.getString("start_time");
+                        String expiredTime = activityJson.getString("expired_time");
+                        int targetTotal = activityJson.getInt("target_total");
+                        int learnedTotal = activityJson.getInt("learned_total");
+                        int learnTime = activityJson.getInt("have_time");
+                        boolean timeForce;
+                        if(activityJson.getString("time_force") == "true")
+                            timeForce = true;
+                        else timeForce = false;
+                        int lMode = activityJson.getInt("learnStyle_mode");
+                        boolean lForce;
+                        if(activityJson.getString("learnStyle_force") == "true")
+                            lForce = true;
+                        else lForce = false;
+                        String mMode = activityJson.getString("material_mode");
+
+                        // 紀錄進資料庫
+                        DBProvider db = new DBProvider(MainActivity.this);
+                        db.removeAll_activity();
+                        db.insert_activity(db.get_user_id(), saId,
+                                thId, thName, startTime, learnTime, timeForce,
+                                lMode, lForce, mMode, targetTotal, learnedTotal);
+
+                        // 進入學習地圖
+                        Intent toMap = new Intent(MainActivity.this, MapActivity.class);
+                        startActivity(toMap);
+
+                    } catch (JSONException e) {
+                        ErrorUtils.error(MainActivity.this, e);
+                    } catch (UnsupportedEncodingException e) {
+                        ErrorUtils.error(MainActivity.this, e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    mProgress_start_studyActivity.dismiss();
+                    try {
+                        // TODO: 取得可用的學習活動失敗的錯誤處理
+                        String content = new String(responseBody, HTTP.UTF_8);
+                        if(Config.DEBUG_SHOW_MESSAGE) {
+                            Toast.makeText(MainActivity.this,
+                                    "s: " + statusCode + "\n" + content,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        ErrorUtils.error(MainActivity.this, e);
+                    }
+                }
+            });
+        }
+        catch (UnsupportedEncodingException e) {
             ErrorUtils.error(MainActivity.this, e);
         }
     }
