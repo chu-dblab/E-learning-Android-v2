@@ -31,6 +31,7 @@
     <string name="learn_end_topic">已學習過的主題：</string>
     <string name="getting_enableActivity">正在取得可用的學習活動中...</string>
     <string name="get_fail_enableActivity">可用的學習活動取得失敗</string>
+    <string name="starting_study_activity">開始學習，請稍候...</string>
 
     <!-- 學習地圖 -->
     <string name="learning_next_point">下個學習點:</string>

@@ -1,5 +1,6 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.apache.http.protocol.HTTP;
@@ -36,6 +38,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     private TextView mText_nickname, mText_realname, mText_classname, mText_groupname;
     private SwipeRefreshLayout mSwipe_activity;
     private ListView mListView_activity;
+    ProgressDialog mProgress_start_studyActivity;
     private int[] itemSerial;
     private String[] itemEnableActivity;
     private String[] subitemEnableActivity;
@@ -74,6 +77,14 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         mSwipe_activity = (SwipeRefreshLayout) findViewById(R.id.swipe_activity);
         mSwipe_activity.setOnRefreshListener(this);
 
+        // 登入中畫面
+        mProgress_start_studyActivity = new ProgressDialog(MainActivity.this);
+        mProgress_start_studyActivity.setMessage(getResources().getString(R.string.starting_study_activity));
+        mProgress_start_studyActivity.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgress_start_studyActivity.setIndeterminate(true);
+        // TODO: 設計成可中途取消的功能
+        mProgress_start_studyActivity.setCancelable(false);
+
         // 抓取可用的學習活動
         // TODO: 若正在抓取中旋轉螢幕的話，有可能會造成重新抓取，需修正
         if(!isExistEnableStudyActivity()) {
@@ -101,7 +112,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
 
         try {
-            UElearningRestClient.get("/tokens/"+URLEncoder.encode(token, HTTP.UTF_8)+"/activitys", null, new AsyncHttpResponseHandler() {
+            UElearningRestClient.get("/tokens/"+URLEncoder.encode(token, HTTP.UTF_8)+"/activitys",
+                    null, new AsyncHttpResponseHandler() {
+
                 @Override
                 public void onStart() {
                     mSwipe_activity.setRefreshing(true);
@@ -116,7 +129,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         content = new String(responseBody, HTTP.UTF_8);
                         JSONObject response = new JSONObject(content);
 
-                        JSONArray jsonArr_enableStudy = response.getJSONArray("enable_study");
+                        JSONArray jsonArr_enableStudy = response.getJSONArray("enable_activity");
 
                         // 清除目前的活動清單
                         DBProvider db = new DBProvider(MainActivity.this);
@@ -178,11 +191,14 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     mSwipe_activity.setRefreshing(false);
 
-                    Toast.makeText(MainActivity.this, "s: "+statusCode, Toast.LENGTH_SHORT).show();
                     try {
+                        // TODO: 取得可用的學習活動失敗的錯誤處理
                         String content = new String(responseBody, HTTP.UTF_8);
                         if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MainActivity.this, getResources().getString(R.string.get_fail_enableActivity)+"\n"+content, Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this,
+                                    "s: "+statusCode+"\n"
+                                    + getResources().getString(R.string.get_fail_enableActivity)+"\n"+content,
+                                    Toast.LENGTH_LONG).show();
                         }
                         else {
                             Toast.makeText(MainActivity.this, R.string.get_fail_enableActivity, Toast.LENGTH_SHORT).show();
@@ -218,7 +234,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         String[] themeName = new String[total];
 
         // 取得資料
-        for(int i=0; i<2; i++) {
+        for(int i=0; i<total; i++) {
             queryEA.moveToPosition(i);
 
             serial[i]    = queryEA.getInt( queryEA.getColumnIndex("Serial") );
@@ -250,8 +266,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     }
 
     /**
-     * Callback method to be invoked when an item in this AdapterView has
-     * been clicked.
+     * 點選指定的學習活動
      * <p/>
      * Implementers can call getItemAtPosition(position) if they need
      * to access the data associated with the selected item.
@@ -265,17 +280,131 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        //Toast.makeText(MainActivity.this, "你選擇的是"+ itemSerial[position], Toast.LENGTH_SHORT).show();
+        // 取得其中的可用學習活動資訊
         DBProvider db = new DBProvider(MainActivity.this);
         Cursor query = db.get_enableActivity(itemSerial[position]);
         query.moveToFirst();
-        Toast.makeText(MainActivity.this, "你選擇的是"+ query.getInt(0), Toast.LENGTH_SHORT).show();
-//            if(position == 0)
-//            {
-//                Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
-//                startActivity(to_mainActivity);
-//            }
 
+        int    thId          = query.getInt   ( query.getColumnIndex("ThID")      );
+        String thName        = query.getString( query.getColumnIndex("ThName")    );
+        int    learnTime     = query.getInt   ( query.getColumnIndex("LearnTime") );
+        int    timeForce_int = query.getInt   ( query.getColumnIndex("TimeForce") );
+        int    lMode         = query.getInt   ( query.getColumnIndex("LMode")     );
+        int    lForce_int    = query.getInt   ( query.getColumnIndex("LForce")    );
+        String mMode         = query.getString( query.getColumnIndex("TimeForce") );
+
+        boolean timeForce;
+        if(timeForce_int>=1) timeForce = true;
+        else timeForce = false;
+        boolean lForce;
+        if(lForce_int>=1) lForce = true;
+        else lForce = false;
+
+        if(Config.DEBUG_SHOW_MESSAGE) {
+            Toast.makeText(MainActivity.this, "你選擇的是"+ query.getInt(0), Toast.LENGTH_SHORT).show();
+        }
+
+        startStudyActivity(thId, thName, learnTime, timeForce, lMode, lForce, mMode);
+
+    }
+
+    /**
+     * 開始進行學習
+     *
+     * @param thId 主題編號
+     * @param thName 主題名稱
+     * @param learnTime 學習時間
+     * @param timeForce 時間到強制結束學習
+     * @param lMode 學習導引模式
+     * @param lForce 強制學習導引
+     * @param mMode 教材模式
+     */
+    public void startStudyActivity(final int thId, final String thName, final int learnTime, final boolean timeForce,
+                                   final int lMode, final boolean lForce, final String mMode) {
+
+        final DBProvider db = new DBProvider(MainActivity.this);
+
+        // 抓取目前已登入的Token
+        String token = db.get_token();
+
+        // 帶入登入參數
+        RequestParams startActivity_params = new RequestParams();
+        startActivity_params.put("theme_id", thId);
+        startActivity_params.put("learn_time", learnTime);
+        startActivity_params.put("time_force", timeForce);
+        startActivity_params.put("learnStyle_mode", lMode);
+        startActivity_params.put("learnStyle_force", lForce);
+        startActivity_params.put("material_mode", mMode);
+
+        try {
+            UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys",
+                    startActivity_params, new AsyncHttpResponseHandler() {
+
+                @Override
+                public void onStart() {
+                    mProgress_start_studyActivity.show();
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    mProgress_start_studyActivity.dismiss();
+
+                    String content = null;
+                    try {
+                        content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONObject activityJson = response.getJSONObject("activity");
+
+                        // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
+                        int saId = activityJson.getInt("activity_id");
+                        String startTime = activityJson.getString("start_time");
+                        int targetTotal = activityJson.getInt("target_total");
+                        int learnedTotal = activityJson.getInt("learned_total");
+
+                        // 紀錄進資料庫
+                        DBProvider db = new DBProvider(MainActivity.this);
+                        db.removeAll_activity();
+                        db.insert_activity(db.get_user_id(), saId,
+                                thId, thName, startTime, learnTime, timeForce,
+                                lMode, lForce, mMode, targetTotal, learnedTotal);
+
+                        // 進入學習地圖
+                        Intent toMap = new Intent(MainActivity.this, MapActivity.class);
+                        startActivity(toMap);
+
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        ErrorUtils.error(MainActivity.this, e);
+                    }
+                    catch (JSONException e) {
+                        ErrorUtils.error(MainActivity.this, e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    mProgress_start_studyActivity.dismiss();
+
+                    try {
+                        // TODO: 取得可用的學習活動失敗的錯誤處理
+                        String content = new String(responseBody, HTTP.UTF_8);
+                        if(Config.DEBUG_SHOW_MESSAGE) {
+                            Toast.makeText(MainActivity.this,
+                                    "s: " + statusCode + "\n" + content,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        ErrorUtils.error(MainActivity.this, e);
+                    }
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(MainActivity.this, e);
+        }
     }
 
     @Override
@@ -333,6 +462,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             // 清除登入資料
             db.remove_user();
             db.removeAll_enableActivity();
+            db.removeAll_activity();
 
             // 回到登入畫面
             finish();

@@ -58,7 +58,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 "UID Varchar(30)," +
                 "ThID integer  NOT NULL DEFAULT 0," +
                 "ThName Varchar(100)," +
-                "ThIntroduction TEXT," +
                 "StartTime Timestamp DEFAULT NULL," +
                 "LearnTime integer  NOT NULL DEFAULT 0," +
                 "TimeForce Boolean  NOT NULL DEFAULT 0," +

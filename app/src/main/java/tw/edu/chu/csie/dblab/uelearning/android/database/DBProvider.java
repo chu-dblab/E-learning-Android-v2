@@ -108,31 +108,30 @@ public class DBProvider {
         return db.delete("EnableActivity", null, null);
     }
 
-    public long insert_activity(String uId, int type, Integer saId, Integer swId,
-                                      int thId, String thName, String thIntroduction,
-                                      String startTime, String expiredTime,
-                                      int learnTime, Boolean timeForce,
-                                      Integer lMode, Boolean lForce, String mMode,
-                                      Boolean lock, Integer targetTotal, Integer learnedTotal) {
+    public long insert_activity(String uId, int saId,
+                                int thId, String thName,
+                                String startTime, int learnTime, boolean timeForce,
+                                int lMode, boolean lForce, String mMode,
+                                int targetTotal, int learnedTotal) {
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("UID", uId);
-        contentvalues.put("Type", type);
         contentvalues.put("SaID", saId);
-        contentvalues.put("SwID", swId);
         contentvalues.put("ThID", thId);
         contentvalues.put("ThName", thName);
-        contentvalues.put("ThIntroduction", thIntroduction);
         contentvalues.put("StartTime", startTime);
-        contentvalues.put("ExpiredTime", expiredTime);
         contentvalues.put("LearnTime", learnTime);
         contentvalues.put("TimeForce", timeForce);
         contentvalues.put("LMode", lMode);
         contentvalues.put("LForce", lForce);
         contentvalues.put("MMode", mMode);
-        contentvalues.put("Lock", lock);
         contentvalues.put("TargetTotal", targetTotal);
         contentvalues.put("LearnedTotal", learnedTotal);
-        return db.insert("EnableActivity", null, contentvalues);
+        return db.insert("Activity", null, contentvalues);
+    }
+
+    public long removeAll_activity() {
+        db = dbHelper.getWritableDatabase();
+        return db.delete("Activity", null, null);
     }
 
 }
