@@ -87,8 +87,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     public boolean isExistEnableStudyActivity() {
         DBProvider db = new DBProvider(MainActivity.this);
         Cursor query = db.getAll_enableActivity();
-        if(query.getCount() > 0) return true;
-        else return false;
+        return query.getCount() > 0;
     }
 
     /**
@@ -112,12 +111,16 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                     mSwipe_activity.setRefreshing(false);
 
-                    String content = null;
+                    String content;
                     try {
                         content = new String(responseBody, HTTP.UTF_8);
                         JSONObject response = new JSONObject(content);
 
                         JSONArray jsonArr_enableStudy = response.getJSONArray("enable_study");
+
+                        // 清除目前的活動清單
+                        DBProvider db = new DBProvider(MainActivity.this);
+                        db.removeAll_enableActivity();
 
                         // 抓其中一個活動
                         for(int i=0; i<jsonArr_enableStudy.length(); i++) {
@@ -156,10 +159,6 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             else if(type.equals("study")) typeId = DBProvider.TYPE_STUDY;
                             else typeId = 0;
 
-                            // 清除目前的活動清單
-                            DBProvider db = new DBProvider(MainActivity.this);
-                            db.removeAll_enableActivity();
-
                             // 紀錄進資料庫裡
                             db.insert_enableActivity(db.get_user_id(), typeId, saId, swId,
                                     thId, thName, thIntroduction, startTime, expiredTime,
@@ -167,9 +166,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                     lock, targetTotal, learnedTotal);
                         }
 
-                    } catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MainActivity.this, e);
-                    } catch (JSONException e) {
+                    } catch (UnsupportedEncodingException | JSONException e) {
                         ErrorUtils.error(MainActivity.this, e);
                     }
 
@@ -221,8 +218,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         String[] themeName = new String[total];
 
         // 取得資料
-        for(int i=0; i<total; i++) {
-            queryEA.move(i+1);
+        for(int i=0; i<2; i++) {
+            queryEA.moveToPosition(i);
 
             serial[i]    = queryEA.getInt( queryEA.getColumnIndex("Serial") );
             type[i]      = queryEA.getInt( queryEA.getColumnIndex("Type") );
@@ -247,7 +244,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         }
 
         ArrayAdapter<String> listAdapter;
-        listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, itemEnableActivity);
+        listAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, itemEnableActivity);
         //ArrayAdapter listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_2,list){
         mListView_activity.setAdapter(listAdapter);
     }
