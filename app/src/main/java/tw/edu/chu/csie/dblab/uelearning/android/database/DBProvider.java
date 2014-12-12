@@ -100,7 +100,7 @@ public class DBProvider {
     }
 
     public Cursor getAll_enableActivity() {
-        return db.query("EnableActivity", null, null, null, null, null, null);
+        return db.query("EnableActivity", null, null, null, null, null, "Type ASC");
     }
 
     public long removeAll_enableActivity() {

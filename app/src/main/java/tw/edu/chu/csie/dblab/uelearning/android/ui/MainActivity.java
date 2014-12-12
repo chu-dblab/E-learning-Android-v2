@@ -216,6 +216,12 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateStudyActivityUI();
+    }
+
     /**
      * 更新可用的學習活動清單到介面
      */
@@ -285,26 +291,56 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         Cursor query = db.get_enableActivity(itemSerial[position]);
         query.moveToFirst();
 
-        int    thId          = query.getInt   ( query.getColumnIndex("ThID")      );
-        String thName        = query.getString( query.getColumnIndex("ThName")    );
-        int    learnTime     = query.getInt   ( query.getColumnIndex("LearnTime") );
-        int    timeForce_int = query.getInt   ( query.getColumnIndex("TimeForce") );
-        int    lMode         = query.getInt   ( query.getColumnIndex("LMode")     );
-        int    lForce_int    = query.getInt   ( query.getColumnIndex("LForce")    );
-        String mMode         = query.getString( query.getColumnIndex("TimeForce") );
+        int type = query.getInt(query.getColumnIndex("Type"));
+        int thId = query.getInt( query.getColumnIndex("ThID") );
+        String thName = query.getString( query.getColumnIndex("ThName") );
+        int learnTime;
+        int timeForce_int;
+        int lMode;
+        int lForce_int;
+        String mMode;
 
-        boolean timeForce;
-        if(timeForce_int>=1) timeForce = true;
-        else timeForce = false;
-        boolean lForce;
-        if(lForce_int>=1) lForce = true;
-        else lForce = false;
+
 
         if(Config.DEBUG_SHOW_MESSAGE) {
             Toast.makeText(MainActivity.this, "你選擇的是"+ query.getInt(0), Toast.LENGTH_SHORT).show();
         }
 
-        startStudyActivity(thId, thName, learnTime, timeForce, lMode, lForce, mMode);
+        if(type == DBProvider.TYPE_STUDY) {
+
+            learnTime     = query.getInt   ( query.getColumnIndex("LearnTime") );
+            timeForce_int = query.getInt   ( query.getColumnIndex("TimeForce") );
+            lMode         = query.getInt   ( query.getColumnIndex("LMode")     );
+            lForce_int    = query.getInt   ( query.getColumnIndex("LForce")    );
+            mMode         = query.getString( query.getColumnIndex("") );
+
+            boolean timeForce;
+            if(timeForce_int>=1) timeForce = true;
+            else timeForce = false;
+            boolean lForce;
+            if(lForce_int>=1) lForce = true;
+            else lForce = false;
+        }
+        else if(type == DBProvider.TYPE_WILL) {
+
+            learnTime     = query.getInt   ( query.getColumnIndex("LearnTime") );
+            timeForce_int = query.getInt   ( query.getColumnIndex("TimeForce") );
+            lMode         = query.getInt   ( query.getColumnIndex("LMode")     );
+            lForce_int    = query.getInt   ( query.getColumnIndex("LForce")    );
+            mMode         = query.getString( query.getColumnIndex("") );
+
+            boolean timeForce;
+            if(timeForce_int>=1) timeForce = true;
+            else timeForce = false;
+            boolean lForce;
+            if(lForce_int>=1) lForce = true;
+            else lForce = false;
+
+            startStudyActivity(thId, thName, learnTime, timeForce, lMode, lForce, mMode);
+        }
+        else/* if(type == DBProvider.TYPE_THEME) */{
+            startStudyActivity(thId, thName, null, null, null, null, null);
+        }
 
     }
 
@@ -313,14 +349,15 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
      *
      * @param thId 主題編號
      * @param thName 主題名稱
-     * @param learnTime 學習時間
-     * @param timeForce 時間到強制結束學習
-     * @param lMode 學習導引模式
-     * @param lForce 強制學習導引
-     * @param mMode 教材模式
+     * @param _learnTime 學習時間
+     * @param _timeForce 時間到強制結束學習
+     * @param _lMode 學習導引模式
+     * @param _lForce 強制學習導引
+     * @param _mMode 教材模式
      */
-    public void startStudyActivity(final int thId, final String thName, final int learnTime, final boolean timeForce,
-                                   final int lMode, final boolean lForce, final String mMode) {
+    public void startStudyActivity(final int thId, final String thName,
+                                   final Integer _learnTime, final Boolean _timeForce,
+                                   final Integer _lMode, final Boolean _lForce, final String _mMode) {
 
         final DBProvider db = new DBProvider(MainActivity.this);
 
@@ -330,11 +367,11 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         // 帶入登入參數
         RequestParams startActivity_params = new RequestParams();
         startActivity_params.put("theme_id", thId);
-        startActivity_params.put("learn_time", learnTime);
-        startActivity_params.put("time_force", timeForce);
-        startActivity_params.put("learnStyle_mode", lMode);
-        startActivity_params.put("learnStyle_force", lForce);
-        startActivity_params.put("material_mode", mMode);
+        if(_learnTime != null) startActivity_params.put("learn_time", _learnTime);
+        if(_timeForce != null) startActivity_params.put("time_force", _timeForce);
+        if(_lMode != null)     startActivity_params.put("learnStyle_mode", _lMode);
+        if(_lForce != null)    startActivity_params.put("learnStyle_force", _lForce);
+        if(_mMode != null)     startActivity_params.put("material_mode", _mMode);
 
         try {
             UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys",
@@ -358,8 +395,20 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
                         int saId = activityJson.getInt("activity_id");
                         String startTime = activityJson.getString("start_time");
+                        String expiredTime = activityJson.getString("expired_time");
                         int targetTotal = activityJson.getInt("target_total");
                         int learnedTotal = activityJson.getInt("learned_total");
+                        int learnTime = activityJson.getInt("have_time");
+                        boolean timeForce;
+                        if(activityJson.getString("time_force") == "true")
+                            timeForce = true;
+                        else timeForce = false;
+                        int lMode = activityJson.getInt("learnStyle_mode");
+                        boolean lForce;
+                        if(activityJson.getString("learnStyle_force") == "true")
+                            lForce = true;
+                        else lForce = false;
+                        String mMode = activityJson.getString("material_mode");
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(MainActivity.this);
@@ -367,6 +416,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         db.insert_activity(db.get_user_id(), saId,
                                 thId, thName, startTime, learnTime, timeForce,
                                 lMode, lForce, mMode, targetTotal, learnedTotal);
+                        db.insert_enableActivity(db.get_user_id(), DBProvider.TYPE_STUDY,
+                                saId, null, thId, thName, null,
+                                startTime, expiredTime, learnTime, timeForce,
+                                lMode, lForce, mMode, true, targetTotal, learnedTotal);
 
                         // 進入學習地圖
                         Intent toMap = new Intent(MainActivity.this, MapActivity.class);
