@@ -69,7 +69,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "LearnedTotal integer DEFAULT 0)";
 
         String sql_create_enableActivity = "CREATE TABLE EnableActivity (" +
-                "serial integer  PRIMARY KEY AUTOINCREMENT," +
+                "Serial integer  PRIMARY KEY AUTOINCREMENT," +
                 "UID Varchar(30)," +
                 "Type Smallint DEFAULT 0," +
                 "SaID integer," +

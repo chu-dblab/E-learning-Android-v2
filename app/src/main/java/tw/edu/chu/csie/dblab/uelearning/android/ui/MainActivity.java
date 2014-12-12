@@ -36,8 +36,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     private TextView mText_nickname, mText_realname, mText_classname, mText_groupname;
     private SwipeRefreshLayout mSwipe_activity;
     private ListView mListView_activity;
-    private String[] list = {"學習中","預約","主題"};
-    private ArrayAdapter<String> listAdapter;
+    private int[] itemSerial;
+    private String[] itemEnableActivity;
+    private String[] subitemEnableActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         mText_groupname = (TextView) findViewById(R.id.text_groups);
 
         mListView_activity = (ListView) findViewById(R.id.listView_activity);
+        mListView_activity.setOnItemClickListener(this);
 
         // 從資料庫取得個人資訊
         DBProvider db = new DBProvider(MainActivity.this);
@@ -72,11 +74,21 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         mSwipe_activity = (SwipeRefreshLayout) findViewById(R.id.swipe_activity);
         mSwipe_activity.setOnRefreshListener(this);
 
-        // Listview: 可用的學習活動清單
-        listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,list);
-        mListView_activity.setAdapter(listAdapter);
-        mListView_activity.setOnItemClickListener(this);
+        // 抓取可用的學習活動
+        // TODO: 若正在抓取中旋轉螢幕的話，有可能會造成重新抓取，需修正
+        if(!isExistEnableStudyActivity()) {
+            getStudyActivityList();
+        }
+        else {
+            updateStudyActivityUI();
+        }
+    }
 
+    public boolean isExistEnableStudyActivity() {
+        DBProvider db = new DBProvider(MainActivity.this);
+        Cursor query = db.getAll_enableActivity();
+        if(query.getCount() > 0) return true;
+        else return false;
     }
 
     /**
@@ -99,10 +111,6 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                     mSwipe_activity.setRefreshing(false);
-
-                    // 清除目前的活動清單
-                    DBProvider db = new DBProvider(MainActivity.this);
-                    db.removeAll_enableActivity();
 
                     String content = null;
                     try {
@@ -148,6 +156,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             else if(type.equals("study")) typeId = DBProvider.TYPE_STUDY;
                             else typeId = 0;
 
+                            // 清除目前的活動清單
+                            DBProvider db = new DBProvider(MainActivity.this);
+                            db.removeAll_enableActivity();
+
                             // 紀錄進資料庫裡
                             db.insert_enableActivity(db.get_user_id(), typeId, saId, swId,
                                     thId, thName, thIntroduction, startTime, expiredTime,
@@ -160,6 +172,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                     } catch (JSONException e) {
                         ErrorUtils.error(MainActivity.this, e);
                     }
+
+                    // 更新目前可用的學習活動清單到介面上
+                    updateStudyActivityUI();
                 }
 
                 @Override
@@ -189,6 +204,55 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     }
 
     /**
+     * 更新可用的學習活動清單到介面
+     */
+    public void updateStudyActivityUI() {
+
+        // 從資料庫取得學習活動資料
+        DBProvider db = new DBProvider(MainActivity.this);
+        Cursor queryEA = db.getAll_enableActivity();
+
+        int total = queryEA.getCount();
+        int[] serial = new int[total];
+        int[] type = new int[total];
+        String[] typeDisplay = new String[total];
+        int[] id = new int[total];
+        int[] themeId = new int[total];
+        String[] themeName = new String[total];
+
+        // 取得資料
+        for(int i=0; i<total; i++) {
+            queryEA.move(i+1);
+
+            serial[i]    = queryEA.getInt( queryEA.getColumnIndex("Serial") );
+            type[i]      = queryEA.getInt( queryEA.getColumnIndex("Type") );
+            themeId[i]   = queryEA.getInt( queryEA.getColumnIndex("ThID") );
+            themeName[i] = queryEA.getString( queryEA.getColumnIndex("ThName") );
+
+            // TODO: 將字串拉出來成String.xml
+            if(type[i] == DBProvider.TYPE_STUDY) { typeDisplay[i] = "學習中"; }
+            else if(type[i] == DBProvider.TYPE_WILL) { typeDisplay[i] = "預約"; }
+            else if(type[i] == DBProvider.TYPE_THEME) { typeDisplay[i] = "主題"; }
+
+        }
+        // Listview: 可用的學習活動清單
+        itemEnableActivity = new String[total];
+        subitemEnableActivity = new String[total];
+        itemSerial = new int[total];
+
+        for(int i=0; i<total; i++) {
+            itemEnableActivity[i] = typeDisplay[i]+": "+themeName[i];
+            subitemEnableActivity[i] = themeName[i];
+            itemSerial[i] = serial[i];
+        }
+
+        ArrayAdapter<String> listAdapter;
+        listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, itemEnableActivity);
+        //ArrayAdapter listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_2,list){
+        mListView_activity.setAdapter(listAdapter);
+    }
+
+    /**
      * Callback method to be invoked when an item in this AdapterView has
      * been clicked.
      * <p/>
@@ -204,16 +268,16 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        int viewId = view.getId();
-
-        if(viewId == R.id.listView_activity) {
-            Toast.makeText(getApplicationContext(),"你選擇的是"+list[position], Toast.LENGTH_SHORT).show();
-            if(position == 0)
-            {
-                Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
-                startActivity(to_mainActivity);
-            }
-        }
+        //Toast.makeText(MainActivity.this, "你選擇的是"+ itemSerial[position], Toast.LENGTH_SHORT).show();
+        DBProvider db = new DBProvider(MainActivity.this);
+        Cursor query = db.get_enableActivity(itemSerial[position]);
+        query.moveToFirst();
+        Toast.makeText(MainActivity.this, "你選擇的是"+ query.getInt(0), Toast.LENGTH_SHORT).show();
+//            if(position == 0)
+//            {
+//                Intent to_mainActivity = new Intent(MainActivity.this, MapActivity.class);
+//                startActivity(to_mainActivity);
+//            }
 
     }
 
