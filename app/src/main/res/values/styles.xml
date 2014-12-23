@@ -17,7 +17,7 @@
     </style>
 
     <style name="AppTheme.login" parent="Theme.AppCompat.Light.NoActionBar"/>
-    <style name="AppTheme.main" parent="Theme.AppCompat.Light">
+    <style name="AppTheme.main" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/mainPrimary</item>
         <item name="colorPrimaryDark">@color/mainPrimaryDark</item>
         <item name="android:colorBackground">@color/mainBackground</item>
