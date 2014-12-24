@@ -13,10 +13,13 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
@@ -209,8 +212,11 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     /**
      * 學習引導畫面（顯示推薦學習點的地方）
      */
-    public static class StudyGuideFragment extends Fragment {
+    public static class StudyGuideFragment extends Fragment implements AdapterView.OnItemClickListener {
 
+        private ListView mList_nextPoints;
+        private TextView mText_remainedTime;
+        private ImageView mImage_map;
 
         public static StudyGuideFragment newInstance(int sectionNumber) {
             StudyGuideFragment fragment = new StudyGuideFragment();
@@ -224,7 +230,29 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
+            mList_nextPoints = (ListView) rootView.findViewById(R.id.list_learning_next_points);
+            mList_nextPoints.setOnItemClickListener(this);
+            mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
+            mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
             return rootView;
+        }
+
+        /**
+         * Callback method to be invoked when an item in this AdapterView has
+         * been clicked.
+         * <p/>
+         * Implementers can call getItemAtPosition(position) if they need
+         * to access the data associated with the selected item.
+         *
+         * @param parent   The AdapterView where the click happened.
+         * @param view     The view within the AdapterView that was clicked (this
+         *                 will be a view provided by the adapter)
+         * @param position The position of the view in the adapter.
+         * @param id       The row id of the item that was clicked.
+         */
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
         }
     }
 
@@ -252,7 +280,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     }
 
     /**
-     * 館區地圖
+     * 館場資訊
      */
     public static class PlaceInfoFragment extends Fragment {
 
@@ -275,7 +303,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     }
 
     /**
-     * 館區地圖
+     * 瀏覽教材
      */
     public static class BrowseMaterialFragment extends Fragment {
 
