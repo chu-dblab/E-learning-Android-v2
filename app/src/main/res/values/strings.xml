@@ -33,6 +33,12 @@
     <string name="get_fail_enableActivity">可用的學習活動取得失敗</string>
     <string name="starting_study_activity">開始學習，請稍候...</string>
 
+    <!-- 學習畫面 -->
+    <string name="study_guide">學習導覽</string>
+    <string name="place_map">館區地圖</string>
+    <string name="place_info">館場資訊</string>
+    <string name="browse_material">瀏覽教材</string>
+    
     <!-- 學習地圖 -->
     <string name="learning_next_point">下個學習點:</string>
     <string name="learning_next_point_time">下個點預估所需時間:</string>
@@ -47,5 +53,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_material">MaterialActivity</string>
+    <string name="title_activity_learning">LearningActivity</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
 
 </resources>

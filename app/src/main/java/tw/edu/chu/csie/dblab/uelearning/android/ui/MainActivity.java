@@ -416,9 +416,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 startTime, expiredTime, learnTime, timeForce,
                                 lMode, lForce, mMode, true, targetTotal, learnedTotal);
 
-                        // 進入學習地圖
-                        Intent toMap = new Intent(MainActivity.this, MapActivity.class);
-                        startActivity(toMap);
+                        // 進入學習畫面
+                        Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                        startActivity(toLearning);
 
                     }
                     catch (UnsupportedEncodingException e) {
@@ -509,9 +509,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 thId, thName, startTime, learnTime, timeForce,
                                 lMode, lForce, mMode, targetTotal, learnedTotal);
 
-                        // 進入學習地圖
-                        Intent toMap = new Intent(MainActivity.this, MapActivity.class);
-                        startActivity(toMap);
+                        // 進入學習畫面
+                        Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                        startActivity(toLearning);
 
                     } catch (JSONException e) {
                         ErrorUtils.error(MainActivity.this, e);
