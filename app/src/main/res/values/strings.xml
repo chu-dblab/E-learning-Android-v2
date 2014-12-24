@@ -28,6 +28,7 @@
     <string name="material_downloader">教材下載</string>
 
     <!-- 選擇學習活動主畫面 -->
+    <string name="title_activity_main">MainActivity</string>
     <string name="welcome">歡迎!</string>
     <string name="name">姓名</string>
     <string name="grade">年級</string>
@@ -49,23 +50,23 @@
     <string name="qrcode_scan">QR 掃描</string>
     <string name="keyin_tid">輸入標的編號</string>
 
-
-    <!-- 學習地圖 -->
+    <!-- 學習導引 -->
     <string name="learning_next_point">下個學習點:</string>
     <string name="learning_next_point_time">下個點預估所需時間:</string>
     <string name="learning_remaining_time">學習時間尚有:</string>
     <string name="learning_remaining_point">學習點剩餘:</string>
     <string name="learning_next_point_getting">取得中...</string>
+
+    <!-- 館區地圖 -->
     <string name="title_activity_map">學習地圖</string>
 
+    <!-- 館場資訊 -->
+    <string name="place_open_time">開館時間</string>
+    <string name="ticket_price">票價</string>
+    <string name="store_info">商店資訊</string>
+
     <!-- 其他 -->
-    <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_material">MaterialActivity</string>
-    <string name="title_activity_learning">LearningActivity</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="title_activity_material">教材</string>
 
 </resources>

@@ -38,6 +38,9 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.PlaceInfoFragment;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.PlaceMapFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
@@ -372,75 +375,6 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         @Override
         public void onRefresh() {
             mSwipe_nextPoints.setRefreshing(false);
-        }
-    }
-
-    /**
-     * 館區地圖
-     */
-    public static class PlaceMapFragment extends Fragment {
-
-
-        public static PlaceMapFragment newInstance(int sectionNumber) {
-            PlaceMapFragment fragment = new PlaceMapFragment();
-            return fragment;
-        }
-
-        public PlaceMapFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            //View rootView = inflater.inflate(R.layout.fragment_place_map, container, false);
-            View rootView = new View(getActivity());
-            return rootView;
-        }
-    }
-
-    /**
-     * 館場資訊
-     */
-    public static class PlaceInfoFragment extends Fragment {
-
-
-        public static PlaceInfoFragment newInstance(int sectionNumber) {
-            PlaceInfoFragment fragment = new PlaceInfoFragment();
-            return fragment;
-        }
-
-        public PlaceInfoFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            //View rootView = inflater.inflate(R.layout.fragment_place_map, container, false);
-            View rootView = new View(getActivity());
-            return rootView;
-        }
-    }
-
-    /**
-     * 瀏覽教材
-     */
-    public static class BrowseMaterialFragment extends Fragment {
-
-
-        public static BrowseMaterialFragment newInstance(int sectionNumber) {
-            BrowseMaterialFragment fragment = new BrowseMaterialFragment();
-            return fragment;
-        }
-
-        public BrowseMaterialFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            //View rootView = inflater.inflate(R.layout.fragment_place_map, container, false);
-            View rootView = new View(getActivity());
-            return rootView;
         }
     }
 }
