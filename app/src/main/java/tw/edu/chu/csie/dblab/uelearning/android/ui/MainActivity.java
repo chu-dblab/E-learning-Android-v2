@@ -33,6 +33,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemClickListener {
 
@@ -607,6 +608,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             finish();
             Intent to_login = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(to_login);
+            return true;
+        }
+        else if (id == R.id.menu_about) {
+            HelpUtils.showAboutDialog(MainActivity.this);
             return true;
         }
         else if(id == R.id.menu_inside_tester) {

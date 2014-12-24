@@ -3,7 +3,8 @@
 
     <string name="app_name">無所不在學習導引系統</string>
     <string name="inside_error">內部出錯</string>
-    <string name="about">關於</string>
+    <string name="about">關於本系統</string>
+    <string name="help">使用說明</string>
     <string name="package_name">套件名稱:</string>
     <string name="version">版本:</string>
     <string name="getPackageInfo_error">套件資訊取得錯誤</string>
@@ -21,6 +22,10 @@
     <string name="error_no_account">沒有此帳號</string>
     <string name="error_password">密碼錯誤</string>
     <string name="refresh">重新整理</string>
+    <string name="system_settings">系統設定</string>
+
+    <!-- 教材包、地圖包下載 -->
+    <string name="material_downloader">教材下載</string>
 
     <!-- 選擇學習活動主畫面 -->
     <string name="welcome">歡迎!</string>
@@ -38,7 +43,12 @@
     <string name="place_map">館區地圖</string>
     <string name="place_info">館場資訊</string>
     <string name="browse_material">瀏覽教材</string>
-    
+    <string name="end_study_activity">結束學習</string>
+    <string name="pause_study_activity">暫停學習</string>
+    <string name="qrcode_scan">QR 掃描</string>
+    <string name="keyin_tid">輸入標的編號</string>
+
+
     <!-- 學習地圖 -->
     <string name="learning_next_point">下個學習點:</string>
     <string name="learning_next_point_time">下個點預估所需時間:</string>
@@ -51,7 +61,6 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="title_activity_material">MaterialActivity</string>
     <string name="title_activity_learning">LearningActivity</string>
     <string name="title_section1">Section 1</string>

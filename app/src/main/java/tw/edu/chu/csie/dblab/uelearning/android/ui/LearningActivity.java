@@ -2,6 +2,7 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
 import java.util.Locale;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class LearningActivity extends ActionBarActivity implements ActionBar.TabListener {
 
@@ -81,6 +84,9 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_learning, menu);
+        if(Config.DEBUG_ACTIVITY) {
+            menu.findItem(R.id.menu_inside_tester).setVisible(true);
+        }
         return true;
     }
 
@@ -92,11 +98,33 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.menu_qr_scan) {
+
+        }
+        else if (id == R.id.menu_keyin_tid) {
+
+        }
+        else if (id == R.id.menu_end_study_activity) {
+
+        }
+        else if (id == R.id.menu_pause_study_activity) {
+            finish();
+        }
+        else if (id == R.id.menu_about) {
+            HelpUtils.showAboutDialog(LearningActivity.this);
             return true;
+        }
+        else if(id == R.id.menu_inside_tester) {
+            Intent toTester = new Intent(LearningActivity.this, TesterActivity.class);
+            startActivity(toTester);
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 
     @Override
@@ -112,6 +140,13 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    /**
+     * 結束學習活動
+     */
+    public void endStudyActivity() {
+
     }
 
     /**

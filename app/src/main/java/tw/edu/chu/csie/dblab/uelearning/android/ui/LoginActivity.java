@@ -98,9 +98,6 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
             mPopup_menu_overflow.show();
         }
         else if (id == R.id.btn_login_ok) {
-
-
-
             // 開始像伺服端送出登入要求
             mlogin();
         }

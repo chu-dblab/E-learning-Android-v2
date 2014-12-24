@@ -2,6 +2,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/menu_qr_scan"
+        android:title="@string/qrcode_scan"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/menu_keyin_tid"
+        android:title="@string/keyin_tid"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/menu_pause_study_activity"
+        android:title="@string/pause_study_activity"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/menu_end_study_activity"
+        android:title="@string/end_study_activity"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/menu_help"
+        android:title="@string/help" />
+
+    <item android:id="@+id/menu_setting"
+        android:title="@string/system_settings" />
+
+    <item android:id="@+id/menu_about"
+        android:title="@string/about"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/menu_inside_tester"
+        android:title="內部測試"
+        android:visible="false"
+        app:showAsAction="never" />
+
 </menu>
