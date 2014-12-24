@@ -43,7 +43,7 @@
     <string name="place_map">館區地圖</string>
     <string name="place_info">館場資訊</string>
     <string name="browse_material">瀏覽教材</string>
-    <string name="end_study_activity">結束學習</string>
+    <string name="finish_study_activity">結束學習</string>
     <string name="pause_study_activity">暫停學習</string>
     <string name="qrcode_scan">QR 掃描</string>
     <string name="keyin_tid">輸入標的編號</string>

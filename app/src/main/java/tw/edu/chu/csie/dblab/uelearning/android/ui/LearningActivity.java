@@ -3,6 +3,7 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui;
 import java.util.Locale;
 
 import android.content.Intent;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -107,8 +108,8 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         else if (id == R.id.menu_keyin_tid) {
 
         }
-        else if (id == R.id.menu_end_study_activity) {
-
+        else if (id == R.id.menu_finish_study_activity) {
+            finishStudyActivity();
         }
         else if (id == R.id.menu_pause_study_activity) {
             finish();
@@ -148,7 +149,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     /**
      * 結束學習活動
      */
-    public void endStudyActivity() {
+    public void finishStudyActivity() {
 
     }
 
@@ -212,9 +213,10 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     /**
      * 學習引導畫面（顯示推薦學習點的地方）
      */
-    public static class StudyGuideFragment extends Fragment implements AdapterView.OnItemClickListener {
+    public static class StudyGuideFragment extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
         private ListView mList_nextPoints;
+        private SwipeRefreshLayout mSwipe_nextPoints;
         private TextView mText_remainedTime;
         private ImageView mImage_map;
 
@@ -232,6 +234,8 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
             View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
             mList_nextPoints = (ListView) rootView.findViewById(R.id.list_learning_next_points);
             mList_nextPoints.setOnItemClickListener(this);
+            mSwipe_nextPoints = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_next_points);
+            mSwipe_nextPoints.setOnRefreshListener(this);
             mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
             mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
             return rootView;
@@ -253,6 +257,11 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+        }
+
+        @Override
+        public void onRefresh() {
+            mSwipe_nextPoints.setRefreshing(false);
         }
     }
 

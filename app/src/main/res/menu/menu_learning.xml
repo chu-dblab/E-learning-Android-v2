@@ -15,8 +15,8 @@
         android:title="@string/pause_study_activity"
         app:showAsAction="never" />
 
-    <item android:id="@+id/menu_end_study_activity"
-        android:title="@string/end_study_activity"
+    <item android:id="@+id/menu_finish_study_activity"
+        android:title="@string/finish_study_activity"
         app:showAsAction="never" />
 
     <item android:id="@+id/menu_help"
