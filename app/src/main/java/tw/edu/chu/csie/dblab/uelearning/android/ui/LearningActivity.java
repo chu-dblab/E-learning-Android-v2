@@ -1,7 +1,10 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Locale;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -21,12 +24,26 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class LearningActivity extends ActionBarActivity implements ActionBar.TabListener {
+
+    ProgressDialog mProgress_activity_finish;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -81,6 +98,14 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+        // 結束中畫面
+        mProgress_activity_finish = new ProgressDialog(LearningActivity.this);
+        mProgress_activity_finish.setMessage(getResources().getString(R.string.finishing_study_activity));
+        mProgress_activity_finish.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgress_activity_finish.setIndeterminate(true);
+        // TODO: 設計成可中途取消的功能
+        mProgress_activity_finish.setCancelable(false);
     }
 
 
@@ -151,6 +176,91 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
      */
     public void finishStudyActivity() {
 
+        mProgress_activity_finish.show();
+
+        DBProvider db = new DBProvider(LearningActivity.this);
+        // 取得目前使用者的登入階段Token
+        String token = db.get_token();
+
+        // 取得目前正在學習的活動編號
+        int saId = db.get_activity_id();
+
+        // 對伺服器通知學習活動已結束
+        RequestParams finish_params = new RequestParams();
+        try {
+            UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                    "/activitys/" + saId + "/finish",
+                    finish_params, new AsyncHttpResponseHandler() {
+
+                        @Override
+                        public void onStart() {
+                            mProgress_activity_finish.show();
+                        }
+
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                            mProgress_activity_finish.dismiss();
+
+                            String content = null;
+                            try {
+                                content = new String(responseBody, "UTF-8");
+                                JSONObject response = new JSONObject(content);
+                                JSONObject activityJson = response.getJSONObject("activity");
+
+                                // 紀錄進資料庫
+                                DBProvider db = new DBProvider(LearningActivity.this);
+                                int saId = db.get_activity_id();
+                                db.removeAll_activity();
+                                db.remove_enableActivity_inStudying_bySaId(saId);
+
+                                // 離開學習畫面
+                                LearningActivity.this.finish();
+
+                            } catch (UnsupportedEncodingException e) {
+                                ErrorUtils.error(LearningActivity.this, e);
+                            } catch (JSONException e) {
+                                ErrorUtils.error(LearningActivity.this, e);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                            mProgress_activity_finish.dismiss();
+
+                            // 此學習活動早已結束
+                            if(statusCode == 405) {
+
+                                // 紀錄進資料庫
+                                DBProvider db = new DBProvider(LearningActivity.this);
+                                int saId = db.get_activity_id();
+                                db.removeAll_activity();
+                                db.remove_enableActivity_inStudying_bySaId(saId);
+
+                                // 離開學習畫面
+                                LearningActivity.this.finish();
+                            }
+                            // 其他錯誤
+                            else {
+                                try {
+                                    // TODO: 取得可用的學習活動失敗的錯誤處理
+                                    String content = new String(responseBody, HTTP.UTF_8);
+                                    if (Config.DEBUG_SHOW_MESSAGE) {
+                                        Toast.makeText(LearningActivity.this,
+                                                "s: " + statusCode + "\n" + content,
+                                                Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(LearningActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (UnsupportedEncodingException e) {
+                                    ErrorUtils.error(LearningActivity.this, e);
+                                }
+                            }
+
+                        }
+                    });
+        } catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(LearningActivity.this, e);
+        }
     }
 
     /**

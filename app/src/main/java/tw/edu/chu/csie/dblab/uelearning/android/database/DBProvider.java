@@ -103,6 +103,11 @@ public class DBProvider {
         return db.query("EnableActivity", null, null, null, null, null, "Type ASC");
     }
 
+    public long remove_enableActivity_inStudying_bySaId(int saId) {
+        db = dbHelper.getWritableDatabase();
+        return db.delete("EnableActivity", "SaID="+saId+" AND Type="+this.TYPE_STUDY, null);
+    }
+
     public long removeAll_enableActivity() {
         db = dbHelper.getWritableDatabase();
         return db.delete("EnableActivity", null, null);
@@ -127,6 +132,12 @@ public class DBProvider {
         contentvalues.put("TargetTotal", targetTotal);
         contentvalues.put("LearnedTotal", learnedTotal);
         return db.insert("Activity", null, contentvalues);
+    }
+
+    public Integer get_activity_id() {
+        Cursor the_query = db.query("Activity", null, null, null, null, null, null);
+        the_query.moveToNext();
+        return Integer.valueOf( the_query.getString(the_query.getColumnIndex("SaID")) );
     }
 
     public long removeAll_activity() {

@@ -37,6 +37,7 @@
     <string name="getting_enableActivity">正在取得可用的學習活動中...</string>
     <string name="get_fail_enableActivity">可用的學習活動取得失敗</string>
     <string name="starting_study_activity">開始學習，請稍候...</string>
+    <string name="finishing_study_activity">結束學習，請稍候...</string>
 
     <!-- 學習畫面 -->
     <string name="study_guide">學習導覽</string>
