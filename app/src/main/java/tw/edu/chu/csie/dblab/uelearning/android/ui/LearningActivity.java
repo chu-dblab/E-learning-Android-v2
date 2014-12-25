@@ -4,7 +4,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -15,12 +19,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -129,17 +138,77 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        // QR Code 掃描
         if (id == R.id.menu_qr_scan) {
 
         }
+        // 輸入標的編號
         else if (id == R.id.menu_keyin_tid) {
 
+            final AlertDialog.Builder mDialog_inputTId = new AlertDialog.Builder(LearningActivity.this);
+            mDialog_inputTId.setTitle(R.string.keyin_tid_message);
+
+            final EditText mEdit_inputTId = new EditText(LearningActivity.this);
+            mEdit_inputTId.setInputType(InputType.TYPE_CLASS_NUMBER);
+            // 設定最大長度
+            mEdit_inputTId.setFilters(new InputFilter[] {new InputFilter.LengthFilter(3)});
+
+            mDialog_inputTId.setView(mEdit_inputTId);
+            mDialog_inputTId.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+                    // 取得輸入的標的編號
+                    String tId_string = mEdit_inputTId.getText().toString();
+
+                    // 判斷是否有輸入數字
+                    if(!tId_string.equals("")) {
+                        // 取得剛剛輸入的編號
+                        int tId = Integer.valueOf(tId_string);
+
+                        // 進入教材頁面
+                        Intent toMaterial = new Intent(LearningActivity.this, MaterialActivity.class);
+                        toMaterial.putExtra("tId", tId);
+                        startActivityForResult(toMaterial, 1);
+                    }
+
+                }
+            });
+            mDialog_inputTId.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            });
+            mDialog_inputTId.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            });
+            mDialog_inputTId.show();
+
+            // 馬上設定輸入點與顯示鍵盤
+            mEdit_inputTId.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
         }
+        // 結束學習活動
         else if (id == R.id.menu_finish_study_activity) {
             finishStudyActivity();
         }
+        // 暫停學習活動
         else if (id == R.id.menu_pause_study_activity) {
+            // 返回學習活動選擇頁面
             finish();
         }
         else if (id == R.id.menu_about) {

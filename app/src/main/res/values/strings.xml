@@ -49,6 +49,7 @@
     <string name="pause_study_activity">暫停學習</string>
     <string name="qrcode_scan">QR 掃描</string>
     <string name="keyin_tid">輸入標的編號</string>
+    <string name="keyin_tid_message">請輸入標的編號</string>
 
     <!-- 學習導引 -->
     <string name="learning_next_point">下個學習點:</string>
@@ -56,6 +57,11 @@
     <string name="learning_remaining_time">學習時間尚有:</string>
     <string name="learning_remaining_point">學習點剩餘:</string>
     <string name="learning_next_point_getting">取得中...</string>
+
+    <!-- 教材頁面 -->
+    <string name="title_activity_material">教材</string>
+    <string name="now_in_target">標的:</string>
+    <string name="in_target_time">時間:</string>
 
     <!-- 館區地圖 -->
     <string name="title_activity_map">學習地圖</string>
@@ -67,6 +73,5 @@
 
     <!-- 其他 -->
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
-    <string name="title_activity_material">教材</string>
 
 </resources>

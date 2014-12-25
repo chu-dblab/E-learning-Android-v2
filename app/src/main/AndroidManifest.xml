@@ -44,7 +44,8 @@
         </activity>
         <activity
             android:name=".ui.MaterialActivity"
-            android:label="@string/title_activity_material" >
+            android:label="@string/title_activity_material"
+            android:theme="@style/AppTheme.material">
         </activity>
 
     </application>
