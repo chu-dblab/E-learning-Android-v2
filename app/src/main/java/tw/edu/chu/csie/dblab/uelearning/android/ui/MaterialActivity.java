@@ -1,6 +1,7 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ public class MaterialActivity extends ActionBarActivity {
 
         // 取得目前所在的教材編號
         Intent intent = getIntent();
-        this.tId = intent.getIntExtra("tId",0);
+        this.tId = intent.getIntExtra("tId", 0);
 
         // ActionBar對應
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_material);
@@ -43,7 +44,7 @@ public class MaterialActivity extends ActionBarActivity {
         // Add ActionBar back button
         final ActionBar actionbar = getSupportActionBar();
         // 判斷目前的設定檔是否允許中途離開學習點
-        if(Config.LEARNING_BACK_ENABLE) {
+        if (Config.LEARNING_BACK_ENABLE) {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -58,21 +59,33 @@ public class MaterialActivity extends ActionBarActivity {
         String materialFilePath = FileUtils.getMaterialFilePath(MaterialActivity.this, tId);
 
         // 有查到此標的的教材路徑
-        if(!materialFilePath.equals(null)) {
+        if (!materialFilePath.equals(null)) {
+            // 開始學習
+            startLearn();
+
             // 將網頁內容顯示出來
             webSettings = mWebView.getSettings();
             webSettings.setJavaScriptEnabled(true);
             //mWebView.addJavascriptInterface(new MaterialJSCall(this), "Android");
-            mWebView.loadUrl("file://"+materialFilePath);
-            if(Config.DEBUG_SHOW_MESSAGE) {
+            mWebView.loadUrl("file://" + materialFilePath);
+            if (Config.DEBUG_SHOW_MESSAGE) {
                 Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId), Toast.LENGTH_SHORT).show();
             }
-        }
-        else {
+        } else {
             ErrorUtils.error(MaterialActivity.this, "No Material Files");
         }
 
+    }
 
+    public void startLearn() {
+    }
+
+    public void finishLearn() {
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
