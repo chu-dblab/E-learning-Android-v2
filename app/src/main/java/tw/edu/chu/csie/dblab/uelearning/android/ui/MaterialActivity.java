@@ -9,6 +9,11 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 
 public class MaterialActivity extends ActionBarActivity {
 
+    /**
+     * 此學習點的標的編號
+     */
+    private int tId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

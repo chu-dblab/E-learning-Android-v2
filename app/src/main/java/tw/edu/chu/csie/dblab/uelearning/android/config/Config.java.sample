@@ -33,13 +33,17 @@ public class Config {
      */
     public static final String APP_DIRECTORY = "CHU-UElearning/";
     /**
+     * 下載教材的壓縮檔案名稱
+     */
+    public static final String ZIP_FILE_NAME_OF_MATERIAL = "/DownloadZip.zip";
+    /**
      * 本機教材取得子路徑
      */
     public static final String MATERIAL_DIRECTORY = "Material/";
     /**
-     * 下載教材的壓縮檔案名稱
+     * 本機地圖圖檔子路徑
      */
-    public static final String ZIP_FILE_NAME_OF_MATERIAL ="/DownloadZip.zip";
+    public static final String MAP_DIRECTORY = "Material/map/";
 
     // 除錯區 =================================================================================
     /**
