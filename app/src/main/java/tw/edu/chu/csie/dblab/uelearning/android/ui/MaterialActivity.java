@@ -7,9 +7,14 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.widget.Toast;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 
 public class MaterialActivity extends ActionBarActivity {
 
@@ -17,6 +22,10 @@ public class MaterialActivity extends ActionBarActivity {
      * 此學習點的標的編號
      */
     private int tId;
+
+    // UI上的元件
+    private WebView mWebView;
+    private WebSettings webSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +50,28 @@ public class MaterialActivity extends ActionBarActivity {
         // 在ActionBar顯示所在標的編號
         actionbar.setTitle(getString(R.string.now_in_target).toString() + this.tId);
         actionbar.setSubtitle(getString(R.string.in_target_time).toString() + "00:00");
+
+        // 界面元件對應
+        mWebView = (WebView) findViewById(R.id.webview_material);
+
+        // 取得教材路徑
+        String materialFilePath = FileUtils.getMaterialFilePath(MaterialActivity.this, tId);
+
+        // 有查到此標的的教材路徑
+        if(!materialFilePath.equals(null)) {
+            // 將網頁內容顯示出來
+            webSettings = mWebView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            //mWebView.addJavascriptInterface(new MaterialJSCall(this), "Android");
+            mWebView.loadUrl("file://"+materialFilePath);
+            if(Config.DEBUG_SHOW_MESSAGE) {
+                Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId), Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            ErrorUtils.error(MaterialActivity.this, "No Material Files");
+        }
+
 
     }
 

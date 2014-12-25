@@ -27,20 +27,15 @@ import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
  */
 public class FileUtils 
 {
-    private File BasicSDPath;  //SD卡的根目錄（會依照Android版本不同而有所變化）
-    private Context BasicInternalPath;      //內部儲存裝置的根目錄(預設是/data/data/[package.name]/files/)
-    private ZipEntry entry;
-    
-    public FileUtils() 
-    {
-        BasicSDPath = Environment.getExternalStorageDirectory();
-    }
+    private static File BasicSDPath = Environment.getExternalStorageDirectory();  //SD卡的根目錄（會依照Android版本不同而有所變化）
+    private static Context BasicInternalPath;      //內部儲存裝置的根目錄(預設是/data/data/[package.name]/files/)
+    private static ZipEntry entry;
     
     /**
      * 偵測這個裝置有沒有插入記憶卡
      * @return <code>true</code> 有偵測到記憶卡
      */
-    public boolean isSDCardInsert() 
+    public static boolean isSDCardInsert()
     {
         if(!BasicSDPath.equals(Environment.MEDIA_REMOVED))
         {
@@ -53,7 +48,7 @@ public class FileUtils
      * 取得在SD卡上的教材路徑
      * @return 學習教材在SD卡上的路徑
      */
-    public String getPath()
+    public static String getPath()
     {
         if(isSDCardInsert())
         {
@@ -98,10 +93,10 @@ public class FileUtils
      * 取得在儲存裝置上的教材路徑
      * @return      學習教材在儲存裝置上的路徑
      */
-    public String getMaterialPath()
+    public static String getMaterialPath()
     {
 
-        return this.getPath()+Config.MATERIAL_DIRECTORY;
+        return getPath()+Config.MATERIAL_DIRECTORY;
     }
     
     /**
@@ -110,23 +105,17 @@ public class FileUtils
      * @param materialId 此標地的編號
      * @return 此"學習點教材"路徑
      */
-    public String getMaterialFilePath(Context context, int materialId)
+    public static String getMaterialFilePath(Context context, int materialId)
     {
-        /*ClientDBProvider db = new ClientDBProvider(context);
-        
-        String query[] = db.search("chu_target", "MaterialID", "TID="+materialId);
-        
-        // 如果有任何東西的話
-        if(query.length > 0) {
-            String fileName = query[0];
-            
-            return this.getMaterialPath()+fileName;
+        // TODO: 改成從資料庫抓取檔案路徑
+        String fileName;
+        if(materialId<10) {
+            fileName = "0" + materialId+".html";
         }
         else {
-            // 沒有查詢到，回傳null
-            return null;
-        }*/
-        return null;
+            fileName = materialId+".html";
+        }
+        return getMaterialPath()+fileName;
     }
     
     // ====================================================================================
