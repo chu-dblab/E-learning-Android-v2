@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -120,7 +121,6 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         mProgress_activity_finish.setCancelable(false);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -224,8 +224,13 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     }
 
     @Override
-    public void onBackPressed() {
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 
     @Override

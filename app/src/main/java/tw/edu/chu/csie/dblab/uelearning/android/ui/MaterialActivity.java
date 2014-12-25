@@ -27,6 +27,7 @@ public class MaterialActivity extends ActionBarActivity {
     // UI上的元件
     private WebView mWebView;
     private WebSettings webSettings;
+    private static long back_pressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,9 +91,17 @@ public class MaterialActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
+
         // 判斷目前的設定檔是否允許中途離開學習點
         if(Config.LEARNING_BACK_ENABLE) {
-            finish();
+            // 按兩下即離開學習點
+            if (back_pressed + 2000 > System.currentTimeMillis()) {
+                finish();
+            }
+            else {
+                Toast.makeText(getBaseContext(), R.string.double_back_press_to_exit_point, Toast.LENGTH_SHORT).show();
+            }
+            back_pressed = System.currentTimeMillis();
         }
     }
 
