@@ -12,6 +12,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+        <!-- 啟動時會進的Activity -->
         <activity
             android:name=".ui.StartActivity"
             android:label="@string/app_name"
@@ -22,35 +24,54 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 內部測試Activity -->
         <activity
             android:name=".ui.TesterActivity"
             android:label="內部測試" >
         </activity>
+
+        <!-- 登入畫面Activity -->
         <activity
             android:name=".ui.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.login" >
         </activity>
+
+        <!-- 博物館瀏覽Activity -->
+        <activity
+            android:name=".ui.BrowserActivity"
+            android:label="@string/title_activity_browser"
+            android:theme="@style/AppTheme.browser" >
+        </activity>
+
+        <!-- 選擇學習活動Activity -->
         <activity
             android:name=".ui.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.main"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:theme="@style/AppTheme.main" >
         </activity>
+
+        <!-- 學習中畫面Activity -->
         <activity
             android:name=".ui.LearningActivity"
-            android:label="@string/app_name"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name" >
         </activity>
+
+        <!-- QRCode掃描Activity -->
         <activity
             android:name=".scanner.QRDecodeActivity"
             android:label="@string/title_activity_qrdecode" >
         </activity>
+
+        <!-- 導覽中教材Activity -->
         <activity
             android:name=".ui.MaterialActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_material"
-            android:theme="@style/AppTheme.material"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:theme="@style/AppTheme.material" >
         </activity>
 
     </application>

@@ -16,8 +16,17 @@
         colorControlHighlight & colorSwitchThumbNormal. -->
     </style>
 
+    <!-- 登入畫面 -->
     <style name="AppTheme.login" parent="Theme.AppCompat.Light.NoActionBar"/>
 
+    <!-- 博物館瀏覽 -->
+    <style name="AppTheme.browser" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/mainPrimary</item>
+        <item name="colorPrimaryDark">@color/mainPrimaryDark</item>
+        <item name="android:colorBackground">@color/mainBackground</item>
+    </style>
+
+    <!-- 選擇學習活動 -->
     <style name="AppTheme.main" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/mainPrimary</item>
         <item name="colorPrimaryDark">@color/mainPrimaryDark</item>
@@ -44,12 +53,14 @@
         <item name="android:shadowDy">10</item>
     </style>
 
+    <!-- 導覽中教材 -->
     <style name="AppTheme.material" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primaryDark</item>
         <item name="colorAccent">@color/accent</item>
     </style>
 
+    <!-- 學習中畫面 -->
     <style name="DashboardBottom">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

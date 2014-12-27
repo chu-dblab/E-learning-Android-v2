@@ -27,6 +27,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
@@ -302,7 +303,22 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.menu_about) {
+        if (id == R.id.menu_place_info) {
+            Intent toBrowser = new Intent(LoginActivity.this, BrowserActivity.class);
+            toBrowser.putExtra("to", BrowserActivity.TO_INFO);
+            startActivity(toBrowser);
+        }
+        else if (id == R.id.menu_place_map) {
+            Intent toBrowser = new Intent(LoginActivity.this, BrowserActivity.class);
+            toBrowser.putExtra("to", BrowserActivity.TO_MAP);
+            startActivity(toBrowser);
+        }
+        else if (id == R.id.menu_browse_material) {
+            Intent toBrowser = new Intent(LoginActivity.this, BrowserActivity.class);
+            toBrowser.putExtra("to", BrowserActivity.TO_MATERIAL);
+            startActivity(toBrowser);
+        }
+        else if (id == R.id.menu_about) {
             HelpUtils.showAboutDialog(LoginActivity.this);
             return true;
         }

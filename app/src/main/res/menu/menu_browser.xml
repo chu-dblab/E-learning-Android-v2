@@ -1,19 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="tw.edu.chu.csie.dblab.uelearning.android.ui.LoginActivity" >
-
-    <item android:id="@+id/menu_place_info"
-        android:title="@string/place_info" />
-
-    <item android:id="@+id/menu_place_map"
-        android:title="@string/place_map" />
-
-    <item android:id="@+id/menu_browse_material"
-        android:title="@string/browse_material" />
-
-    <item android:id="@+id/menu_material_downloader"
-        android:title="@string/material_downloader" />
+    tools:context="tw.edu.chu.csie.dblab.uelearning.android.ui.BrowserActivity">
 
     <item android:id="@+id/menu_help"
         android:title="@string/help" />

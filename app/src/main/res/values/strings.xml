@@ -52,6 +52,9 @@
     <string name="keyin_tid">輸入標的編號</string>
     <string name="keyin_tid_message">請輸入標的編號</string>
 
+    <!-- 瀏覽畫面 -->
+    <string name="title_activity_browser">博物館瀏覽</string>
+
     <!-- 學習導引 -->
     <string name="learning_next_point">下個學習點:</string>
     <string name="learning_next_point_time">下個點預估所需時間:</string>
@@ -75,5 +78,7 @@
 
     <!-- 其他 -->
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
