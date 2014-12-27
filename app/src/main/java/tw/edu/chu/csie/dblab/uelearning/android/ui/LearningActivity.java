@@ -230,7 +230,9 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
 
     @Override
     public void onBackPressed() {
-        moveTaskToBack(true);
+        if(mViewPager.getCurrentItem() != 3) {
+            moveTaskToBack(true);
+        }
     }
 
     @Override

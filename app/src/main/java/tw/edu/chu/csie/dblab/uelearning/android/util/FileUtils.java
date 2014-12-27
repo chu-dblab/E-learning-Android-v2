@@ -98,7 +98,16 @@ public class FileUtils
 
         return getPath()+Config.MATERIAL_DIRECTORY;
     }
-    
+
+    /**
+     * 取得整份教材的首頁路徑
+     * @return 整份教材的首頁路徑
+     */
+    public static String getMaterialIndexPath()
+    {
+        return getMaterialPath()+"index.html";
+    }
+
     /**
      * 取得此"學習點教材"路徑
      * @param context 帶入Android基底Context
