@@ -35,6 +35,7 @@
     <string name="student">學生</string>
     <string name="login_number">已登入次數：</string>
     <string name="learn_end_topic">已學習過的主題：</string>
+    <string name="please_select_study_activity">請選擇可用的學習活動單元</string>
     <string name="getting_enableActivity">正在取得可用的學習活動中...</string>
     <string name="get_fail_enableActivity">可用的學習活動取得失敗</string>
     <string name="starting_study_activity">開始學習，請稍候...</string>

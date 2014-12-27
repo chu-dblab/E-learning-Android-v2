@@ -419,13 +419,37 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
+            initUI(rootView);
+
+            return rootView;
+        }
+
+        protected void initUI(View rootView) {
             mList_nextPoints = (ListView) rootView.findViewById(R.id.list_learning_next_points);
             mList_nextPoints.setOnItemClickListener(this);
             mSwipe_nextPoints = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_next_points);
             mSwipe_nextPoints.setOnRefreshListener(this);
             mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
             mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
-            return rootView;
+        }
+
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+
+            // 裝置螢幕旋轉時，重新載入界面
+            // Get a layout inflater (inflater from getActivity() or getSupportActivity() works as well)
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View newView = inflater.inflate(R.layout.fragment_study_guide, null);
+            // This just inflates the view but doesn't add it to any thing.
+            // You need to add it to the root view of the fragment
+            ViewGroup rootView = (ViewGroup) getView();
+            // Remove all the existing views from the root view.
+            // This is also a good place to recycle any resources you won't need anymore
+            rootView.removeAllViews();
+            rootView.addView(newView);
+
+            initUI(rootView);
         }
 
         /**

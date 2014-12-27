@@ -17,11 +17,33 @@
     </style>
 
     <style name="AppTheme.login" parent="Theme.AppCompat.Light.NoActionBar"/>
+
     <style name="AppTheme.main" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/mainPrimary</item>
         <item name="colorPrimaryDark">@color/mainPrimaryDark</item>
         <item name="android:colorBackground">@color/mainBackground</item>
     </style>
+    <style name="main_actionbar_text">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#ffafafaf</item>
+        <item name="android:shadowRadius">20</item>
+        <item name="android:shadowDx">10</item>
+        <item name="android:shadowDy">10</item>
+    </style>
+    <style name="main_actionbar_subtext">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#ff6d7a88</item>
+        <item name="android:shadowColor">#ffafafaf</item>
+        <item name="android:shadowRadius">20</item>
+        <item name="android:shadowDx">10</item>
+        <item name="android:shadowDy">10</item>
+    </style>
+
     <style name="AppTheme.material" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primaryDark</item>

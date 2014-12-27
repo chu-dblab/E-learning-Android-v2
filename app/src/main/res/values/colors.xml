@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="Dashboard_Bottom_background">#D7E1E5</color>
     <color name="primary">#043F55</color>
     <color name="primaryDark">#021e29</color>
     <color name="mainPrimary">#ffc0d1e6</color>
     <color name="mainPrimaryDark">#043F55</color>
     <color name="mainBackground">#fff2f5fe</color>
     <color name="accent">#D7E1E5</color>
+    <color name="horizontal_line">#8a000000</color>
+    <color name="Dashboard_Bottom_background">#D7E1E5</color>
 </resources>
