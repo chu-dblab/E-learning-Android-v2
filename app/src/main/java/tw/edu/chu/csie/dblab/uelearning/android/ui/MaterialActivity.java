@@ -66,6 +66,8 @@ public class MaterialActivity extends ActionBarActivity {
 
             // 將網頁內容顯示出來
             webSettings = mWebView.getSettings();
+            webSettings.setBuiltInZoomControls(true);
+            webSettings.setDisplayZoomControls(false);
             webSettings.setJavaScriptEnabled(true);
             //mWebView.addJavascriptInterface(new MaterialJSCall(this), "Android");
             mWebView.loadUrl("file://" + materialFilePath);
