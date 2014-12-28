@@ -26,6 +26,7 @@
         <item name="android:colorBackground">@color/mainBackground</item>
     </style>
 
+
     <!-- 選擇學習活動 -->
     <style name="AppTheme.main" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/mainPrimary</item>

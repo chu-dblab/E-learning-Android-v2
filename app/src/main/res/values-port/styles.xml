@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- 博物館瀏覽 -->
+    <style name="AppTheme.browser" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/mainPrimary</item>
+        <item name="colorPrimaryDark">@color/mainPrimaryDark</item>
+        <item name="android:colorBackground">@color/mainBackground</item>
+        <item name="actionBarTabStyle">@style/AppTheme.browser.ActionBarTab.Style</item>
+        <!--<item name="actionBarTabTextStyle">@style/AppTheme.browser.ActionBarTab.TabText</item>-->
+    </style>
+    <style name="AppTheme.browser.ActionBarTab.Style" parent="Widget.AppCompat.ActionBar.TabView">
+        <item name="android:background">@color/mainTabColor</item>
+    </style>
+    <!--<style name="AppTheme.browser.ActionBarTab.TabText" parent="Widget.AppCompat.ActionBar.TabText">-->
+    <!--<item name="android:textColor">@color/mainTabTextColor</item>-->
+    <!--</style>-->
+
+</resources>
