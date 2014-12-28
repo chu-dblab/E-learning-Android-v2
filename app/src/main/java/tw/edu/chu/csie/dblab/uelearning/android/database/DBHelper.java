@@ -87,6 +87,21 @@ public class DBHelper extends SQLiteOpenHelper {
                 "TargetTotal integer," +
                 "LearnedTotal integer DEFAULT 0)";
 
+        String sql_create_target = "CREATE TABLE Target (" +
+                "ThID integer," +
+                "TID integer PRIMARY KEY," +
+                "HID integer," +
+                "HName Varchar(100)," +
+                "AID integer," +
+                "AName Varchar(100)," +
+                "AFloor integer," +
+                "ANum integer," +
+                "TNum integer," +
+                "TName Varchar(100)," +
+                "LearnTime integer," +
+                "MapUrl Varchar(1000)" +
+                ")";
+
         String sql_create_log = "CREATE TABLE \"Log\" (" +
                 "LID integer  PRIMARY KEY AUTOINCREMENT DEFAULT NULL," +
                 "UID Varchar(30)," +
@@ -98,6 +113,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sql_create_auth);
         db.execSQL(sql_create_activity);
         db.execSQL(sql_create_enableActivity);
+        db.execSQL(sql_create_target);
         db.execSQL(sql_create_log);
 
         Log.d("success", "SQLite: User, Auth, Activity, EnableActivity, Log 建表成功!!");

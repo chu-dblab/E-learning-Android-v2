@@ -145,4 +145,27 @@ public class DBProvider {
         return db.delete("Activity", null, null);
     }
 
+    public long insert_target(int thId, int tId, Integer hId, String hName,
+                              Integer aId, String aName, Integer aFloor, Integer aNum,
+                              Integer tNum, String tName, int learnTime, String mapUrl) {
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("ThID", thId);
+        contentvalues.put("TID", tId);
+        contentvalues.put("HID", hId);
+        contentvalues.put("HName", hName);
+        contentvalues.put("AID", aId);
+        contentvalues.put("AName", aName);
+        contentvalues.put("AFloor", aFloor);
+        contentvalues.put("ANum", aNum);
+        contentvalues.put("TNum", tNum);
+        contentvalues.put("TName", tName);
+        contentvalues.put("LearnTime", learnTime);
+        contentvalues.put("MapUrl", mapUrl);
+        return db.insert("Target", null, contentvalues);
+    }
+
+    public long removeAll_target() {
+        db = dbHelper.getWritableDatabase();
+        return db.delete("Target", null, null);
+    }
 }
