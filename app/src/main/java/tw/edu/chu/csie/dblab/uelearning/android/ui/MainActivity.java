@@ -472,9 +472,11 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                             String tName = thisTarget.getString("name");
                                             int learnTime = thisTarget.getInt("learn_time");
                                             String mapUrl = thisTarget.getString("map_url");
+                                            String materialUrl = thisTarget.getString("material_url");
+                                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
 
                                             // 記錄進資料庫
-                                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, learnTime, mapUrl);
+                                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, learnTime, mapUrl, materialUrl, virtualMaterialUrl);
                                         }
 
                                         mProgress_start_studyActivity.dismiss();

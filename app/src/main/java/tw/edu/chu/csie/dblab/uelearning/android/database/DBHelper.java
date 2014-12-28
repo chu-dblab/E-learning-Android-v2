@@ -99,7 +99,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 "TNum integer," +
                 "TName Varchar(100)," +
                 "LearnTime integer," +
-                "MapUrl Varchar(1000)" +
+                "MapUrl Varchar(1000)," +
+                "MaterialUrl Varchar(1000)," +
+                "VirtualMaterialUrl Varchar(1000)" +
                 ")";
 
         String sql_create_log = "CREATE TABLE \"Log\" (" +

@@ -147,7 +147,8 @@ public class DBProvider {
 
     public long insert_target(int thId, int tId, Integer hId, String hName,
                               Integer aId, String aName, Integer aFloor, Integer aNum,
-                              Integer tNum, String tName, int learnTime, String mapUrl) {
+                              Integer tNum, String tName, int learnTime,
+                              String mapUrl, String materialUrl, String virtualMaterialUrl) {
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("ThID", thId);
         contentvalues.put("TID", tId);
@@ -161,6 +162,8 @@ public class DBProvider {
         contentvalues.put("TName", tName);
         contentvalues.put("LearnTime", learnTime);
         contentvalues.put("MapUrl", mapUrl);
+        contentvalues.put("MaterialUrl", materialUrl);
+        contentvalues.put("VirtualMaterialUrl", virtualMaterialUrl);
         return db.insert("Target", null, contentvalues);
     }
 
