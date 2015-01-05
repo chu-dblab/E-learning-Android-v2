@@ -228,7 +228,7 @@ public class MaterialActivity extends ActionBarActivity {
         @Override
         protected Object doInBackground(Object[] params) {
             HttpClient client = new DefaultHttpClient();
-            HttpGet post = new HttpGet("http://dev.uelearning.dblab.csie.chu.edu.tw/api/v2/hello/yahoo.com.tw");
+            HttpGet post = new HttpGet("http://140.126.11.158:8080/SupportSystem/api/GoogleSearch");
             try
             {
                 HttpResponse response = client.execute(post);
@@ -238,10 +238,14 @@ public class MaterialActivity extends ActionBarActivity {
                 //bundle.putString("msg", content);
 
                 // 只抓某ID的內容
-                JSONObject json = new JSONObject(content);
-                String msg = json.getString("msg");
-                bundle.putString("msg", content);
-                internet_str = msg;
+                JSONArray json_content = new JSONArray(content);
+                for(int i=0; i<json_content.length(); i++) {
+                    JSONObject json = json_content.getJSONObject(i);
+                    String msg = json.getString("Title");
+                    bundle.putString("msg", content);
+                    internet_str = msg;
+                }
+
 
                // Uri uri = Uri.parse(msg);
                 //Intent intent_internet = new Intent(Intent.ACTION_VIEW, uri);
