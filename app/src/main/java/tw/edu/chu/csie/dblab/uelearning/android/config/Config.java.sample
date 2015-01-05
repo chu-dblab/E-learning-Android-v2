@@ -27,6 +27,11 @@ public class Config {
      */
     public static final String REMOTE_MATERIAL_URL = REMOTE_BASE_URL+"/Material/DownloadZip.zip";
 
+    /**
+     * 取得網際網路輔助系統網址
+     */
+    public static final String REMOTE_INTERNET_ASSISTANT_URL = "http://localhost/SupportSystem/api";
+
     // 本機端檔案存取設定 =================================================================================
     /**
      * 此APP專用的存取資料夾路徑

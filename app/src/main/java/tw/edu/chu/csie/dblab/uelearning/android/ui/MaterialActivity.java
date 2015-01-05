@@ -1,5 +1,6 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -27,14 +28,20 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.server.InternetAssistantRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 
@@ -161,20 +168,55 @@ public class MaterialActivity extends ActionBarActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
                     String internet_question = Edit_internet.getText().toString();
                     if (!internet_question.equals("")) {
-                        Internet_data internet_json = new Internet_data();
-                        internet_json.execute();
-                        while(internet_str.equals(""))
-                        {
 
-                        }
-                        //查看是否有回傳成功
-                        Toast.makeText(MaterialActivity.this , internet_str , Toast.LENGTH_SHORT).show();
+                        // 抓取使用者id
+                        DBProvider db = new DBProvider(MaterialActivity.this);
+                        String userId = db.get_user_id();
+
+                        RequestParams params = new RequestParams();
+                        params.put("id", userId);
+                        params.put("name", internet_question);
+
+                        InternetAssistantRestClient.post("/GoogleSearch", params, new AsyncHttpResponseHandler() {
+                            @Override
+                            public void onStart() {
+                                Toast.makeText(MaterialActivity.this, "抓取中", Toast.LENGTH_SHORT).show();
+                                super.onStart();
+                            }
+
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                try {
+                                    String responseBodyString = new String(responseBody, "UTF-8");
+                                    JSONArray responseBody_list = new JSONArray(responseBodyString);
+
+                                    for(int i=0; i<responseBody_list.length(); i++) {
+                                        JSONObject the_content = responseBody_list.getJSONObject(i);
+                                        String title = the_content.getString("Title");
+                                        String url = the_content.getString("Url");
+                                        String content = the_content.getString("Content");
+
+                                        Toast.makeText(MaterialActivity.this, "title:"+title+"\n" +
+                                                "url:"+url+"\n" +
+                                                "content:"+content,
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (UnsupportedEncodingException e) {
+                                    ErrorUtils.error(MaterialActivity.this, e);
+                                } catch (JSONException e) {
+                                    ErrorUtils.error(MaterialActivity.this, e);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                            }
+                        });
+
                     }
                 }
             });
@@ -222,40 +264,4 @@ public class MaterialActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    class Internet_data extends AsyncTask
-    {
-        Bundle bundle = new Bundle();
-        @Override
-        protected Object doInBackground(Object[] params) {
-            HttpClient client = new DefaultHttpClient();
-            HttpGet post = new HttpGet("http://140.126.11.158:8080/SupportSystem/api/GoogleSearch");
-            try
-            {
-                HttpResponse response = client.execute(post);
-                String content = EntityUtils.toString(response.getEntity());
-
-                // 抓一坨出來
-                //bundle.putString("msg", content);
-
-                // 只抓某ID的內容
-                JSONArray json_content = new JSONArray(content);
-                for(int i=0; i<json_content.length(); i++) {
-                    JSONObject json = json_content.getJSONObject(i);
-                    String msg = json.getString("Title");
-                    bundle.putString("msg", content);
-                    internet_str = msg;
-                }
-
-
-               // Uri uri = Uri.parse(msg);
-                //Intent intent_internet = new Intent(Intent.ACTION_VIEW, uri);
-               //startActivity(intent_internet);
-            }catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
 }
