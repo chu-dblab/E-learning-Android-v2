@@ -67,7 +67,9 @@
     <string name="now_in_target">標的:</string>
     <string name="in_target_time">時間:</string>
     <string name="double_back_press_to_exit_point">再按一次返回鍵，代表離開學習點繼續學習。</string>
-
+    <string name="message_internet_search">網際搜尋:</string>
+    <string name="sent_internet_message">送出</string>
+    <string name="cancel_internet_message">取消</string>
     <!-- 館區地圖 -->
     <string name="title_activity_map">學習地圖</string>
 

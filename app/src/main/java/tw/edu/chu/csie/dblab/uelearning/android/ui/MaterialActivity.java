@@ -1,16 +1,37 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Entity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
@@ -28,7 +49,7 @@ public class MaterialActivity extends ActionBarActivity {
     private WebView mWebView;
     private WebSettings webSettings;
     private static long back_pressed;
-
+    public String internet_str = new String();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,7 +150,108 @@ public class MaterialActivity extends ActionBarActivity {
                 finish();
             }
         }
+        else if(id == R.id.menu_internet)
+        {
+            final AlertDialog.Builder Dialog_internet = new AlertDialog.Builder(MaterialActivity.this);
+            Dialog_internet.setTitle(R.string.message_internet_search);
+            final EditText Edit_internet = new EditText(MaterialActivity.this);
+            Edit_internet.setInputType(InputType.TYPE_CLASS_TEXT);
+            Dialog_internet.setView(Edit_internet);
+            Dialog_internet.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+                    String internet_question = Edit_internet.getText().toString();
+                    if (!internet_question.equals("")) {
+                        Internet_data internet_json = new Internet_data();
+                        internet_json.execute();
+                        while(internet_str.equals(""))
+                        {
+
+                        }
+                        //查看是否有回傳成功
+                        Toast.makeText(MaterialActivity.this , internet_str , Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            Dialog_internet.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            });
+            Dialog_internet.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            });
+            Dialog_internet.show();
+            /*
+            AlertDialog.Builder internet = new  AlertDialog.Builder(this);
+            internet.setTitle("網路搜尋:").setView(R.layout.dialog_assistant_internet);
+            internet.show();
+*/
+        }
+        else if(id == R.id.menu_detail)
+        {
+            /*
+                        AlertDialog.Builder detail = new  AlertDialog.Builder(this);
+            detail.setTitle("網路搜尋:");
+            detail.setView(R.layout.dialog_assistant_detail);
+            detail.show();
+                */
+        }
+        else if(id == R.id.menu_handwrite)
+        {
+
+        }
+        else if(id == R.id.menu_question_answer)
+        {
+
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    class Internet_data extends AsyncTask
+    {
+        Bundle bundle = new Bundle();
+        @Override
+        protected Object doInBackground(Object[] params) {
+            HttpClient client = new DefaultHttpClient();
+            HttpGet post = new HttpGet("http://dev.uelearning.dblab.csie.chu.edu.tw/api/v2/hello/yahoo.com.tw");
+            try
+            {
+                HttpResponse response = client.execute(post);
+                String content = EntityUtils.toString(response.getEntity());
+
+                // 抓一坨出來
+                //bundle.putString("msg", content);
+
+                // 只抓某ID的內容
+                JSONObject json = new JSONObject(content);
+                String msg = json.getString("msg");
+                bundle.putString("msg", content);
+                internet_str = msg;
+
+               // Uri uri = Uri.parse(msg);
+                //Intent intent_internet = new Intent(Intent.ACTION_VIEW, uri);
+               //startActivity(intent_internet);
+            }catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 }
