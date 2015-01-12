@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -57,7 +59,6 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 public class LearningActivity extends ActionBarActivity implements ActionBar.TabListener {
 
     ProgressDialog mProgress_activity_finish;
-
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -408,6 +409,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         private SwipeRefreshLayout mSwipe_nextPoints;
         private TextView mText_remainedTime;
         private ImageView mImage_map;
+        private String[] itemEnableActivity =  {"Google","Yahoo!","Apple"};
 
         public static StudyGuideFragment newInstance(int sectionNumber) {
             StudyGuideFragment fragment = new StudyGuideFragment();
@@ -428,11 +430,33 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
 
         protected void initUI(View rootView) {
             mList_nextPoints = (ListView) rootView.findViewById(R.id.list_learning_next_points);
-            mList_nextPoints.setOnItemClickListener(this);
+           // mList_nextPoints.setOnItemClickListener(this);
             mSwipe_nextPoints = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_next_points);
             mSwipe_nextPoints.setOnRefreshListener(this);
             mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
             mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
+            ArrayAdapter<String> arrayData ;
+            arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, itemEnableActivity);
+            mList_nextPoints.setAdapter(arrayData);
+            mList_nextPoints.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                View view2; //保存點選的View
+                int select_item=-1; //一開始未選擇任何一個item所以為-1
+                public void onItemClick(AdapterView<?> parent, View view,int position, long id){
+
+                    //======================
+                    //點選某個item並呈現被選取的狀態
+                    if ((select_item == -1) || (select_item==position)){
+                        view.setBackgroundColor(Color.YELLOW); //為View加上選取效果
+                    }else{
+                        view2.setBackgroundDrawable(null); //將上一次點選的View保存在view2
+                        view.setBackgroundColor(Color.YELLOW); //為View加上選取效果
+                    }
+                    view2=view; //保存點選的View
+                    select_item=position;//保存目前的View位置
+                    //======================
+                }
+
+            });
         }
 
         @Override
