@@ -113,6 +113,10 @@ public class DBProvider {
         return db.delete("EnableActivity", null, null);
     }
 
+    public Cursor get_activity() {
+        return db.query("Activity", null, null, null, null, null, null);
+    }
+
     public long insert_activity(String uId, int saId,
                                 int thId, String thName,
                                 String startTime, int learnTime, boolean timeForce,
@@ -170,5 +174,17 @@ public class DBProvider {
     public long removeAll_target() {
         db = dbHelper.getWritableDatabase();
         return db.delete("Target", null, null);
+    }
+
+    public String get_serverInfo(String name) {
+        Cursor the_query = db.query("ServerInfo", new String[]{"Value"}, "Name='"+name+"'", null, null, null, null);
+        the_query.moveToFirst();
+        return the_query.getString(0);
+    }
+
+    public long set_serverInfo(String name, String value) {
+        ContentValues values = new ContentValues();
+        values.put("Value", value);
+        return db.update("ServerInfo", values, "Name = '"+name+"'", null);
     }
 }

@@ -111,12 +111,31 @@ public class DBHelper extends SQLiteOpenHelper {
                 "Encode Varchar(3)," +
                 "Data Varchar(100))";
 
+        // Create Table
+        String sql_create_server_info = "CREATE TABLE ServerInfo (\n" +
+                "Name Varchar(200) NOT NULL PRIMARY KEY,\n" +
+                "Value Varchar(200))";
+
+        String sql_insert_server_info_1 =
+                        "INSERT INTO `ServerInfo`(`Name`,`Value`) VALUES ('SiteName',NULL)";
+        String sql_insert_server_info_2 =
+                        "INSERT INTO `ServerInfo`(`Name`,`Value`) VALUES ('SiteSubname',NULL)";
+        String sql_insert_server_info_3 =
+                        "INSERT INTO `ServerInfo`(`Name`,`Value`) VALUES ('SiteReferred',NULL)";
+        String sql_insert_server_info_4 =
+                        "INSERT INTO `ServerInfo`(`Name`,`Value`) VALUES ('TimeAdjust',0);";
+
         db.execSQL(sql_create_user);
         db.execSQL(sql_create_auth);
         db.execSQL(sql_create_activity);
         db.execSQL(sql_create_enableActivity);
         db.execSQL(sql_create_target);
         db.execSQL(sql_create_log);
+        db.execSQL(sql_create_server_info);
+        db.execSQL(sql_insert_server_info_1);
+        db.execSQL(sql_insert_server_info_2);
+        db.execSQL(sql_insert_server_info_3);
+        db.execSQL(sql_insert_server_info_4);
 
         Log.d("success", "SQLite: User, Auth, Activity, EnableActivity, Log 建表成功!!");
     }
