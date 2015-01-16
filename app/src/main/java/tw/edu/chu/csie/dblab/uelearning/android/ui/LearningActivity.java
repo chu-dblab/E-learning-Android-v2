@@ -296,7 +296,6 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                                 // 紀錄進資料庫
                                 DBProvider db = new DBProvider(LearningActivity.this);
                                 int saId = db.get_activity_id();
-                                db.removeAll_activity();
                                 db.remove_enableActivity_inStudying_bySaId(saId);
 
                             } catch (UnsupportedEncodingException e) {
