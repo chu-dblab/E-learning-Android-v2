@@ -2,6 +2,7 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui.fragment;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +33,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     protected static final int REMAINED_TIME = 0x101;
+    private String[] itemEnableActivity =  {"Google","Yahoo!","Apple"};
 
     private ListView mList_nextPoints;
     private SwipeRefreshLayout mSwipe_nextPoints;
@@ -65,6 +69,41 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mSwipe_nextPoints.setOnRefreshListener(this);
         mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
         mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
+
+        ArrayAdapter<String> arrayData ;
+        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, itemEnableActivity);
+        mList_nextPoints.setAdapter(arrayData);
+        mList_nextPoints.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            View view2; //保存點選的View
+            int select_item=-1; //一開始未選擇任何一個item所以為-1
+            public void onItemClick(AdapterView<?> parent, View view,int position, long id){
+                Toast.makeText(getActivity(), "P: " + position, Toast.LENGTH_SHORT).show();
+                switch (position)   //選擇後改變image
+                {
+                    case 0 :
+                        mImage_map.setImageResource(R.drawable.ic_action_light_logout);
+                        break;
+                    case 1 :
+                        mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
+                        break;
+                    case 2 :
+                        mImage_map.setImageResource(R.drawable.ic_launcher);
+                        break;
+                }
+                //======================
+                //點選某個item並呈現被選取的狀態
+                if ((select_item == -1) || (select_item==position)){
+                    view.setBackgroundColor(Color.YELLOW); //為View加上選取效果
+                }else{
+                    view2.setBackgroundDrawable(null); //將上一次點選的View保存在view2
+                    view.setBackgroundColor(Color.YELLOW); //為View加上選取效果
+                }
+                view2=view; //保存點選的View
+                select_item=position;//保存目前的View位置
+                //======================
+            }
+
+        });
     }
 
     // ============================================================================================
