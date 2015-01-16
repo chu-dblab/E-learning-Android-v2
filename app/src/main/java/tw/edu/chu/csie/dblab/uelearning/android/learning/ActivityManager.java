@@ -12,6 +12,7 @@ import java.util.TimeZone;
 
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
  * Created by yuan on 2015/1/16.
@@ -56,7 +57,7 @@ public class ActivityManager {
     @SuppressLint("SimpleDateFormat")
     public static Date getLearningTime(Context context) {
         // 取得現在時間
-        Date nowDate = new Date(System.currentTimeMillis());
+        Date nowDate = TimeUtils.getNowServerTime(context);
 
         // 取得開始學習時間
         DBProvider db = new DBProvider(context);

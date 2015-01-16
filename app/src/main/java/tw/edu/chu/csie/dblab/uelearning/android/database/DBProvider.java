@@ -175,4 +175,16 @@ public class DBProvider {
         db = dbHelper.getWritableDatabase();
         return db.delete("Target", null, null);
     }
+
+    public String get_serverInfo(String name) {
+        Cursor the_query = db.query("ServerInfo", new String[]{"Value"}, "Name='"+name+"'", null, null, null, null);
+        the_query.moveToFirst();
+        return the_query.getString(0);
+    }
+
+    public long set_serverInfo(String name, String value) {
+        ContentValues values = new ContentValues();
+        values.put("Value", value);
+        return db.update("ServerInfo", values, "Name = '"+name+"'", null);
+    }
 }

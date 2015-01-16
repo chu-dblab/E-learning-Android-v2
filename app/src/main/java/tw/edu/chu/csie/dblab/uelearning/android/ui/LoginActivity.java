@@ -22,6 +22,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.util.Date;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
@@ -30,6 +32,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class LoginActivity extends ActionBarActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
@@ -215,6 +218,11 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                                 lMode, mMode, enableNoAppoint,
                                 nickName, realName, email);
 
+                        // 處理伺服端與本機端的時間差
+                        String nowDateString = response.getString("login_time");
+                        Date serverTime = TimeUtils.stringToDate(nowDateString);
+                        TimeUtils.setTimeAdjustByNowServerTime(LoginActivity.this, serverTime);
+
                         // 前往MainActivity
                         finish();
                         Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
@@ -223,8 +231,9 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     }
                     catch (UnsupportedEncodingException e) {
                         ErrorUtils.error(LoginActivity.this, e);
-
                     } catch (JSONException e) {
+                        ErrorUtils.error(LoginActivity.this, e);
+                    } catch (ParseException e) {
                         ErrorUtils.error(LoginActivity.this, e);
                     }
                 }

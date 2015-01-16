@@ -63,6 +63,18 @@
                 android:layout_height="wrap_content"
                 android:text="rem_user"
                 android:id="@+id/btn_tester_sqlite_remove_user" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SiteInfo"
+                android:id="@+id/btn_tester_sqlite_get_site_info" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SiteInfo"
+                android:id="@+id/btn_tester_sqlite_set_site_info" />
         </LinearLayout>
     </LinearLayout>
 

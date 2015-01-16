@@ -23,11 +23,12 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
 
     Button mBtn_hello;
-    Button mBtn_sql_insert_user, mBtn_sql_remove_user;
+    Button mBtn_sql_insert_user, mBtn_sql_remove_user, mBtn_sql_get_siteInfo, mBtn_sql_set_siteInfo;
     Button mBtn_time_now, mBtn_time_start, mBtn_time_learning, mBtn_time_remainder;
 
     @Override
@@ -47,6 +48,11 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
 
         mBtn_sql_remove_user = (Button) findViewById(R.id.btn_tester_sqlite_remove_user);
 
+        mBtn_sql_get_siteInfo = (Button) findViewById(R.id.btn_tester_sqlite_get_site_info);
+        mBtn_sql_get_siteInfo.setOnClickListener(this);
+
+        mBtn_sql_set_siteInfo = (Button) findViewById(R.id.btn_tester_sqlite_set_site_info);
+        mBtn_sql_set_siteInfo.setOnClickListener(this);
 
         mBtn_time_now = (Button) findViewById(R.id.btn_tester_time_now);
         mBtn_time_now.setOnClickListener(this);
@@ -82,12 +88,20 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
             DBProvider db = new DBProvider(this);
             db.remove_user();
         }
+        else if(id == R.id.btn_tester_sqlite_get_site_info) {
+            DBProvider db = new DBProvider(this);
+            String timeAdjust = db.get_serverInfo("TimeAdjust");
+            Toast.makeText(TesterActivity.this, "ServerInfo: "+timeAdjust, Toast.LENGTH_SHORT).show();
+        }
+        else if(id == R.id.btn_tester_sqlite_set_site_info) {
+            DBProvider db = new DBProvider(this);
+            db.set_serverInfo("TimeAdjust", String.valueOf(5));
+        }
         else if(id == R.id.btn_tester_time_now) {
             // 取得現在時間
-            Date nowDate = new Date(System.currentTimeMillis());
+            Date nowDate = TimeUtils.getNowServerTime(TesterActivity.this);
 
             Toast.makeText(TesterActivity.this, "Now: "+nowDate.getTime(), Toast.LENGTH_SHORT).show();
-
             //Toast.makeText(TesterActivity.this, "Now: "+nowDate.getHours()+":"+nowDate.getMinutes()+":"+nowDate.getSeconds(), 0).show();
 
             // 顯示時間
