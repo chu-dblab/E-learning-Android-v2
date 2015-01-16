@@ -113,6 +113,10 @@ public class DBProvider {
         return db.delete("EnableActivity", null, null);
     }
 
+    public Cursor get_activity() {
+        return db.query("Activity", null, null, null, null, null, null);
+    }
+
     public long insert_activity(String uId, int saId,
                                 int thId, String thName,
                                 String startTime, int learnTime, boolean timeForce,

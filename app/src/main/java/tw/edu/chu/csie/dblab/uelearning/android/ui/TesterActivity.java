@@ -15,13 +15,20 @@ import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 
 public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
 
-    Button mBtn_hello, mBtn_sql_insert_user, mBtn_sql_remove_user;
+    Button mBtn_hello;
+    Button mBtn_sql_insert_user, mBtn_sql_remove_user;
+    Button mBtn_time_now, mBtn_time_start, mBtn_time_learning, mBtn_time_remainder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,17 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         mBtn_sql_remove_user = (Button) findViewById(R.id.btn_tester_sqlite_remove_user);
 
 
+        mBtn_time_now = (Button) findViewById(R.id.btn_tester_time_now);
+        mBtn_time_now.setOnClickListener(this);
+
+        mBtn_time_start = (Button) findViewById(R.id.btn_tester_time_start);
+        mBtn_time_start.setOnClickListener(this);
+
+        mBtn_time_learning = (Button) findViewById(R.id.btn_tester_time_learning);
+        mBtn_time_learning.setOnClickListener(this);
+
+        mBtn_time_remainder = (Button) findViewById(R.id.btn_tester_time_remainder);
+        mBtn_time_remainder.setOnClickListener(this);
     }
 
 
@@ -63,6 +81,53 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         else if(id == R.id.btn_tester_sqlite_remove_user) {
             DBProvider db = new DBProvider(this);
             db.remove_user();
+        }
+        else if(id == R.id.btn_tester_time_now) {
+            // 取得現在時間
+            Date nowDate = new Date(System.currentTimeMillis());
+
+            Toast.makeText(TesterActivity.this, "Now: "+nowDate.getTime(), Toast.LENGTH_SHORT).show();
+
+            //Toast.makeText(TesterActivity.this, "Now: "+nowDate.getHours()+":"+nowDate.getMinutes()+":"+nowDate.getSeconds(), 0).show();
+
+            // 顯示時間
+            Calendar nowCalendar = Calendar.getInstance();
+            nowCalendar.setTime(nowDate);
+            Toast.makeText(TesterActivity.this, "Now: "+nowCalendar.get(Calendar.HOUR_OF_DAY)+":"+nowCalendar.get(Calendar.MINUTE)+":"+nowCalendar.get(Calendar.SECOND), 0).show();
+        }
+        else if(id == R.id.btn_tester_time_start) {
+
+            Date startDate = ActivityManager.getStartDate(TesterActivity.this);
+            Calendar nowCalendar = Calendar.getInstance();
+            nowCalendar.setTime(startDate);
+            String timeString = nowCalendar.get(Calendar.HOUR_OF_DAY)+":"+nowCalendar.get(Calendar.MINUTE)+":"+nowCalendar.get(Calendar.SECOND);
+            Toast.makeText(TesterActivity.this, timeString, Toast.LENGTH_SHORT).show();
+        }
+        else if(id == R.id.btn_tester_time_learning) {
+            Date remainderDate = ActivityManager.getLearningTime(TesterActivity.this);
+
+            Calendar learningCal = Calendar.getInstance();
+            learningCal.setTime(remainderDate);
+            learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            Toast.makeText(TesterActivity.this, "Learning: "+learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND), 0).show();
+
+            int LearningMin = ActivityManager.getLearningMinTime(TesterActivity.this);
+            Toast.makeText(TesterActivity.this, "Learning: "+ LearningMin, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
+        }
+        else if(id == R.id.btn_tester_time_remainder) {
+            Date remainderDate = ActivityManager.getRemainderLearningTime(TesterActivity.this);
+
+            Calendar learningCal = Calendar.getInstance();
+            learningCal.setTime(remainderDate);
+            learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            Toast.makeText(TesterActivity.this, "Remainder: "+learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND), 0).show();
+
+            int LearningMin = ActivityManager.getRemainderLearningMinTime(TesterActivity.this);
+            Toast.makeText(TesterActivity.this, "Remainder: "+ LearningMin, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
         }
     }
 
