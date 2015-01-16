@@ -442,7 +442,19 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                 View view2; //保存點選的View
                 int select_item=-1; //一開始未選擇任何一個item所以為-1
                 public void onItemClick(AdapterView<?> parent, View view,int position, long id){
-
+                    Toast.makeText(getActivity(), "P: "+position, Toast.LENGTH_SHORT).show();
+                    switch (position)   //選擇後改變image
+                    {
+                        case 0 :
+                            mImage_map.setImageResource(R.drawable.ic_action_light_logout);
+                            break;
+                        case 1 :
+                            mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
+                            break;
+                        case 2 :
+                            mImage_map.setImageResource(R.drawable.ic_launcher);
+                            break;
+                    }
                     //======================
                     //點選某個item並呈現被選取的狀態
                     if ((select_item == -1) || (select_item==position)){
