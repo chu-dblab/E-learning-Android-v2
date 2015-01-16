@@ -2,6 +2,7 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
@@ -37,6 +39,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
@@ -167,55 +170,70 @@ public class MaterialActivity extends ActionBarActivity {
             Dialog_internet.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
                     String internet_question = Edit_internet.getText().toString();
                     if (!internet_question.equals("")) {
-
-                        // 抓取使用者id
-                        DBProvider db = new DBProvider(MaterialActivity.this);
-                        String userId = db.get_user_id();
-
                         RequestParams params = new RequestParams();
-                        params.put("id", userId);
-                        params.put("name", internet_question);
 
-                        InternetAssistantRestClient.post("/GoogleSearch", params, new AsyncHttpResponseHandler() {
-                            @Override
-                            public void onStart() {
-                                Toast.makeText(MaterialActivity.this, "抓取中", Toast.LENGTH_SHORT).show();
-                                super.onStart();
-                            }
+                        final String url;
+                        try {
+                            url = "/GoogleSearch?name="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&id=yuan";
+                            InternetAssistantRestClient.get(url, params, new AsyncHttpResponseHandler(){
+                                @Override
+                                public void onStart() {
+                                    Toast.makeText(MaterialActivity.this, "抓取中:"+ url, Toast.LENGTH_SHORT).show();
+                                    super.onStart();
+                                }
 
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                                try {
-                                    String responseBodyString = new String(responseBody, "UTF-8");
-                                    JSONArray responseBody_list = new JSONArray(responseBodyString);
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
-                                    for(int i=0; i<responseBody_list.length(); i++) {
-                                        JSONObject the_content = responseBody_list.getJSONObject(i);
-                                        String title = the_content.getString("Title");
-                                        String url = the_content.getString("Url");
-                                        String content = the_content.getString("Content");
+                                    //Toast.makeText(MaterialActivity.this, "OK!", Toast.LENGTH_SHORT).show();
+                                    try {
+                                        String responseBodyString = new String(responseBody, "UTF-8");
+                                        JSONArray responseBody_list = new JSONArray(responseBodyString);
 
-                                        Toast.makeText(MaterialActivity.this, "title:"+title+"\n" +
-                                                "url:"+url+"\n" +
-                                                "content:"+content,
-                                                Toast.LENGTH_SHORT).show();
+                                        for(int i=0; i<responseBody_list.length(); i++) {
+                                            JSONObject the_content = responseBody_list.getJSONObject(i);
+
+                                            String title = the_content.getString("Title");
+                                            String url = the_content.getString("Url");
+                                            String content = the_content.getString("Content");
+
+                                            Toast.makeText(MaterialActivity.this, "title:"+title+"\n" +
+                                                            "url:"+url+"\n" +
+                                                            "content:"+content,
+                                                    Toast.LENGTH_SHORT).show();
+
+                                        }
+
+                                    } catch (UnsupportedEncodingException e) {
+                                        ErrorUtils.error(MaterialActivity.this, e);
+                                    } catch (JSONException e) {
+                                        ErrorUtils.error(MaterialActivity.this, e);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                                    if(responseBody != null) {
+                                        try {
+                                            String responseBodyString = new String(responseBody, "UTF-8");
+                                            Toast.makeText(MaterialActivity.this, "link fail: " + responseBodyString, Toast.LENGTH_SHORT).show();
+                                        } catch (UnsupportedEncodingException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    else {
+                                        ErrorUtils.error(MaterialActivity.this, error);
                                     }
 
-                                } catch (UnsupportedEncodingException e) {
-                                    ErrorUtils.error(MaterialActivity.this, e);
-                                } catch (JSONException e) {
-                                    ErrorUtils.error(MaterialActivity.this, e);
                                 }
-                            }
+                            });
+                        } catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MaterialActivity.this, e);
+                        }
 
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-                            }
-                        });
 
                     }
                 }
