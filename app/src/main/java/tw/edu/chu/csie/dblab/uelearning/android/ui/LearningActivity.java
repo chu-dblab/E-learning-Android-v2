@@ -287,14 +287,17 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                                 JSONObject response = new JSONObject(content);
                                 JSONObject activityJson = response.getJSONObject("activity");
 
+                                // 停止學習導引界面計時
+                                //studyGuideFragment.stopUpdateUITask();
+
+                                // 離開學習畫面
+                                LearningActivity.this.finish();
+
                                 // 紀錄進資料庫
                                 DBProvider db = new DBProvider(LearningActivity.this);
                                 int saId = db.get_activity_id();
                                 db.removeAll_activity();
                                 db.remove_enableActivity_inStudying_bySaId(saId);
-
-                                // 離開學習畫面
-                                LearningActivity.this.finish();
 
                             } catch (UnsupportedEncodingException e) {
                                 ErrorUtils.error(LearningActivity.this, e);
@@ -321,18 +324,24 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                             }
                             // 其他錯誤
                             else {
-                                try {
-                                    // TODO: 取得可用的學習活動失敗的錯誤處理
-                                    String content = new String(responseBody, HTTP.UTF_8);
-                                    if (Config.DEBUG_SHOW_MESSAGE) {
-                                        Toast.makeText(LearningActivity.this,
-                                                "s: " + statusCode + "\n" + content,
-                                                Toast.LENGTH_LONG).show();
-                                    } else {
-                                        Toast.makeText(LearningActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                                if(responseBody != null) {
+
+                                    try {
+                                        // TODO: 取得可用的學習活動失敗的錯誤處理
+                                        String content = new String(responseBody, HTTP.UTF_8);
+                                        if (Config.DEBUG_SHOW_MESSAGE) {
+                                            Toast.makeText(LearningActivity.this,
+                                                    "s: " + statusCode + "\n" + content,
+                                                    Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(LearningActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                                        }
+                                    } catch (UnsupportedEncodingException e) {
+                                        ErrorUtils.error(LearningActivity.this, e);
                                     }
-                                } catch (UnsupportedEncodingException e) {
-                                    ErrorUtils.error(LearningActivity.this, e);
+                                }
+                                else {
+                                    ErrorUtils.error(LearningActivity.this, error);
                                 }
                             }
 

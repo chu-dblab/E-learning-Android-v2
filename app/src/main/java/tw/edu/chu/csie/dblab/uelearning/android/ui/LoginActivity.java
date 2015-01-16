@@ -274,14 +274,19 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     }
                     // 其他錯誤
                     else {
-                        String content = null;
-                        try {
-                            content = new String(responseBody, "UTF-8");
-                            ErrorUtils.error(LoginActivity.this, content);
-                        } catch (UnsupportedEncodingException e) {
-                            ErrorUtils.error(LoginActivity.this, e);
-                        }
+                        String content = ""+statusCode;
+                        if(responseBody != null) {
 
+                            try {
+                                content = new String(responseBody, "UTF-8");
+                                ErrorUtils.error(LoginActivity.this, content);
+                            } catch (UnsupportedEncodingException e) {
+                                ErrorUtils.error(LoginActivity.this, e);
+                            }
+                        }
+                        else {
+                            ErrorUtils.error(LoginActivity.this, content);
+                        }
                     }
                 }
             });

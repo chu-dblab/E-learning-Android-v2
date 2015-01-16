@@ -197,21 +197,26 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     mSwipe_activity.setRefreshing(false);
 
-                    try {
-                        // TODO: 取得可用的學習活動失敗的錯誤處理
-                        String content = new String(responseBody, HTTP.UTF_8);
-                        if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MainActivity.this,
-                                    "s: "+statusCode+"\n"
-                                    + getResources().getString(R.string.get_fail_enableActivity)+"\n"+content,
-                                    Toast.LENGTH_LONG).show();
+                    if(responseBody != null) {
+
+                        try {
+                            // TODO: 取得可用的學習活動失敗的錯誤處理
+                            String content = new String(responseBody, HTTP.UTF_8);
+                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                Toast.makeText(MainActivity.this,
+                                        "s: "+statusCode+"\n"
+                                                + getResources().getString(R.string.get_fail_enableActivity)+"\n"+content,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                Toast.makeText(MainActivity.this, R.string.get_fail_enableActivity, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else {
-                            Toast.makeText(MainActivity.this, R.string.get_fail_enableActivity, Toast.LENGTH_SHORT).show();
+                        catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MainActivity.this, e);
                         }
-                    }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MainActivity.this, e);
+                    } else {
+                        ErrorUtils.error(MainActivity.this, error);
                     }
 
                 }
@@ -385,7 +390,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                     String content = null;
                     try {
                         content = new String(responseBody, "UTF-8");
-                        JSONObject response = new JSONObject(content);
+                        final JSONObject response = new JSONObject(content);
                         JSONObject activityJson = response.getJSONObject("activity");
 
                         // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
@@ -506,20 +511,26 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
                                     mProgress_start_studyActivity.dismiss();
-                                    try {
-                                        // TODO: 取得可用的學習活動失敗的錯誤處理
-                                        String content = new String(responseBody, HTTP.UTF_8);
-                                        if(Config.DEBUG_SHOW_MESSAGE) {
-                                            Toast.makeText(MainActivity.this,
-                                                    "s: " + statusCode + "\n" + content,
-                                                    Toast.LENGTH_LONG).show();
+                                    if(responseBody != null) {
+
+                                        try {
+                                            // TODO: 取得可用的學習活動失敗的錯誤處理
+                                            String content = new String(responseBody, HTTP.UTF_8);
+                                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                                Toast.makeText(MainActivity.this,
+                                                        "s: " + statusCode + "\n" + content,
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+                                            else {
+                                                Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                                            }
                                         }
-                                        else {
-                                            Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                                        catch (UnsupportedEncodingException e) {
+                                            ErrorUtils.error(MainActivity.this, e);
                                         }
                                     }
-                                    catch (UnsupportedEncodingException e) {
-                                        ErrorUtils.error(MainActivity.this, e);
+                                    else {
+                                        ErrorUtils.error(MainActivity.this, error);
                                     }
                                 }
                         });
@@ -537,20 +548,26 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     mProgress_start_studyActivity.dismiss();
 
-                    try {
-                        // TODO: 取得可用的學習活動失敗的錯誤處理
-                        String content = new String(responseBody, HTTP.UTF_8);
-                        if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MainActivity.this,
-                                    "s: " + statusCode + "\n" + content,
-                                    Toast.LENGTH_LONG).show();
+                    if(responseBody != null) {
+
+                        try {
+                            // TODO: 取得可用的學習活動失敗的錯誤處理
+                            String content = new String(responseBody, HTTP.UTF_8);
+                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                Toast.makeText(MainActivity.this,
+                                        "s: " + statusCode + "\n" + content,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else {
-                            Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                        catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MainActivity.this, e);
                         }
                     }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MainActivity.this, e);
+                    else {
+                        ErrorUtils.error(MainActivity.this, error);
                     }
                 }
             });
@@ -627,20 +644,26 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     mProgress_start_studyActivity.dismiss();
-                    try {
-                        // TODO: 取得可用的學習活動失敗的錯誤處理
-                        String content = new String(responseBody, HTTP.UTF_8);
-                        if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MainActivity.this,
-                                    "s: " + statusCode + "\n" + content,
-                                    Toast.LENGTH_LONG).show();
+
+                    if(responseBody != null) {
+                        try {
+                            // TODO: 取得可用的學習活動失敗的錯誤處理
+                            String content = new String(responseBody, HTTP.UTF_8);
+                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                Toast.makeText(MainActivity.this,
+                                        "s: " + statusCode + "\n" + content,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else {
-                            Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                        catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MainActivity.this, e);
                         }
                     }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MainActivity.this, e);
+                    else {
+                        ErrorUtils.error(MainActivity.this, error);
                     }
                 }
             });
