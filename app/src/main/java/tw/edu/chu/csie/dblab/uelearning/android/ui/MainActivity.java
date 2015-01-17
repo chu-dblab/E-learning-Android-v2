@@ -37,7 +37,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemClickListener {
 
-    private TextView mText_nickname, mText_realname, mText_classname, mText_groupname;
+    private TextView mText_nickname, mText_userInfo, mText_realname, mText_classname, mText_groupname;
     private SwipeRefreshLayout mSwipe_activity;
     private ListView mListView_activity;
     ProgressDialog mProgress_start_studyActivity;
@@ -56,9 +56,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
         // UI對應
         mText_nickname = (TextView) findViewById(R.id.text_nickname);
-        mText_realname = (TextView) findViewById(R.id.text_realname);
-        mText_classname = (TextView) findViewById(R.id.text_classname);
-        mText_groupname = (TextView) findViewById(R.id.text_groups);
+        mText_userInfo = (TextView) findViewById(R.id.text_user_info);
+//        mText_realname = (TextView) findViewById(R.id.text_realname);
+//        mText_classname = (TextView) findViewById(R.id.text_classname);
+//        mText_groupname = (TextView) findViewById(R.id.text_groups);
 
         mListView_activity = (ListView) findViewById(R.id.listView_activity);
         mListView_activity.setOnItemClickListener(this);
@@ -73,11 +74,17 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         String classname = the_user_query.getString( the_user_query.getColumnIndex("CName") );
         String groupname = the_user_query.getString( the_user_query.getColumnIndex("GName") );
 
+        String userInfo = "";
+        if(realname != null) { userInfo += realname+", "; }
+        if(classname != null) { userInfo += classname+", "; }
+        if(groupname != null) { userInfo += groupname; }
+
         // 顯示個人資訊在介面上
         mText_nickname.setText(nickname);
-        mText_realname.setText(realname);
-        mText_classname.setText(classname);
-        mText_groupname.setText(groupname);
+//        mText_realname.setText(realname);
+//        mText_classname.setText(classname);
+//        mText_groupname.setText(groupname);
+        mText_userInfo.setText(userInfo);
 
         // SwipeLayout: 可用的學習活動清單
         mSwipe_activity = (SwipeRefreshLayout) findViewById(R.id.swipe_activity);

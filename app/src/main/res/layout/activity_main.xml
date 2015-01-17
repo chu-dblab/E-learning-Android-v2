@@ -59,34 +59,42 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/main_actionbar_subtext"
-                    android:text="@string/name"
-                    android:id="@+id/text_realname" />
+                    android:text="Name, Class, Group"
+                    android:id="@+id/text_user_info" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/main_actionbar_subtext"
-                    android:text=", " />
+                <!--<TextView-->
+                    <!--android:layout_marginLeft="15dp"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--style="@style/main_actionbar_subtext"-->
+                    <!--android:text="@string/name"-->
+                    <!--android:id="@+id/text_realname" />-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/main_actionbar_subtext"
-                    android:text="@string/grade"
-                    android:id="@+id/text_classname" />
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--style="@style/main_actionbar_subtext"-->
+                    <!--android:text=", " />-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/main_actionbar_subtext"
-                    android:text=", " />
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--style="@style/main_actionbar_subtext"-->
+                    <!--android:text="@string/grade"-->
+                    <!--android:id="@+id/text_classname" />-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/main_actionbar_subtext"
-                    android:text="@string/student"
-                    android:id="@+id/text_groups" />
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--style="@style/main_actionbar_subtext"-->
+                    <!--android:text=", " />-->
+
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--style="@style/main_actionbar_subtext"-->
+                    <!--android:text="@string/student"-->
+                    <!--android:id="@+id/text_groups" />-->
             </LinearLayout>
         </LinearLayout>
 

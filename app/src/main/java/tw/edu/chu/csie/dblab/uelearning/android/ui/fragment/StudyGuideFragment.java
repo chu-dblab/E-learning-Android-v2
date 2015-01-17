@@ -55,9 +55,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
 
-        updateUITimer = new Timer();
-        updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
-
         return rootView;
     }
 
@@ -69,6 +66,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mSwipe_nextPoints.setOnRefreshListener(this);
         mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
         mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
+
+        Message message = new Message();
+        message.what = StudyGuideFragment.REMAINED_TIME;
+        updateUIHandler.sendMessage(message);
 
         ArrayAdapter<String> arrayData ;
         arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, itemEnableActivity);
@@ -135,10 +136,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     }
 
-    public void stopUpdateUITask() {
-        updateUITimer.cancel();
-    }
-
     // ============================================================================================
 
     @Override
@@ -185,7 +182,14 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onPause() {
-        stopUpdateUITask();
+        updateUITimer.cancel();
         super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        updateUITimer = new Timer();
+        updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
+        super.onResume();
     }
 }
