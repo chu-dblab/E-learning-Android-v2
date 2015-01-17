@@ -5,6 +5,7 @@
 package tw.edu.chu.csie.dblab.uelearning.android.util;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Environment;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 
 /**
  * 對Android儲存裝置的檔案存取的專用類別
@@ -64,29 +66,35 @@ public class FileUtils
     }
     
     // ------------------------------------------------------------------------------------
+
+    public String getMapPath() {
+        return getPath()+Config.MAP_DIRECTORY;
+    }
+
     /**
      * 取得此"學習地圖圖檔"路徑
      * @param context 帶入Android基底Context
-     * @param materialId 此標地的編號
+     * @param targetId 此標地的編號
      * @return 此"學習地圖圖檔"路徑
      */
-    public String getMapFilePath(Context context, int materialId)
+    public String getMapFilePath(Context context, int targetId)
     {
-        /*ClientDBProvider db = new ClientDBProvider(context);
-        
-        String query[] = db.search("chu_target", "MapID", "TID="+materialId);
-        
-        // 如果有任何東西的話
-        if(query.length > 0) {
-            String fileName = query[0];
-            
-            return this.getMaterialPath()+fileName;
+        DBProvider db = new DBProvider(context);
+        Cursor query = db.get_target(targetId);
+        String fileName = "";
+        if(query.getCount()>0) {
+                fileName = query.getString(query.getColumnIndex("MapUrl"));
         }
         else {
-            // 沒有查詢到，回傳null
-            return null;
-        }*/
-        return null;
+            if(targetId<10) {
+                fileName = "0" + targetId+".jpg";
+            }
+            else {
+                fileName = targetId+".jpg";
+            }
+        }
+
+        return getMapPath()+fileName;
     }
     
     /**
@@ -95,7 +103,6 @@ public class FileUtils
      */
     public static String getMaterialPath()
     {
-
         return getPath()+Config.MATERIAL_DIRECTORY;
     }
 
@@ -111,19 +118,33 @@ public class FileUtils
     /**
      * 取得此"學習點教材"路徑
      * @param context 帶入Android基底Context
-     * @param materialId 此標地的編號
+     * @param targetId 此標地的編號
+     * @param isEntity 是否為實體教材
      * @return 此"學習點教材"路徑
      */
-    public static String getMaterialFilePath(Context context, int materialId)
+    public static String getMaterialFilePath(Context context, int targetId, boolean isEntity)
     {
-        // TODO: 改成從資料庫抓取檔案路徑
-        String fileName;
-        if(materialId<10) {
-            fileName = "0" + materialId+".html";
+
+        DBProvider db = new DBProvider(context);
+        Cursor query = db.get_target(targetId);
+        String fileName = "";
+        if(query.getCount()>0) {
+            if(isEntity) {
+                fileName = query.getString(query.getColumnIndex("MaterialUrl"));
+            }
+            else {
+                fileName = query.getString(query.getColumnIndex("VirtualMaterialUrl"));
+            }
         }
         else {
-            fileName = materialId+".html";
+            if(targetId<10) {
+                fileName = "0" + targetId+".html";
+            }
+            else {
+                fileName = targetId+".html";
+            }
         }
+
         return getMaterialPath()+fileName;
     }
     

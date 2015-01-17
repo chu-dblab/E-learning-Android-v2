@@ -41,7 +41,7 @@ android:orientation="vertical">
                             android:background="@color/horizontal_line" />
 
                         <ListView
-                            android:layout_width="wrap_content"
+                            android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/list_learning_next_points"
                             android:layout_weight="1" />

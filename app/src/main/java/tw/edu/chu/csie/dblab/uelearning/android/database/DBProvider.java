@@ -171,6 +171,12 @@ public class DBProvider {
         return db.insert("Target", null, contentvalues);
     }
 
+    public Cursor get_target(int tId) {
+        Cursor the_query = db.query("Target", null, "TID="+tId, null, null, null, null);
+        the_query.moveToFirst();
+        return the_query;
+    }
+
     public long removeAll_target() {
         db = dbHelper.getWritableDatabase();
         return db.delete("Target", null, null);
@@ -187,4 +193,5 @@ public class DBProvider {
         values.put("Value", value);
         return db.update("ServerInfo", values, "Name = '"+name+"'", null);
     }
+
 }

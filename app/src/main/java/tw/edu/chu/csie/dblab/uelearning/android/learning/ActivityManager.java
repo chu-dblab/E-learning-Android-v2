@@ -29,7 +29,7 @@ public class ActivityManager {
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_activity();
 
-        if(query.getColumnCount()>0) {
+        if(query.getCount()>0) {
 
             query.moveToFirst();
             String startDateDB = query.getString(query.getColumnIndex("StartTime"));
@@ -62,7 +62,7 @@ public class ActivityManager {
         // 取得開始學習時間
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_activity();
-        if(query.getColumnCount()>0) {
+        if(query.getCount()>0) {
 
             query.moveToFirst();
             String startDateDB = query.getString(query.getColumnIndex("StartTime"));
@@ -126,7 +126,7 @@ public class ActivityManager {
         // 取得開始學習時間
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_activity();
-        if(query.getColumnCount()>0) {
+        if(query.getCount()>0) {
             query.moveToFirst();
             int limitMin = query.getInt(query.getColumnIndex("LearnTime"));
             return limitMin;

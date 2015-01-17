@@ -76,7 +76,7 @@ public class MaterialActivity extends ActionBarActivity {
         mWebView = (WebView) findViewById(R.id.webview_material);
 
         // 取得教材路徑
-        String materialFilePath = FileUtils.getMaterialFilePath(MaterialActivity.this, tId);
+        String materialFilePath = FileUtils.getMaterialFilePath(MaterialActivity.this, tId, true);
 
         // 有查到此標的的教材路徑
         if (!materialFilePath.equals(null)) {
@@ -91,7 +91,7 @@ public class MaterialActivity extends ActionBarActivity {
             //mWebView.addJavascriptInterface(new MaterialJSCall(this), "Android");
             mWebView.loadUrl("file://" + materialFilePath);
             if (Config.DEBUG_SHOW_MESSAGE) {
-                Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId, isEntity), Toast.LENGTH_SHORT).show();
             }
         } else {
             ErrorUtils.error(MaterialActivity.this, "No Material Files");
