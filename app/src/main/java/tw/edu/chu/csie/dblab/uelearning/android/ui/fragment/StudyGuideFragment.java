@@ -2,7 +2,6 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui.fragment;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,17 +15,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
-import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
  * 學習引導畫面（顯示推薦學習點的地方）
@@ -89,11 +85,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             switch(msg.what) {
                 case REMAINED_TIME:
                     Date learningTime = ActivityManager.getRemainderLearningTime(getActivity());
-                    Calendar learningCal = Calendar.getInstance();
-                    learningCal.setTime(learningTime);
-                    learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                    mText_remainedTime.setText(learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND));
+                    mText_remainedTime.setText(TimeUtils.timerToString(learningTime));
                     break;
             }
         };

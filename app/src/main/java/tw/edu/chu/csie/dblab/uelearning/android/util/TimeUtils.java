@@ -4,7 +4,9 @@ import android.content.Context;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 
@@ -18,6 +20,33 @@ public class TimeUtils {
         Date resultDate = new Date();
         resultDate = format.parse(dateString);
         return resultDate;
+    }
+
+    public static String timerToString(Date date) {
+        Calendar inTimeCal = Calendar.getInstance();
+        inTimeCal.setTime(date);
+        inTimeCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        String hourString = String.format( "%02d", inTimeCal.get(Calendar.HOUR_OF_DAY));
+        String minuteString = String.format( "%02d", inTimeCal.get(Calendar.MINUTE));
+        String secondString = String.format( "%02d", inTimeCal.get(Calendar.SECOND));
+
+        String inTimeString = hourString + ":" + minuteString + ":" + secondString;
+        return inTimeString;
+    }
+
+    public static String timeeToStringNoHour(Date date) {
+        Calendar inTimeCal = Calendar.getInstance();
+        inTimeCal.setTime(date);
+        inTimeCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        int hourToMinute = inTimeCal.get(Calendar.HOUR_OF_DAY) * 60;
+
+        String minuteString = String.format( "%02d", hourToMinute + inTimeCal.get(Calendar.MINUTE));
+        String secondString = String.format( "%02d", inTimeCal.get(Calendar.SECOND));
+
+        String inTimeString = minuteString + ":" + secondString;
+        return inTimeString;
     }
 
     /**
