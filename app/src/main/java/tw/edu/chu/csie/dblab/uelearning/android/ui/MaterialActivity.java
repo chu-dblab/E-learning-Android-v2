@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -315,7 +316,8 @@ public class MaterialActivity extends ActionBarActivity {
 
                         final String url;
                         try {
-                            url = "/GoogleSearch?name="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&id=yuan";
+                            url = "/GoogleSearch?question="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&id=5";
+                            //url = "/GoogleSearch?name="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&id=yuan";
                             InternetAssistantRestClient.get(url, params, new AsyncHttpResponseHandler(){
                                 @Override
                                 public void onStart() {
@@ -325,26 +327,32 @@ public class MaterialActivity extends ActionBarActivity {
 
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
+                                    //查看連線狀態是否正確
                                     //Toast.makeText(MaterialActivity.this, "OK!", Toast.LENGTH_SHORT).show();
                                     try {
                                         String responseBodyString = new String(responseBody, "UTF-8");
                                         JSONArray responseBody_list = new JSONArray(responseBodyString);
+                                        Intent internet_result = new Intent(MaterialActivity.this,InternetResultActivity.class);
+                                        Bundle bundle_internet = new Bundle();
 
+                                        bundle_internet.putInt("internet_length_result",responseBody_list.length());
+                                        //internet_result.putExtra("internet_length_result",responseBody_list.length());
                                         for(int i=0; i<responseBody_list.length(); i++) {
                                             JSONObject the_content = responseBody_list.getJSONObject(i);
 
                                             String title = the_content.getString("Title");
                                             String url = the_content.getString("Url");
                                             String content = the_content.getString("Content");
-
-                                            Toast.makeText(MaterialActivity.this, "title:"+title+"\n" +
-                                                            "url:"+url+"\n" +
-                                                            "content:"+content,
-                                                    Toast.LENGTH_SHORT).show();
-
+                                            bundle_internet.putString("internet_title_result"+i,title);
+                                            bundle_internet.putString("internet_url_result"+i,url);
+                                            bundle_internet.putString("internet_content_result"+i,content);
+                                            //Toast.makeText(MaterialActivity.this, "title:"+title+"\n" +
+                                            //                "url:"+url+"\n" +
+                                            //                "content:"+content,
+                                            //       Toast.LENGTH_SHORT).show();
                                         }
-
+                                        internet_result.putExtras(bundle_internet);
+                                        startActivity(internet_result);
                                     } catch (UnsupportedEncodingException e) {
                                         ErrorUtils.error(MaterialActivity.this, e);
                                     } catch (JSONException e) {
@@ -372,8 +380,6 @@ public class MaterialActivity extends ActionBarActivity {
                         } catch (UnsupportedEncodingException e) {
                             ErrorUtils.error(MaterialActivity.this, e);
                         }
-
-
                     }
                 }
             });
@@ -394,20 +400,102 @@ public class MaterialActivity extends ActionBarActivity {
                 }
             });
             Dialog_internet.show();
-            /*
-            AlertDialog.Builder internet = new  AlertDialog.Builder(this);
-            internet.setTitle("網路搜尋:").setView(R.layout.dialog_assistant_internet);
-            internet.show();
-*/
         }
         else if(id == R.id.menu_detail)
         {
-            /*
-                        AlertDialog.Builder detail = new  AlertDialog.Builder(this);
-            detail.setTitle("網路搜尋:");
-            detail.setView(R.layout.dialog_assistant_detail);
-            detail.show();
-                */
+            final AlertDialog.Builder Dialog_detail = new AlertDialog.Builder(MaterialActivity.this);
+            Dialog_detail.setTitle(R.string.message_detail_search);
+            final EditText Edit_detail = new EditText(MaterialActivity.this);
+            Edit_detail.setInputType(InputType.TYPE_CLASS_TEXT);
+            Dialog_detail.setView(Edit_detail);
+            Dialog_detail.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String detail_question = Edit_detail.getText().toString();
+                    if (!detail_question.equals("")) {
+                        RequestParams params = new RequestParams();
+
+                        final String url;
+                        try {
+                            url = "/GoogleSearch?id=yuan&question" +URLEncoder.encode(detail_question, HTTP.UTF_8);
+                            InternetAssistantRestClient.get(url, params, new AsyncHttpResponseHandler(){
+                                @Override
+                                public void onStart() {
+                                    Toast.makeText(MaterialActivity.this, "抓取中:"+ url, Toast.LENGTH_SHORT).show();
+                                    super.onStart();
+                                }
+
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                    //查看連線狀態是否正確
+                                    //Toast.makeText(MaterialActivity.this, "OK!", Toast.LENGTH_SHORT).show();
+                                    try {
+                                        String responseBodyString = new String(responseBody, "UTF-8");
+                                        JSONArray responseBody_list = new JSONArray(responseBodyString);
+                                        Intent detail_result = new Intent(MaterialActivity.this,DetailResultAcrivity.class);
+                                        Bundle bundle_detail = new Bundle();
+
+                                        bundle_detail.putInt("detail_length_result",responseBody_list.length());
+                                        //internet_result.putExtra("internet_length_result",responseBody_list.length());
+                                        for(int i=0; i<responseBody_list.length(); i++) {
+                                            JSONObject the_content = responseBody_list.getJSONObject(i);
+
+                                            String title = the_content.getString("Title");
+                                            String url = the_content.getString("Url");
+                                            bundle_detail.putString("detail_title_result"+i,title);
+                                            bundle_detail.putString("detail_url_result"+i,url);
+                                            //Toast.makeText(MaterialActivity.this, "title:"+title+"\n" +
+                                            //                "url:"+url+"\n" +
+                                            //                "content:"+content,
+                                            //       Toast.LENGTH_SHORT).show();
+                                        }
+                                        detail_result.putExtras(bundle_detail);
+                                        startActivity(detail_result);
+                                    } catch (UnsupportedEncodingException e) {
+                                        ErrorUtils.error(MaterialActivity.this, e);
+                                    } catch (JSONException e) {
+                                        ErrorUtils.error(MaterialActivity.this, e);
+                                    }
+                                }
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                                    if(responseBody != null) {
+                                        try {
+                                            String responseBodyString = new String(responseBody, "UTF-8");
+                                            Toast.makeText(MaterialActivity.this, "link fail: " + responseBodyString, Toast.LENGTH_SHORT).show();
+                                        } catch (UnsupportedEncodingException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    else {
+                                        ErrorUtils.error(MaterialActivity.this, error);
+                                    }
+                                }
+                            });
+                        } catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MaterialActivity.this, e);
+                        }
+                    }
+                }
+            });
+            Dialog_detail.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            });
+            Dialog_detail.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            });
+            Dialog_detail.show();
         }
         else if(id == R.id.menu_handwrite)
         {

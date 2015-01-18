@@ -70,6 +70,9 @@
     <string name="message_internet_search">網際搜尋:</string>
     <string name="sent_internet_message">送出</string>
     <string name="cancel_internet_message">取消</string>
+    <string name="message_detail_search">網際搜尋:</string>
+    <string name="sent_detail_message">送出</string>
+    <string name="cancel_detail_message">取消</string>
     <!-- 館區地圖 -->
     <string name="title_activity_map">學習地圖</string>
 
@@ -82,5 +85,9 @@
     <string name="title_activity_qrdecode">QRDecodeActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_internet_result">網路搜尋結果</string>
+    <string name="internet_result_activity_button">連結</string>
+    <string name="title_activity_detail_result_acrivity">補充教材搜尋結果</string>
 
 </resources>

@@ -10,6 +10,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 
 public class StartActivity extends Activity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

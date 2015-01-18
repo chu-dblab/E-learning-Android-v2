@@ -73,7 +73,14 @@
             android:label="@string/title_activity_material"
             android:theme="@style/AppTheme.material" >
         </activity>
-
+        <activity
+            android:name=".ui.InternetResultActivity"
+            android:label="@string/title_activity_internet_result" >
+        </activity>
+        <activity
+            android:name=".ui.DetailResultAcrivity"
+            android:label="@string/title_activity_detail_result_acrivity" >
+        </activity>
     </application>
 
 </manifest>
