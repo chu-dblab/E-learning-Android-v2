@@ -54,7 +54,7 @@ android:orientation="vertical">
 
         <!-- 右方區域 -->
         <ImageView
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/image_learning_next_points"
             android:layout_weight="1" />
