@@ -67,7 +67,7 @@ public class FileUtils
     
     // ------------------------------------------------------------------------------------
 
-    public String getMapPath() {
+    public static String getMapPath() {
         return getPath()+Config.MAP_DIRECTORY;
     }
 
@@ -77,7 +77,7 @@ public class FileUtils
      * @param targetId 此標地的編號
      * @return 此"學習地圖圖檔"路徑
      */
-    public String getMapFilePath(Context context, int targetId)
+    public static String getMapFilePath(Context context, int targetId)
     {
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_target(targetId);
