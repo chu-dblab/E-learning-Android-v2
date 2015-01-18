@@ -81,6 +81,7 @@ public class FileUtils
     {
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_target(targetId);
+        query.moveToFirst();
         String fileName = "";
         if(query.getCount()>0) {
                 fileName = query.getString(query.getColumnIndex("MapUrl"));
@@ -127,6 +128,7 @@ public class FileUtils
 
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_target(targetId);
+        query.moveToFirst();
         String fileName = "";
         if(query.getCount()>0) {
             if(isEntity) {

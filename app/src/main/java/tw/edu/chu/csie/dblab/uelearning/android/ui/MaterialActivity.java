@@ -81,6 +81,7 @@ public class MaterialActivity extends ActionBarActivity {
         // 取得此標的學習時間
         DBProvider db = new DBProvider(MaterialActivity.this);
         Cursor targetQuery = db.get_target(tId);
+        targetQuery.moveToFirst();
         tLearnTime = targetQuery.getInt(targetQuery.getColumnIndex("LearnTime"));
 
         // ActionBar對應
