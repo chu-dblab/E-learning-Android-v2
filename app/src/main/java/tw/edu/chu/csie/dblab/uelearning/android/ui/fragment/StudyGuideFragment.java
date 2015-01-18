@@ -26,6 +26,7 @@ import java.util.TimerTask;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
 
 /**
  * 學習引導畫面（顯示推薦學習點的地方）
@@ -36,6 +37,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     private String[] itemEnableActivity =  {"Google","Yahoo!","Apple"};
 
     private ListView mList_nextPoints;
+    int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
     private SwipeRefreshLayout mSwipe_nextPoints;
     private TextView mText_remainedTime;
     private ImageView mImage_map;
@@ -55,9 +57,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
 
-        updateUITimer = new Timer();
-        updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
-
         return rootView;
     }
 
@@ -70,40 +69,17 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
         mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
 
-        ArrayAdapter<String> arrayData ;
-        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, itemEnableActivity);
-        mList_nextPoints.setAdapter(arrayData);
-        mList_nextPoints.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            View view2; //保存點選的View
-            int select_item=-1; //一開始未選擇任何一個item所以為-1
-            public void onItemClick(AdapterView<?> parent, View view,int position, long id){
-                Toast.makeText(getActivity(), "P: " + position, Toast.LENGTH_SHORT).show();
-                switch (position)   //選擇後改變image
-                {
-                    case 0 :
-                        mImage_map.setImageResource(R.drawable.ic_action_light_logout);
-                        break;
-                    case 1 :
-                        mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
-                        break;
-                    case 2 :
-                        mImage_map.setImageResource(R.drawable.ic_launcher);
-                        break;
-                }
-                //======================
-                //點選某個item並呈現被選取的狀態
-                if ((select_item == -1) || (select_item==position)){
-                    view.setBackgroundColor(Color.YELLOW); //為View加上選取效果
-                }else{
-                    view2.setBackgroundDrawable(null); //將上一次點選的View保存在view2
-                    view.setBackgroundColor(Color.YELLOW); //為View加上選取效果
-                }
-                view2=view; //保存點選的View
-                select_item=position;//保存目前的View位置
-                //======================
-            }
+        Message message = new Message();
+        message.what = StudyGuideFragment.REMAINED_TIME;
+        updateUIHandler.sendMessage(message);
 
-        });
+        ArrayAdapter<String> arrayData ;
+        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity);
+        mList_nextPoints.setAdapter(arrayData);
+        mList_nextPoints.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mList_nextPoints.setOnItemClickListener(this);
+        updateNextPointsUI();
+
     }
 
     // ============================================================================================
@@ -133,10 +109,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             updateUIHandler.sendMessage(message);
         }
 
-    }
-
-    public void stopUpdateUITask() {
-        updateUITimer.cancel();
     }
 
     // ============================================================================================
@@ -175,7 +147,28 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        list_select_nextPoint_item = position;//保存目前的View位置
+        updateNextPointsUI();
+    }
 
+    public void updateNextPointsUI() {
+
+        if(list_select_nextPoint_item != -1) {
+
+            mList_nextPoints.setItemChecked(list_select_nextPoint_item, true);
+            switch (list_select_nextPoint_item)   //選擇後改變image
+            {
+                case 0 :
+                    mImage_map.setImageResource(R.drawable.ic_action_light_logout);
+                    break;
+                case 1 :
+                    mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
+                    break;
+                case 2 :
+                    mImage_map.setImageResource(R.drawable.ic_launcher);
+                    break;
+            }
+        }
     }
 
     @Override
@@ -185,7 +178,14 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onPause() {
-        stopUpdateUITask();
+        updateUITimer.cancel();
         super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        updateUITimer = new Timer();
+        updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
+        super.onResume();
     }
 }
