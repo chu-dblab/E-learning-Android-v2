@@ -2,6 +2,8 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui.fragment;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,6 +29,7 @@ import java.util.TimerTask;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 
 /**
  * 學習引導畫面（顯示推薦學習點的地方）
@@ -34,7 +37,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
 public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     protected static final int REMAINED_TIME = 0x101;
-    private String[] itemEnableActivity =  {"Google","Yahoo!","Apple"};
+    private String[] itemEnableActivity =  {"蒙古的恐龍","恐龍再現","巨龍的腳印"};
 
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
@@ -156,18 +159,22 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         if(list_select_nextPoint_item != -1) {
 
             mList_nextPoints.setItemChecked(list_select_nextPoint_item, true);
+
+            Bitmap bmp = null;
             switch (list_select_nextPoint_item)   //選擇後改變image
             {
                 case 0 :
-                    mImage_map.setImageResource(R.drawable.ic_action_light_logout);
+                    bmp = BitmapFactory.decodeFile(FileUtils.getMapFilePath(getActivity(), 7));
                     break;
                 case 1 :
-                    mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
+                    bmp = BitmapFactory.decodeFile(FileUtils.getMapFilePath(getActivity(), 8));
                     break;
                 case 2 :
-                    mImage_map.setImageResource(R.drawable.ic_launcher);
+                    bmp = BitmapFactory.decodeFile(FileUtils.getMapFilePath(getActivity(), 10));
                     break;
             }
+            mImage_map.setImageBitmap(bmp);
+
         }
     }
 
