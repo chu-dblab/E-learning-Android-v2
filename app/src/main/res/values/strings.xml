@@ -23,6 +23,7 @@
     <string name="error_password">密碼錯誤</string>
     <string name="refresh">重新整理</string>
     <string name="system_settings">系統設定</string>
+    <string name="minute">分鐘</string>
 
     <!-- 教材包、地圖包下載 -->
     <string name="material_downloader">教材下載</string>
@@ -64,8 +65,9 @@
 
     <!-- 教材頁面 -->
     <string name="title_activity_material">教材</string>
-    <string name="now_in_target">標的:</string>
-    <string name="in_target_time">時間:</string>
+    <string name="now_in_target">標的: </string>
+    <string name="in_target_time">時間: </string>
+    <string name="target_learn_time">預計所需: </string>
     <string name="double_back_press_to_exit_point">再按一次返回鍵，代表離開學習點繼續學習。</string>
     <string name="message_internet_search">網際搜尋:</string>
     <string name="sent_internet_message">送出</string>

@@ -12,6 +12,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -30,6 +33,9 @@ import com.loopj.android.http.RequestParams;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
@@ -38,8 +44,11 @@ import tw.edu.chu.csie.dblab.uelearning.android.server.InternetAssistantRestClie
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class MaterialActivity extends ActionBarActivity {
+
+    protected static final int REMAINED_TIME = 0x101;
 
     /**
      * 此學習點的標的編號
@@ -47,14 +56,26 @@ public class MaterialActivity extends ActionBarActivity {
     private int tId;
 
     /**
+     * 此標的預計學習時間 (分鐘)
+     */
+    private int tLearnTime;
+
+    /**
      * 是否為實際抵達學習點
      */
     private boolean isEntity;
 
+    /**
+     * 開始進入學習點時間
+     */
+    protected Date startTime;
+
     // UI上的元件
+    private ActionBar actionbar;
     private WebView mWebView;
     private WebSettings webSettings;
     private static long back_pressed;
+    private Timer updateUITimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,19 +87,24 @@ public class MaterialActivity extends ActionBarActivity {
         this.tId = intent.getIntExtra("tId", 0);
         this.isEntity = intent.getBooleanExtra("is_entity", true);
 
+        // 取得此標的學習時間
+        DBProvider db = new DBProvider(MaterialActivity.this);
+        Cursor targetQuery = db.get_target(tId);
+        tLearnTime = targetQuery.getInt(targetQuery.getColumnIndex("LearnTime"));
+
         // ActionBar對應
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_material);
         setSupportActionBar(toolbar);
 
         // Add ActionBar back button
-        final ActionBar actionbar = getSupportActionBar();
+        actionbar = getSupportActionBar();
         // 判斷目前的設定檔是否允許中途離開學習點
         if (Config.LEARNING_BACK_ENABLE) {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
         // 在ActionBar顯示所在標的編號
-        actionbar.setTitle(getString(R.string.now_in_target).toString() + this.tId);
+        actionbar.setTitle(getString(R.string.now_in_target).toString() +" "+ this.tId);
         actionbar.setSubtitle(getString(R.string.in_target_time).toString() + "00:00");
 
         // 界面元件對應
@@ -106,10 +132,26 @@ public class MaterialActivity extends ActionBarActivity {
             ErrorUtils.error(MaterialActivity.this, "No Material Files");
         }
 
+        updateUI();
     }
 
+    public void updateUI() {
+
+        Date inTime = getInTime();
+        String inTimeString = TimeUtils.timeeToStringNoHour(inTime);
+        actionbar.setSubtitle(getString(R.string.in_target_time).toString() +" "+ inTimeString + ", "
+                + getString(R.string.target_learn_time) +" "+ tLearnTime + getString(R.string.minute));
+    }
+
+    /**
+     * 開始學習
+     */
     public void startLearn() {
 
+        // 取得現在時間
+        startTime = TimeUtils.getNowClientTime();
+
+        // 以下是通知伺服器開始學習
         final DBProvider db = new DBProvider(MaterialActivity.this);
 
         // 抓取目前狀態所需資料
@@ -186,6 +228,7 @@ public class MaterialActivity extends ActionBarActivity {
     }
 
     public void finishLearn() {
+        updateUITimer.cancel();
 
         final DBProvider db = new DBProvider(MaterialActivity.this);
 
@@ -255,6 +298,39 @@ public class MaterialActivity extends ActionBarActivity {
         }
 
         finish();
+    }
+
+    /**
+     * 取得已停留時間
+     * @return 在此學習點停留時間
+     */
+    public Date getInTime() {
+        Date nowTime = TimeUtils.getNowClientTime();
+        long timerLong = nowTime.getTime() - startTime.getTime();
+        return new Date(timerLong);
+    }
+
+    Handler updateUIHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            switch(msg.what) {
+                case REMAINED_TIME:
+
+                    updateUI();
+                    break;
+            }
+        };
+    };
+
+    class UpdateUITask extends TimerTask {
+
+        @Override
+        public void run() {
+            Message message = new Message();
+            message.what = MaterialActivity.REMAINED_TIME;
+
+            updateUIHandler.sendMessage(message);
+        }
+
     }
 
     @Override
@@ -507,5 +583,18 @@ public class MaterialActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPause() {
+        updateUITimer.cancel();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        updateUITimer = new Timer();
+        updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
+        super.onResume();
     }
 }
