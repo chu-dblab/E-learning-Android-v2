@@ -214,7 +214,7 @@ public class MaterialActivity extends ActionBarActivity {
                                     Toast.LENGTH_LONG).show();
                         }
                         else {
-                            Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
                         }
                     }
                     catch (UnsupportedEncodingException e) {
@@ -285,7 +285,7 @@ public class MaterialActivity extends ActionBarActivity {
                                     Toast.LENGTH_LONG).show();
                         }
                         else {
-                            Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
                         }
                     }
                     catch (UnsupportedEncodingException e) {
@@ -392,7 +392,7 @@ public class MaterialActivity extends ActionBarActivity {
 
                         final String url;
                         try {
-                            url = "/GoogleSearch?question="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&id=5";
+                            url = "/GoogleSearch?question="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&number=5";
                             //url = "/GoogleSearch?name="+ URLEncoder.encode(internet_question, HTTP.UTF_8)+"&id=yuan";
                             InternetAssistantRestClient.get(url, params, new AsyncHttpResponseHandler(){
                                 @Override
@@ -493,7 +493,7 @@ public class MaterialActivity extends ActionBarActivity {
 
                         final String url;
                         try {
-                            url = "/GoogleSearch?id=yuan&question" +URLEncoder.encode(detail_question, HTTP.UTF_8);
+                            url = "/Detail?id=yun123&question=" +URLEncoder.encode(detail_question, HTTP.UTF_8);
                             InternetAssistantRestClient.get(url, params, new AsyncHttpResponseHandler(){
                                 @Override
                                 public void onStart() {

@@ -35,7 +35,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     protected static final int REMAINED_TIME = 0x101;
-    private String[] itemEnableActivity =  {"蒙古的恐龍","恐龍再現","巨龍的腳印"};
+    private String[] itemEnableActivity =  {"7蒙古的恐龍","8恐龍再現","10巨龍的腳印"};
 
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
