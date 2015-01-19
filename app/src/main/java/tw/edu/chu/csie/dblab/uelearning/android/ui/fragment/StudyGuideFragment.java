@@ -41,6 +41,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     protected static final int REMAINED_TIME = 0x101;
     private String[] itemEnableActivity_default = {"Entry"};
     private int[] itemEnableActivity_tid = {0};
+    private Date learningTime;
 
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
@@ -62,6 +63,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
+        learningTime = ActivityManager.getRemainderLearningTime(getActivity());
 
         // 若還沒有推薦的學習點
         if(!TargetManager.isHaveRecommand(getActivity())) {
@@ -199,7 +201,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         public void handleMessage(android.os.Message msg) {
             switch(msg.what) {
                 case REMAINED_TIME:
-                    Date learningTime = ActivityManager.getRemainderLearningTime(getActivity());
+                    learningTime.setTime(learningTime.getTime() - 1000);
                     mText_remainedTime.setText(TimeUtils.timerToString(learningTime));
                     break;
             }
@@ -296,6 +298,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onResume() {
+        learningTime = ActivityManager.getRemainderLearningTime(getActivity());
         updateUITimer = new Timer();
         updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
         super.onResume();
