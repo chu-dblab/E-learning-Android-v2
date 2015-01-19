@@ -289,6 +289,11 @@ public class MaterialActivity extends ActionBarActivity {
             ErrorUtils.error(MaterialActivity.this, e);
         }
 
+        // 告知上一個活動說剛剛學習到的是哪個標地
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("LearnedPointId", tId);
+        setResult(RESULT_OK, returnIntent);
+
         finish();
     }
 

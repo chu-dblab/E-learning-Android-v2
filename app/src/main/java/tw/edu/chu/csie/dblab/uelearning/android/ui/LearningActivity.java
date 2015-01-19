@@ -57,7 +57,10 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class LearningActivity extends ActionBarActivity implements ActionBar.TabListener {
 
+    public static final int RESULT_MATERIAL = 1;
+
     ProgressDialog mProgress_activity_finish;
+    StudyGuideFragment studyGuideFragment;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -123,6 +126,25 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RESULT_MATERIAL) {
+            if(resultCode == RESULT_OK){
+
+                // 從教材頁面接收剛剛學過的是哪個標地
+                Bundle bundle = data.getExtras();
+                int learnedTId = bundle.getInt("LearnedPointId");
+                if(Config.DEBUG_SHOW_MESSAGE) {
+                    Toast.makeText(LearningActivity.this, "Back: "+learnedTId, Toast.LENGTH_SHORT).show();
+                }
+                // 繼續推薦下一個學習點
+                studyGuideFragment.updateNextPoint(learnedTId);
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_learning, menu);
@@ -142,6 +164,8 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         // QR Code 掃描
         if (id == R.id.menu_qr_scan) {
 
+            // 呼叫studyGuideFragment的重新推薦學習點
+            //studyGuideFragment.updateNextPoint();
         }
         // 輸入標的編號
         else if (id == R.id.menu_keyin_tid) {
@@ -174,7 +198,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                         // 進入教材頁面
                         Intent toMaterial = new Intent(LearningActivity.this, MaterialActivity.class);
                         toMaterial.putExtra("tId", tId);
-                        startActivityForResult(toMaterial, 1);
+                        startActivityForResult(toMaterial, RESULT_MATERIAL);
                     }
 
                 }
@@ -205,11 +229,13 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         }
         // 結束學習活動
         else if (id == R.id.menu_finish_study_activity) {
+            studyGuideFragment.stopUpdateUITask();
             finishStudyActivity();
         }
         // 暫停學習活動
         else if (id == R.id.menu_pause_study_activity) {
             // 返回學習活動選擇頁面
+            studyGuideFragment.stopUpdateUITask();
             finish();
         }
         else if (id == R.id.menu_about) {
@@ -368,7 +394,8 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
             Fragment f;
             switch (position) {
                 case 0:
-                    f = StudyGuideFragment.newInstance(position);
+                    f = studyGuideFragment.newInstance(position);
+                    studyGuideFragment = (StudyGuideFragment)f;
                     break;
                 case 1:
                     f = PlaceMapFragment.newInstance(position);

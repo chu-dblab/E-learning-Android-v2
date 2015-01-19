@@ -18,14 +18,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
@@ -34,12 +37,13 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
  */
 public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
+    public int currentTId = 0;
     protected static final int REMAINED_TIME = 0x101;
     private String[] itemEnableActivity_default =  {"Google"};
     private int[] itemEnableActivity_tid = {1};
 
     private ListView mList_nextPoints;
-    int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
+    int list_select_nextPoint_item = 0; //一開始未選擇任何一個item所以為-1
     private SwipeRefreshLayout mSwipe_nextPoints;
     private TextView mText_remainedTime;
     private ImageView mImage_map;
@@ -58,7 +62,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
-        updateNextPoint();
+
+        if(!TargetManager.isHaveRecommand(getActivity())) {
+            updateNextPoint(currentTId);
+        }
 
         return rootView;
     }
@@ -90,10 +97,18 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     /**
      * 取得下一個推薦學習點
      */
-    public void updateNextPoint() {
+    public void updateNextPoint(int currentTId) {
         mSwipe_nextPoints.setRefreshing(true);
 
+        this.currentTId = currentTId;
+
+        if(Config.DEBUG_SHOW_MESSAGE) {
+            Toast.makeText(getActivity(), "推薦中...", Toast.LENGTH_SHORT).show();
+        }
+
         DBProvider db = new DBProvider(getActivity());
+        db.removeAll_recommand();
+
         // 取得目前學習活動資料
         Cursor query_activity = db.get_activity();
         query_activity.moveToFirst();
@@ -104,7 +119,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         else enableVirtual = false;
 
         // TODO: 目前先暫時做假的出來
-        db.removeAll_recommand();
         db.insert_recommand(3, true);
         db.insert_recommand(7, true);
         db.insert_recommand(13, true);
@@ -184,6 +198,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     }
 
+    public void stopUpdateUITask() {
+        updateUITimer.cancel();
+    }
+
     // ============================================================================================
 
     @Override
@@ -241,13 +259,19 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onRefresh() {
-        updateNextPoint();
+        updateNextPoint(currentTId);
     }
 
     @Override
     public void onPause() {
         updateUITimer.cancel();
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        updateUITimer.cancel();
+        super.onStop();
     }
 
     @Override
