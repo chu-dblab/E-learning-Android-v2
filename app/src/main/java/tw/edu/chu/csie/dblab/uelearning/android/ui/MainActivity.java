@@ -174,6 +174,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 lMode = thisActivity.getInt("learnStyle_mode");
                             }
                             Boolean lForce = thisActivity.getBoolean("learnStyle_force");
+                            Boolean enableVirtual = thisActivity.getBoolean("enable_virtual");
                             String mMode = thisActivity.getString("material_mode");
                             Boolean lock = thisActivity.getBoolean("lock");
                             int targetTotal = thisActivity.getInt("target_total");
@@ -188,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             // 紀錄進資料庫裡
                             db.insert_enableActivity(db.get_user_id(), typeId, saId, swId,
                                     thId, thName, thIntroduction, startTime, expiredTime,
-                                    learnTime, timeForce, lMode, lForce, mMode,
+                                    learnTime, timeForce, lMode, lForce, enableVirtual, mMode,
                                     lock, targetTotal, learnedTotal);
                         }
 
@@ -416,6 +417,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         if(activityJson.getString("learnStyle_force") == "true")
                             lForce = true;
                         else lForce = false;
+                        boolean enableVirtual;
+                        if(activityJson.getString("enable_virtual") == "true")
+                            enableVirtual = true;
+                        else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
 
                         // 紀錄進資料庫
@@ -423,11 +428,11 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         db.removeAll_activity();
                         db.insert_activity(db.get_user_id(), saId,
                                 thId, thName, startTime, learnTime, timeForce,
-                                lMode, lForce, mMode, targetTotal, learnedTotal);
+                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
                         db.insert_enableActivity(db.get_user_id(), DBProvider.TYPE_STUDY,
                                 saId, null, thId, thName, null,
                                 startTime, expiredTime, learnTime, timeForce,
-                                lMode, lForce, mMode, true, targetTotal, learnedTotal);
+                                lMode, lForce, enableVirtual, mMode, true, targetTotal, learnedTotal);
 
                         // 向伺服端取得今次活動所有的標的資訊
                         UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId + "/points",
@@ -625,9 +630,14 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         else timeForce = false;
                         int lMode = activityJson.getInt("learnStyle_mode");
                         boolean lForce;
+
                         if(activityJson.getString("learnStyle_force") == "true")
                             lForce = true;
                         else lForce = false;
+                        boolean enableVirtual;
+                        if(activityJson.getString("enable_virtual") == "true")
+                            enableVirtual = true;
+                        else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
 
                         // 紀錄進資料庫
@@ -635,7 +645,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         db.removeAll_activity();
                         db.insert_activity(db.get_user_id(), saId,
                                 thId, thName, startTime, learnTime, timeForce,
-                                lMode, lForce, mMode, targetTotal, learnedTotal);
+                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
 
                         // 進入學習畫面
                         Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);

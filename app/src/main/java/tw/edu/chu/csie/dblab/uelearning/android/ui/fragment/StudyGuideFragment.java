@@ -2,6 +2,9 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui.fragment;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +24,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
@@ -30,7 +35,8 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     protected static final int REMAINED_TIME = 0x101;
-    private String[] itemEnableActivity =  {"Google","Yahoo!","Apple"};
+    private String[] itemEnableActivity_default =  {"Google"};
+    private int[] itemEnableActivity_tid = {1};
 
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
@@ -52,6 +58,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
+        updateNextPoint();
 
         return rootView;
     }
@@ -70,12 +77,85 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         updateUIHandler.sendMessage(message);
 
         ArrayAdapter<String> arrayData ;
-        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity);
+        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity_default);
         mList_nextPoints.setAdapter(arrayData);
         mList_nextPoints.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList_nextPoints.setOnItemClickListener(this);
-        updateNextPointsUI();
+        updateUI();
 
+    }
+
+    // ============================================================================================
+
+    /**
+     * 取得下一個推薦學習點
+     */
+    public void updateNextPoint() {
+        mSwipe_nextPoints.setRefreshing(true);
+
+        DBProvider db = new DBProvider(getActivity());
+        // 取得目前學習活動資料
+        Cursor query_activity = db.get_activity();
+        query_activity.moveToFirst();
+        int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
+        int enableVirtualInt = query_activity.getInt(query_activity.getColumnIndex("EnableVirtual"));
+        boolean enableVirtual;
+        if(enableVirtualInt>0) enableVirtual = true;
+        else enableVirtual = false;
+
+        // TODO: 目前先暫時做假的出來
+        db.removeAll_recommand();
+        db.insert_recommand(3, true);
+        db.insert_recommand(7, true);
+        db.insert_recommand(13, true);
+
+        mSwipe_nextPoints.setRefreshing(false);
+    }
+
+    /**
+     * 重新整理介面
+     */
+    public void updateUI() {
+
+        DBProvider db = new DBProvider(getActivity());
+        Cursor query = db.getAll_recommand();
+
+        int total = query.getCount();
+        String[] itemEnableActivity = new String[total];
+        itemEnableActivity_tid = new int[total];
+
+        for(int i=0; i<total; i++) {
+            query.moveToPosition(i);
+
+            int tId = query.getInt(query.getColumnIndex("TID"));
+            int isEntityInt = query.getInt(query.getColumnIndex("IsEntity"));
+            boolean isEntity;
+            if(isEntityInt>0) isEntity = true;
+            else isEntity = false;
+
+            Cursor query_t = db.get_target(tId);
+            query_t.moveToFirst();
+
+            //Integer hId = query_t.getInt(query_t.getColumnIndex("HID"));
+            //String hName = query_t.getString(query_t.getColumnIndex("HName"));
+            //Integer aId = query_t.getInt(query_t.getColumnIndex("AID"));
+            //String aName = query_t.getString(query_t.getColumnIndex("AName"));
+            //Integer aFloor = query_t.getInt(query_t.getColumnIndex("AFloor"));
+            //Integer aNum = query_t.getInt(query_t.getColumnIndex("ANum"));
+            //Integer tNum = query_t.getInt(query_t.getColumnIndex("TNum"));
+            String tName = query_t.getString(query_t.getColumnIndex("TName"));
+            //int learnTime = query_t.getInt(query_t.getColumnIndex("LearnTime"));
+
+            itemEnableActivity_tid[i] = tId;
+            itemEnableActivity[i] = new String(tId + ". "+tName);
+
+        }
+
+        ArrayAdapter<String> arrayData ;
+        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity);
+        mList_nextPoints.setAdapter(arrayData);
+        list_select_nextPoint_item = 0;
+        updateSelectNextPointsUI();
     }
 
     // ============================================================================================
@@ -140,32 +220,27 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         list_select_nextPoint_item = position;//保存目前的View位置
-        updateNextPointsUI();
+        updateSelectNextPointsUI();
     }
 
-    public void updateNextPointsUI() {
+    public void updateSelectNextPointsUI() {
 
+        // 當已經有選取任何一項
         if(list_select_nextPoint_item != -1) {
 
             mList_nextPoints.setItemChecked(list_select_nextPoint_item, true);
-            switch (list_select_nextPoint_item)   //選擇後改變image
-            {
-                case 0 :
-                    mImage_map.setImageResource(R.drawable.ic_action_light_logout);
-                    break;
-                case 1 :
-                    mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
-                    break;
-                case 2 :
-                    mImage_map.setImageResource(R.drawable.ic_launcher);
-                    break;
-            }
+
+            int tid = itemEnableActivity_tid[ list_select_nextPoint_item ];
+            String map_filename = FileUtils.getMapFilePath(getActivity(), tid);
+            Bitmap mBitmap_map = BitmapFactory.decodeFile(map_filename);
+
+            mImage_map.setImageBitmap(mBitmap_map);
         }
     }
 
     @Override
     public void onRefresh() {
-        mSwipe_nextPoints.setRefreshing(false);
+        updateNextPoint();
     }
 
     @Override
