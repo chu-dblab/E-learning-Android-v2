@@ -435,6 +435,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 lMode, lForce, enableVirtual, mMode, true, targetTotal, learnedTotal);
 
                         // 向伺服端取得今次活動所有的標的資訊
+                        // TODO: 請合併成只要在此次連接就能取得所有標的資訊
                         UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId + "/points",
                                 null, new AsyncHttpResponseHandler() {
 
@@ -639,6 +640,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             enableVirtual = true;
                         else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
+
+                        // TODO: 請在此次連接取得所有標的資訊
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(MainActivity.this);
