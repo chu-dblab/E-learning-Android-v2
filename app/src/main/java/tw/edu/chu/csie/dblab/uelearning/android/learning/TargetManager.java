@@ -10,6 +10,14 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
  */
 public class TargetManager {
 
+    public static int getStartTargetId(Context context) {
+        DBProvider db = new DBProvider(context);
+        Cursor activity = db.get_activity();
+        activity.moveToFirst();
+        int startTId = activity.getInt(activity.getColumnIndex("StartTID"));
+        return startTId;
+    }
+
     /**
      * 是否已有推薦的學習點
      * @param context Android基底

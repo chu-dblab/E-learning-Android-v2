@@ -316,13 +316,16 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
                                 // 停止學習導引界面計時
                                 //studyGuideFragment.stopUpdateUITask();
 
-                                // 離開學習畫面
-                                LearningActivity.this.finish();
-
                                 // 紀錄進資料庫
                                 DBProvider db = new DBProvider(LearningActivity.this);
                                 int saId = db.get_activity_id();
                                 db.remove_enableActivity_inStudying_bySaId(saId);
+                                db.removeAll_target();
+                                db.removeAll_recommand();
+                                db.removeAll_activity();
+
+                                // 離開學習畫面
+                                LearningActivity.this.finish();
 
                             } catch (UnsupportedEncodingException e) {
                                 ErrorUtils.error(LearningActivity.this, e);

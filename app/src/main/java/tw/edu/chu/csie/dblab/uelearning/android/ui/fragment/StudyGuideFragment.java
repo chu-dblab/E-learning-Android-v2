@@ -39,11 +39,11 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     public int currentTId = 0;
     protected static final int REMAINED_TIME = 0x101;
-    private String[] itemEnableActivity_default =  {"Google"};
-    private int[] itemEnableActivity_tid = {1};
+    private String[] itemEnableActivity_default = {"Entry"};
+    private int[] itemEnableActivity_tid = {0};
 
     private ListView mList_nextPoints;
-    int list_select_nextPoint_item = 0; //一開始未選擇任何一個item所以為-1
+    int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
     private SwipeRefreshLayout mSwipe_nextPoints;
     private TextView mText_remainedTime;
     private ImageView mImage_map;
@@ -63,8 +63,17 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
 
+        // 若還沒有推薦的學習點
         if(!TargetManager.isHaveRecommand(getActivity())) {
+            currentTId = TargetManager.getStartTargetId(getActivity());
+            list_select_nextPoint_item = 0;
+            updateUI();
             updateNextPoint(currentTId);
+        }
+        // 若已經有推薦的學習點
+        else {
+            list_select_nextPoint_item = 0;
+            updateUI();
         }
 
         return rootView;
@@ -84,7 +93,8 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         updateUIHandler.sendMessage(message);
 
         ArrayAdapter<String> arrayData ;
-        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity_default);
+        arrayData = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_single_choice, itemEnableActivity_default);
         mList_nextPoints.setAdapter(arrayData);
         mList_nextPoints.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList_nextPoints.setOnItemClickListener(this);
@@ -137,34 +147,44 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         Cursor query = db.getAll_recommand();
 
         int total = query.getCount();
-        String[] itemEnableActivity = new String[total];
-        itemEnableActivity_tid = new int[total];
+        String[] itemEnableActivity;
+        if(total > 0) {
 
-        for(int i=0; i<total; i++) {
-            query.moveToPosition(i);
+            itemEnableActivity = new String[total];
+            itemEnableActivity_tid = new int[total];
 
-            int tId = query.getInt(query.getColumnIndex("TID"));
-            int isEntityInt = query.getInt(query.getColumnIndex("IsEntity"));
-            boolean isEntity;
-            if(isEntityInt>0) isEntity = true;
-            else isEntity = false;
+            for(int i=0; i<total; i++) {
+                query.moveToPosition(i);
 
-            Cursor query_t = db.get_target(tId);
-            query_t.moveToFirst();
+                int tId = query.getInt(query.getColumnIndex("TID"));
+                int isEntityInt = query.getInt(query.getColumnIndex("IsEntity"));
+                boolean isEntity;
+                if(isEntityInt>0) isEntity = true;
+                else isEntity = false;
 
-            //Integer hId = query_t.getInt(query_t.getColumnIndex("HID"));
-            //String hName = query_t.getString(query_t.getColumnIndex("HName"));
-            //Integer aId = query_t.getInt(query_t.getColumnIndex("AID"));
-            //String aName = query_t.getString(query_t.getColumnIndex("AName"));
-            //Integer aFloor = query_t.getInt(query_t.getColumnIndex("AFloor"));
-            //Integer aNum = query_t.getInt(query_t.getColumnIndex("ANum"));
-            //Integer tNum = query_t.getInt(query_t.getColumnIndex("TNum"));
-            String tName = query_t.getString(query_t.getColumnIndex("TName"));
-            //int learnTime = query_t.getInt(query_t.getColumnIndex("LearnTime"));
+                Cursor query_t = db.get_target(tId);
+                query_t.moveToFirst();
 
-            itemEnableActivity_tid[i] = tId;
-            itemEnableActivity[i] = new String(tId + ". "+tName);
+                //Integer hId = query_t.getInt(query_t.getColumnIndex("HID"));
+                //String hName = query_t.getString(query_t.getColumnIndex("HName"));
+                //Integer aId = query_t.getInt(query_t.getColumnIndex("AID"));
+                //String aName = query_t.getString(query_t.getColumnIndex("AName"));
+                //Integer aFloor = query_t.getInt(query_t.getColumnIndex("AFloor"));
+                //Integer aNum = query_t.getInt(query_t.getColumnIndex("ANum"));
+                //Integer tNum = query_t.getInt(query_t.getColumnIndex("TNum"));
+                String tName = query_t.getString(query_t.getColumnIndex("TName"));
+                //int learnTime = query_t.getInt(query_t.getColumnIndex("LearnTime"));
 
+                itemEnableActivity_tid[i] = tId;
+                itemEnableActivity[i] = new String(tId + ". "+tName);
+
+            }
+        }
+        else {
+            itemEnableActivity = new String[1];
+            itemEnableActivity_tid = new int[1];
+            itemEnableActivity_tid[0] = currentTId;
+            itemEnableActivity[0] = new String(getString(R.string.start_target));
         }
 
         ArrayAdapter<String> arrayData ;

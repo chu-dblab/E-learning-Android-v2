@@ -403,6 +403,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
                         // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
                         int saId = activityJson.getInt("activity_id");
+                        int startTId = activityJson.getInt("start_target_id");
                         String startTime = activityJson.getString("start_time");
                         String expiredTime = activityJson.getString("expired_time");
                         int targetTotal = activityJson.getInt("target_total");
@@ -426,8 +427,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(MainActivity.this);
                         db.removeAll_activity();
+                        db.removeAll_recommand();
+                        db.removeAll_target();
                         db.insert_activity(db.get_user_id(), saId,
-                                thId, thName, startTime, learnTime, timeForce,
+                                thId, thName, startTId, startTime, learnTime, timeForce,
                                 lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
                         db.insert_enableActivity(db.get_user_id(), DBProvider.TYPE_STUDY,
                                 saId, null, thId, thName, null,
@@ -620,6 +623,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         int saId = activityJson.getInt("activity_id");
                         int thId = activityJson.getInt("theme_id");
                         String thName = activityJson.getString("theme_name");
+                        int startTId = activityJson.getInt("start_target_id");
                         String startTime = activityJson.getString("start_time");
                         String expiredTime = activityJson.getString("expired_time");
                         int targetTotal = activityJson.getInt("target_total");
@@ -647,7 +651,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         DBProvider db = new DBProvider(MainActivity.this);
                         db.removeAll_activity();
                         db.insert_activity(db.get_user_id(), saId,
-                                thId, thName, startTime, learnTime, timeForce,
+                                thId, thName, startTId, startTime, learnTime, timeForce,
                                 lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
 
                         // 進入學習畫面
@@ -746,6 +750,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             db.remove_user();
             db.removeAll_enableActivity();
             db.removeAll_activity();
+            db.removeAll_recommand();
+            db.removeAll_target();
 
             // 回到登入畫面
             finish();

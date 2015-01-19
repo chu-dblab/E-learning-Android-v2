@@ -146,7 +146,7 @@ public class DBProvider {
     }
 
     public long insert_activity(String uId, int saId,
-                                int thId, String thName,
+                                int thId, String thName, int startTId,
                                 String startTime, int learnTime, boolean timeForce,
                                 int lMode, boolean lForce, boolean enableVirtual, String mMode,
                                 int targetTotal, int learnedTotal) {
@@ -156,6 +156,7 @@ public class DBProvider {
         contentvalues.put("SaID", saId);
         contentvalues.put("ThID", thId);
         contentvalues.put("ThName", thName);
+        contentvalues.put("StartTID", startTId);
         contentvalues.put("StartTime", startTime);
         contentvalues.put("LearnTime", learnTime);
         contentvalues.put("TimeForce", timeForce);
