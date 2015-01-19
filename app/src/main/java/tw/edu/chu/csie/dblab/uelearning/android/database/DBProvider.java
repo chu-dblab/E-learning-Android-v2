@@ -81,7 +81,8 @@ public class DBProvider {
                                       int thId, String thName, String thIntroduction,
                                       String startTime, String expiredTime,
                                       int learnTime, Boolean timeForce,
-                                      Integer lMode, Boolean lForce, String mMode,
+                                      Integer lMode, Boolean lForce, Boolean enableVirtual,
+                                      String mMode,
                                       Boolean lock, Integer targetTotal, Integer learnedTotal) {
 
         ContentValues contentvalues = new ContentValues();
@@ -98,6 +99,7 @@ public class DBProvider {
         contentvalues.put("TimeForce", timeForce);
         contentvalues.put("LMode", lMode);
         contentvalues.put("LForce", lForce);
+        contentvalues.put("EnableVirtual", enableVirtual);
         contentvalues.put("MMode", mMode);
         contentvalues.put("Lock", lock);
         contentvalues.put("TargetTotal", targetTotal);
@@ -146,7 +148,7 @@ public class DBProvider {
     public long insert_activity(String uId, int saId,
                                 int thId, String thName,
                                 String startTime, int learnTime, boolean timeForce,
-                                int lMode, boolean lForce, String mMode,
+                                int lMode, boolean lForce, boolean enableVirtual, String mMode,
                                 int targetTotal, int learnedTotal) {
 
         ContentValues contentvalues = new ContentValues();
@@ -159,6 +161,7 @@ public class DBProvider {
         contentvalues.put("TimeForce", timeForce);
         contentvalues.put("LMode", lMode);
         contentvalues.put("LForce", lForce);
+        contentvalues.put("EnableVirtual", enableVirtual);
         contentvalues.put("MMode", mMode);
         contentvalues.put("TargetTotal", targetTotal);
         contentvalues.put("LearnedTotal", learnedTotal);
@@ -219,6 +222,34 @@ public class DBProvider {
         return returnData;
     }
 
+    public long insert_recommand(int tId, boolean isEntity) {
+
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("TID", tId);
+        contentvalues.put("IsEntity", isEntity);
+        long returnData = db.insert("Recommand", null, contentvalues);
+
+        return returnData;
+    }
+
+    public Cursor getAll_recommand() {
+
+        Cursor the_query = db.query("Recommand", null, null, null, null, null, null);
+        return the_query;
+    }
+
+    public Cursor get_recommand_byTargetId(int tId) {
+
+        Cursor the_query = db.query("Recommand", null, "TID="+tId, null, null, null, null);
+        return the_query;
+    }
+
+    public long removeAll_recommand() {
+
+        long returnData = db.delete("Recommand", null, null);
+        return returnData;
+    }
+
     public String get_serverInfo(String name) {
 
         Cursor the_query = db.query("ServerInfo", new String[]{"Value"}, "Name='"+name+"'", null, null, null, null);
@@ -235,5 +266,7 @@ public class DBProvider {
 
         return returnData;
     }
+
+
 
 }

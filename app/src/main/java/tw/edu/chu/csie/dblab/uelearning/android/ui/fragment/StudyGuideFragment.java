@@ -110,6 +110,8 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         db.insert_recommand(13, true);
 
         mSwipe_nextPoints.setRefreshing(false);
+        list_select_nextPoint_item = 0;
+        updateUI();
     }
 
     /**
@@ -154,7 +156,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         ArrayAdapter<String> arrayData ;
         arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity);
         mList_nextPoints.setAdapter(arrayData);
-        list_select_nextPoint_item = 0;
         updateSelectNextPointsUI();
     }
 
