@@ -201,7 +201,13 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         public void handleMessage(android.os.Message msg) {
             switch(msg.what) {
                 case REMAINED_TIME:
-                    learningTime.setTime(learningTime.getTime() - 1000);
+                    long milliseconds = learningTime.getTime() - 1000;
+                    if(milliseconds > 0) {
+                        learningTime.setTime(learningTime.getTime() - 1000);
+                    }
+                    else {
+                        learningTime.setTime(0);
+                    }
                     mText_remainedTime.setText(TimeUtils.timerToString(learningTime));
                     break;
             }
