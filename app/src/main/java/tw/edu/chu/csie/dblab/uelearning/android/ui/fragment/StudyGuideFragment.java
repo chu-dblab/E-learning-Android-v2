@@ -20,6 +20,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,6 +39,9 @@ import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
@@ -114,11 +127,12 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
         this.currentTId = currentTId;
 
-        if(Config.DEBUG_SHOW_MESSAGE) {
+        if (Config.DEBUG_SHOW_MESSAGE) {
             Toast.makeText(getActivity(), "推薦中...", Toast.LENGTH_SHORT).show();
         }
 
-        DBProvider db = new DBProvider(getActivity());
+        final DBProvider db = new DBProvider(getActivity());
+        String token = db.get_token();
         db.removeAll_recommand();
 
         // 取得目前學習活動資料
@@ -127,17 +141,67 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
         int enableVirtualInt = query_activity.getInt(query_activity.getColumnIndex("EnableVirtual"));
         boolean enableVirtual;
-        if(enableVirtualInt>0) enableVirtual = true;
+        if (enableVirtualInt > 0) enableVirtual = true;
         else enableVirtual = false;
 
         // TODO: 目前先暫時做假的出來
-        db.insert_recommand(3, true);
-        db.insert_recommand(7, true);
-        db.insert_recommand(13, true);
+//        db.insert_recommand(3,true);
+//        db.insert_recommand(7,true);
+//        db.insert_recommand(13,true);
 
-        mSwipe_nextPoints.setRefreshing(false);
-        list_select_nextPoint_item = 0;
-        updateUI();
+        try {
+            UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                    "/activitys/" + saId + "/recommand?current_point=" + currentTId, null, new AsyncHttpResponseHandler() {
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                    String content = null;
+
+                    try {
+                        content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONArray jsonAry_targets = response.getJSONArray("recommand_target");
+
+                        // 使用資料庫
+                        DBProvider db = new DBProvider(getActivity());
+                        db.removeAll_recommand();
+
+                        // 抓其中一個活動
+                        for (int i = 0; i < jsonAry_targets.length(); i++) {
+                            JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
+
+                            int tId = thisTarget.getInt("target_id");
+                            boolean isEntity = thisTarget.getBoolean("is_entity");
+
+                            // 記錄進資料庫
+                            db.insert_recommand(tId, isEntity);
+                        }
+                    } catch (JSONException e) {
+                        ErrorUtils.error(getActivity(), e);
+                    } catch (UnsupportedEncodingException e) {
+                        ErrorUtils.error(getActivity(), e);
+                    }
+
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item=0;
+                    updateUI();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item=0;
+                    updateUI();
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(getActivity(), e);
+        }
+
     }
 
     /**
