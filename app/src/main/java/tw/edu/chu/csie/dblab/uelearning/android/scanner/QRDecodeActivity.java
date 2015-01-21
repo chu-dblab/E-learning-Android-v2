@@ -1,6 +1,7 @@
 package tw.edu.chu.csie.dblab.uelearning.android.scanner;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.PointF;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,6 +14,10 @@ import qrcodereaderview.QRCodeReaderView;
 import qrcodereaderview.QRCodeReaderView.OnQRCodeReadListener;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.StudyGuideFragment;
 
 public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
     //private TextView myTextView;
@@ -72,15 +77,15 @@ public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
                     }
                     else{
                         try {
-                            int materialId = Integer.valueOf(text);
+                            int targetId = Integer.valueOf(text);
                             // 解讀正確，進入學習教材
-                            /*if(new LearningUtils(this).isInRecommandPoint(text)) {
+                            if(TargetManager.isInRecommand(QRDecodeActivity.this, targetId)) {
                                 Intent toLearning = new Intent(this, MaterialActivity.class);
-                                toLearning.putExtra("pointId", materialId);
-                                startActivityForResult(toLearning, 1);
+                                toLearning.putExtra("tId", targetId);
+                                startActivityForResult(toLearning, LearningActivity.RESULT_MATERIAL);
 
                                 Intent returnIntent = new Intent();
-                                returnIntent.putExtra("LearnedPointId", materialId);
+                                returnIntent.putExtra("LearnedPointId", targetId);
                                 setResult(RESULT_OK, returnIntent);
                                 finish();
                             }
@@ -88,7 +93,7 @@ public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
                                 // TODO 拉開成String
                                 Toast.makeText(this, "這不是這次的推薦學習點喔～", Toast.LENGTH_LONG).show();
                                 finish();
-                            }*/
+                            }
                         } catch(IllegalArgumentException ex) {
                             // TODO 拉開成String
                             Toast.makeText(this, "此內容不是數字喔!!", Toast.LENGTH_LONG).show();
@@ -107,7 +112,7 @@ public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
     }
 
     // 回傳標地編號，方便其他Class使用
-    public String getext()
+    public String getText()
     {
         return gettext;
     }

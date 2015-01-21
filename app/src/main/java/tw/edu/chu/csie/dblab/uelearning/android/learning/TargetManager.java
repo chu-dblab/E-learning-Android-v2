@@ -71,6 +71,10 @@ public class TargetManager {
         else return false;
     }
 
+    public static void enterPointByQRCode(final Context context) {
+
+    }
+
     public static void enterPointByDialog(final Context context) {
         final AlertDialog.Builder mDialog_inputTId = new AlertDialog.Builder(context);
         mDialog_inputTId.setTitle(R.string.keyin_tid_message);
