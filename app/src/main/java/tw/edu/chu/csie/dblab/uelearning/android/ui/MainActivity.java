@@ -174,6 +174,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 lMode = thisActivity.getInt("learnStyle_mode");
                             }
                             Boolean lForce = thisActivity.getBoolean("learnStyle_force");
+                            Boolean enableVirtual = thisActivity.getBoolean("enable_virtual");
                             String mMode = thisActivity.getString("material_mode");
                             Boolean lock = thisActivity.getBoolean("lock");
                             int targetTotal = thisActivity.getInt("target_total");
@@ -188,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                             // 紀錄進資料庫裡
                             db.insert_enableActivity(db.get_user_id(), typeId, saId, swId,
                                     thId, thName, thIntroduction, startTime, expiredTime,
-                                    learnTime, timeForce, lMode, lForce, mMode,
+                                    learnTime, timeForce, lMode, lForce, enableVirtual, mMode,
                                     lock, targetTotal, learnedTotal);
                         }
 
@@ -402,8 +403,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         JSONArray jsonAtt_targets = response.getJSONArray("targets");
 
 
-                            // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
+                        // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
                         int saId = activityJson.getInt("activity_id");
+                        int startTId = activityJson.getInt("start_target_id");
                         String startTime = activityJson.getString("start_time");
                         String expiredTime = activityJson.getString("expired_time");
                         int targetTotal = activityJson.getInt("target_total");
@@ -418,16 +420,19 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         if(activityJson.getString("learnStyle_force") == "true")
                             lForce = true;
                         else lForce = false;
+                        boolean enableVirtual;
+                        if(activityJson.getString("enable_virtual") == "true")
+                            enableVirtual = true;
+                        else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
-
-
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(MainActivity.this);
                         db.removeAll_activity();
+                        db.removeAll_recommand();
                         db.removeAll_target();
 
-                        // 抓其中一個活動
+                        // 向伺服端取得今次活動所有的標的資訊
                         for (int i = 0; i < jsonAtt_targets.length(); i++) {
                             JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
 
@@ -456,135 +461,28 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                 tNum = thisTarget.getInt("target_number");
                             }
                             String tName = thisTarget.getString("name");
-                            learnTime = thisTarget.getInt("learn_time");  //這邊
+                            int targetLearnTime = thisTarget.getInt("learn_time");  //這邊
                             String mapUrl = thisTarget.getString("map_url");
                             String materialUrl = thisTarget.getString("material_url");
                             String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
 
                             // 記錄進資料庫
-                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, learnTime, mapUrl, materialUrl, virtualMaterialUrl);
+                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, targetLearnTime, mapUrl, materialUrl, virtualMaterialUrl);
                         }
 
                         db.insert_activity(db.get_user_id(), saId,
-                                thId, thName, startTime, learnTime, timeForce,
-                                lMode, lForce, mMode, targetTotal, learnedTotal);
+                                thId, thName, startTId, startTime, learnTime, timeForce,
+                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
                         db.insert_enableActivity(db.get_user_id(), DBProvider.TYPE_STUDY,
                                 saId, null, thId, thName, null,
                                 startTime, expiredTime, learnTime, timeForce,
-                                lMode, lForce, mMode, true, targetTotal, learnedTotal);
+                                lMode, lForce, enableVirtual, mMode, true, targetTotal, learnedTotal);
 
-                        // 向伺服端取得今次活動所有的標的資訊
-                        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId + "/points",
-                                null, new AsyncHttpResponseHandler() {
+                        mProgress_start_studyActivity.dismiss();
 
-                                /**
-                                 * Fired when a request returns successfully, override to handle in your own code
-                                 *
-                                 * @param statusCode   the status code of the response
-                                 * @param headers      return headers, if any
-                                 * @param responseBody the body of the HTTP response from the server
-                                 */
-                                @Override
-                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-                                    String content = null;
-                                    try {
-                                        content = new String(responseBody, "UTF-8");
-                                        JSONObject response = new JSONObject(content);
-                                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
-
-                                        // 使用資料庫
-                                        DBProvider db = new DBProvider(MainActivity.this);
-                                        db.removeAll_target();
-
-                                        // 抓其中一個活動
-                                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
-                                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
-
-                                            int thId = thisTarget.getInt("theme_id");
-                                            int tId = thisTarget.getInt("target_id");
-                                            Integer hId = null;
-                                            if(!thisTarget.isNull("hall_id")) {
-                                                hId = thisTarget.getInt("hall_id");
-                                            }
-                                            String hName = thisTarget.getString("hall_name");
-                                            Integer aId = null;
-                                            if(!thisTarget.isNull("area_id")) {
-                                                aId = thisTarget.getInt("area_id");
-                                            }
-                                            String aName = thisTarget.getString("area_name");
-                                            Integer aFloor = null;
-                                            if(!thisTarget.isNull("floor")) {
-                                                aFloor = thisTarget.getInt("floor");
-                                            }
-                                            Integer aNum = null;
-                                            if(!thisTarget.isNull("area_number")) {
-                                                aNum = thisTarget.getInt("area_number");
-                                            }
-                                            Integer tNum = null;
-                                            if(!thisTarget.isNull("target_number")) {
-                                                tNum = thisTarget.getInt("target_number");
-                                            }
-                                            String tName = thisTarget.getString("name");
-                                            int learnTime = thisTarget.getInt("learn_time");
-                                            String mapUrl = thisTarget.getString("map_url");
-                                            String materialUrl = thisTarget.getString("material_url");
-                                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
-
-                                            // 記錄進資料庫
-                                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, learnTime, mapUrl, materialUrl, virtualMaterialUrl);
-                                        }
-
-                                        mProgress_start_studyActivity.dismiss();
-
-                                        // 進入學習畫面
-                                        Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
-                                        startActivity(toLearning);
-                                    } catch (UnsupportedEncodingException e) {
-                                        mProgress_start_studyActivity.dismiss();
-                                        ErrorUtils.error(MainActivity.this, e);
-                                    } catch (JSONException e) {
-                                        mProgress_start_studyActivity.dismiss();
-                                        ErrorUtils.error(MainActivity.this, e);
-                                    }
-                                }
-
-
-                                /**
-                                 * Fired when a request fails to complete, override to handle in your own code
-                                 *
-                                 * @param statusCode   return HTTP status code
-                                 * @param headers      return headers, if any
-                                 * @param responseBody the response body, if any
-                                 * @param error        the underlying cause of the failure
-                                 */
-                                @Override
-                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-                                    mProgress_start_studyActivity.dismiss();
-                                    if(responseBody != null) {
-
-                                        try {
-                                            // TODO: 取得可用的學習活動失敗的錯誤處理
-                                            String content = new String(responseBody, HTTP.UTF_8);
-                                            if(Config.DEBUG_SHOW_MESSAGE) {
-                                                Toast.makeText(MainActivity.this,
-                                                        "s: " + statusCode + "\n" + content,
-                                                        Toast.LENGTH_LONG).show();
-                                            }
-                                            else {
-                                                Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                        catch (UnsupportedEncodingException e) {
-                                            ErrorUtils.error(MainActivity.this, e);
-                                        }
-                                    }
-                                    else {
-                                        ErrorUtils.error(MainActivity.this, error);
-                                    }
-                                }
-                        });
+                        // 進入學習畫面
+                        Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                        startActivity(toLearning);
 
                     }
                     catch (UnsupportedEncodingException e) {
@@ -654,10 +552,12 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         content = new String(responseBody, "UTF-8");
                         JSONObject response = new JSONObject(content);
                         JSONObject activityJson = response.getJSONObject("activity");
+//                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
 
                         int saId = activityJson.getInt("activity_id");
                         int thId = activityJson.getInt("theme_id");
                         String thName = activityJson.getString("theme_name");
+                        int startTId = activityJson.getInt("start_target_id");
                         String startTime = activityJson.getString("start_time");
                         String expiredTime = activityJson.getString("expired_time");
                         int targetTotal = activityJson.getInt("target_total");
@@ -669,17 +569,63 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         else timeForce = false;
                         int lMode = activityJson.getInt("learnStyle_mode");
                         boolean lForce;
+
                         if(activityJson.getString("learnStyle_force") == "true")
                             lForce = true;
                         else lForce = false;
+                        boolean enableVirtual;
+                        if(activityJson.getString("enable_virtual") == "true")
+                            enableVirtual = true;
+                        else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
+
+//                        // 抓其中一個活動
+//                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
+//                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
+//
+//                            thId = thisTarget.getInt("theme_id");
+//                            int tId = thisTarget.getInt("target_id");
+//                            Integer hId = null;
+//                            if(!thisTarget.isNull("hall_id")) {
+//                                hId = thisTarget.getInt("hall_id");
+//                            }
+//                            String hName = thisTarget.getString("hall_name");
+//                            Integer aId = null;
+//                            if(!thisTarget.isNull("area_id")) {
+//                                aId = thisTarget.getInt("area_id");
+//                            }
+//                            String aName = thisTarget.getString("area_name");
+//                            Integer aFloor = null;
+//                            if(!thisTarget.isNull("floor")) {
+//                                aFloor = thisTarget.getInt("floor");
+//                            }
+//                            Integer aNum = null;
+//                            if(!thisTarget.isNull("area_number")) {
+//                                aNum = thisTarget.getInt("area_number");
+//                            }
+//                            Integer tNum = null;
+//                            if(!thisTarget.isNull("target_number")) {
+//                                tNum = thisTarget.getInt("target_number");
+//                            }
+//                            String tName = thisTarget.getString("name");
+//                            learnTime = thisTarget.getInt("learn_time");  //這邊
+//                            String mapUrl = thisTarget.getString("map_url");
+//                            String materialUrl = thisTarget.getString("material_url");
+//                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
+//
+//                            // 記錄進資料庫
+//                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, learnTime, mapUrl, materialUrl, virtualMaterialUrl);
+//                        }
+
+                        // TODO: 請在此次連接取得所有標的資訊
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(MainActivity.this);
                         db.removeAll_activity();
+                        db.removeAll_target();
                         db.insert_activity(db.get_user_id(), saId,
-                                thId, thName, startTime, learnTime, timeForce,
-                                lMode, lForce, mMode, targetTotal, learnedTotal);
+                                thId, thName, startTId, startTime, learnTime, timeForce,
+                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
 
                         // 進入學習畫面
                         Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
@@ -777,6 +723,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             db.remove_user();
             db.removeAll_enableActivity();
             db.removeAll_activity();
+            db.removeAll_recommand();
+            db.removeAll_target();
 
             // 回到登入畫面
             finish();

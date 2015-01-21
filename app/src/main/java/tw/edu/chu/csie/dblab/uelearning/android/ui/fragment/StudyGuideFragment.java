@@ -2,6 +2,9 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui.fragment;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,13 +18,31 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
@@ -29,8 +50,11 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
  */
 public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
+    public int currentTId = 0;
     protected static final int REMAINED_TIME = 0x101;
-    private String[] itemEnableActivity =  {"Google","Yahoo!","Apple"};
+    private String[] itemEnableActivity_default = {"Entry"};
+    private int[] itemEnableActivity_tid = {0};
+    private Date learningTime;
 
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
@@ -52,6 +76,20 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
         initUI(rootView);
+        learningTime = ActivityManager.getRemainderLearningTime(getActivity());
+
+        // 若還沒有推薦的學習點
+        if(!TargetManager.isHaveRecommand(getActivity())) {
+            currentTId = TargetManager.getStartTargetId(getActivity());
+            list_select_nextPoint_item = 0;
+            updateUI();
+            updateNextPoint(currentTId);
+        }
+        // 若已經有推薦的學習點
+        else {
+            list_select_nextPoint_item = 0;
+            updateUI();
+        }
 
         return rootView;
     }
@@ -70,12 +108,155 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         updateUIHandler.sendMessage(message);
 
         ArrayAdapter<String> arrayData ;
-        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity);
+        arrayData = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_single_choice, itemEnableActivity_default);
         mList_nextPoints.setAdapter(arrayData);
         mList_nextPoints.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList_nextPoints.setOnItemClickListener(this);
-        updateNextPointsUI();
+        updateUI();
 
+    }
+
+    // ============================================================================================
+
+    /**
+     * 取得下一個推薦學習點
+     */
+    public void updateNextPoint(int currentTId) {
+        mSwipe_nextPoints.setRefreshing(true);
+
+        this.currentTId = currentTId;
+
+        if (Config.DEBUG_SHOW_MESSAGE) {
+            Toast.makeText(getActivity(), "推薦中...", Toast.LENGTH_SHORT).show();
+        }
+
+        final DBProvider db = new DBProvider(getActivity());
+        String token = db.get_token();
+        db.removeAll_recommand();
+
+        // 取得目前學習活動資料
+        Cursor query_activity = db.get_activity();
+        query_activity.moveToFirst();
+        int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
+        int enableVirtualInt = query_activity.getInt(query_activity.getColumnIndex("EnableVirtual"));
+        boolean enableVirtual;
+        if (enableVirtualInt > 0) enableVirtual = true;
+        else enableVirtual = false;
+
+        // TODO: 目前先暫時做假的出來
+//        db.insert_recommand(3,true);
+//        db.insert_recommand(7,true);
+//        db.insert_recommand(13,true);
+
+        try {
+            UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                    "/activitys/" + saId + "/recommand?current_point=" + currentTId, null, new AsyncHttpResponseHandler() {
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                    String content = null;
+
+                    try {
+                        content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONArray jsonAry_targets = response.getJSONArray("recommand_target");
+
+                        // 使用資料庫
+                        DBProvider db = new DBProvider(getActivity());
+                        db.removeAll_recommand();
+
+                        // 抓其中一個活動
+                        for (int i = 0; i < jsonAry_targets.length(); i++) {
+                            JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
+
+                            int tId = thisTarget.getInt("target_id");
+                            boolean isEntity = thisTarget.getBoolean("is_entity");
+
+                            // 記錄進資料庫
+                            db.insert_recommand(tId, isEntity);
+                        }
+                    } catch (JSONException e) {
+                        ErrorUtils.error(getActivity(), e);
+                    } catch (UnsupportedEncodingException e) {
+                        ErrorUtils.error(getActivity(), e);
+                    }
+
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item=0;
+                    updateUI();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item=0;
+                    updateUI();
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(getActivity(), e);
+        }
+
+    }
+
+    /**
+     * 重新整理介面
+     */
+    public void updateUI() {
+
+        DBProvider db = new DBProvider(getActivity());
+        Cursor query = db.getAll_recommand();
+
+        int total = query.getCount();
+        String[] itemEnableActivity;
+        if(total > 0) {
+
+            itemEnableActivity = new String[total];
+            itemEnableActivity_tid = new int[total];
+
+            for(int i=0; i<total; i++) {
+                query.moveToPosition(i);
+
+                int tId = query.getInt(query.getColumnIndex("TID"));
+                int isEntityInt = query.getInt(query.getColumnIndex("IsEntity"));
+                boolean isEntity;
+                if(isEntityInt>0) isEntity = true;
+                else isEntity = false;
+
+                Cursor query_t = db.get_target(tId);
+                query_t.moveToFirst();
+
+                //Integer hId = query_t.getInt(query_t.getColumnIndex("HID"));
+                //String hName = query_t.getString(query_t.getColumnIndex("HName"));
+                //Integer aId = query_t.getInt(query_t.getColumnIndex("AID"));
+                //String aName = query_t.getString(query_t.getColumnIndex("AName"));
+                //Integer aFloor = query_t.getInt(query_t.getColumnIndex("AFloor"));
+                //Integer aNum = query_t.getInt(query_t.getColumnIndex("ANum"));
+                //Integer tNum = query_t.getInt(query_t.getColumnIndex("TNum"));
+                String tName = query_t.getString(query_t.getColumnIndex("TName"));
+                //int learnTime = query_t.getInt(query_t.getColumnIndex("LearnTime"));
+
+                itemEnableActivity_tid[i] = tId;
+                itemEnableActivity[i] = new String(tId + ". "+tName);
+
+            }
+        }
+        else {
+            itemEnableActivity = new String[1];
+            itemEnableActivity_tid = new int[1];
+            itemEnableActivity_tid[0] = currentTId;
+            itemEnableActivity[0] = new String(getString(R.string.start_target));
+        }
+
+        ArrayAdapter<String> arrayData ;
+        arrayData = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice, itemEnableActivity);
+        mList_nextPoints.setAdapter(arrayData);
+        updateSelectNextPointsUI();
     }
 
     // ============================================================================================
@@ -84,7 +265,13 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         public void handleMessage(android.os.Message msg) {
             switch(msg.what) {
                 case REMAINED_TIME:
-                    Date learningTime = ActivityManager.getRemainderLearningTime(getActivity());
+                    long milliseconds = learningTime.getTime() - 1000;
+                    if(milliseconds > 0) {
+                        learningTime.setTime(learningTime.getTime() - 1000);
+                    }
+                    else {
+                        learningTime.setTime(0);
+                    }
                     mText_remainedTime.setText(TimeUtils.timerToString(learningTime));
                     break;
             }
@@ -101,6 +288,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             updateUIHandler.sendMessage(message);
         }
 
+    }
+
+    public void stopUpdateUITask() {
+        updateUITimer.cancel();
     }
 
     // ============================================================================================
@@ -140,32 +331,27 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         list_select_nextPoint_item = position;//保存目前的View位置
-        updateNextPointsUI();
+        updateSelectNextPointsUI();
     }
 
-    public void updateNextPointsUI() {
+    public void updateSelectNextPointsUI() {
 
+        // 當已經有選取任何一項
         if(list_select_nextPoint_item != -1) {
 
             mList_nextPoints.setItemChecked(list_select_nextPoint_item, true);
-            switch (list_select_nextPoint_item)   //選擇後改變image
-            {
-                case 0 :
-                    mImage_map.setImageResource(R.drawable.ic_action_light_logout);
-                    break;
-                case 1 :
-                    mImage_map.setImageResource(R.drawable.ic_action_light_refresh);
-                    break;
-                case 2 :
-                    mImage_map.setImageResource(R.drawable.ic_launcher);
-                    break;
-            }
+
+            int tid = itemEnableActivity_tid[ list_select_nextPoint_item ];
+            String map_filename = FileUtils.getMapFilePath(getActivity(), tid);
+            Bitmap mBitmap_map = BitmapFactory.decodeFile(map_filename);
+
+            mImage_map.setImageBitmap(mBitmap_map);
         }
     }
 
     @Override
     public void onRefresh() {
-        mSwipe_nextPoints.setRefreshing(false);
+        updateNextPoint(currentTId);
     }
 
     @Override
@@ -175,7 +361,14 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     }
 
     @Override
+    public void onStop() {
+        updateUITimer.cancel();
+        super.onStop();
+    }
+
+    @Override
     public void onResume() {
+        learningTime = ActivityManager.getRemainderLearningTime(getActivity());
         updateUITimer = new Timer();
         updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
         super.onResume();

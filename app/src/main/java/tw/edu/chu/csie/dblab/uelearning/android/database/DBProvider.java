@@ -24,6 +24,7 @@ public class DBProvider {
                             String gId, String gName, Integer cId, String cName,
                             Integer lMode, String mMode, Boolean enableNoAppoint,
                             String nickName, String realName, String email) {
+
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("Token", token);
         contentvalues.put("UID", uId);
@@ -38,28 +39,36 @@ public class DBProvider {
         contentvalues.put("NickName", nickName);
         contentvalues.put("RealName", realName);
         contentvalues.put("Email", email);
-        return db.insert("User", null, contentvalues);
+        long returnData = db.insert("User", null, contentvalues);
+
+        return returnData;
     }
 
     public Cursor get_user() {
-        return db.query("User", null, null, null, null, null, null);
+
+        Cursor returnData = db.query("User", null, null, null, null, null, null);
+        return returnData;
     }
 
     public String get_user_id() {
+
         Cursor the_query = db.query("User", null, null, null, null, null, null);
         the_query.moveToNext();
         return the_query.getString(the_query.getColumnIndex("UID"));
     }
 
     public String get_token() {
+
         Cursor the_query = db.query("User", null, null, null, null, null, null);
         the_query.moveToNext();
-        return the_query.getString(the_query.getColumnIndex("Token"));
+        String returnData = the_query.getString(the_query.getColumnIndex("Token"));
+        return returnData;
     }
 
     public long remove_user() {
-        db = dbHelper.getWritableDatabase();
-        return db.delete("User", null, null);
+
+        long returnData = db.delete("User", null, null);
+        return returnData;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -72,8 +81,10 @@ public class DBProvider {
                                       int thId, String thName, String thIntroduction,
                                       String startTime, String expiredTime,
                                       int learnTime, Boolean timeForce,
-                                      Integer lMode, Boolean lForce, String mMode,
+                                      Integer lMode, Boolean lForce, Boolean enableVirtual,
+                                      String mMode,
                                       Boolean lock, Integer targetTotal, Integer learnedTotal) {
+
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("UID", uId);
         contentvalues.put("Type", type);
@@ -88,71 +99,97 @@ public class DBProvider {
         contentvalues.put("TimeForce", timeForce);
         contentvalues.put("LMode", lMode);
         contentvalues.put("LForce", lForce);
+        contentvalues.put("EnableVirtual", enableVirtual);
         contentvalues.put("MMode", mMode);
         contentvalues.put("Lock", lock);
         contentvalues.put("TargetTotal", targetTotal);
         contentvalues.put("LearnedTotal", learnedTotal);
-        return db.insert("EnableActivity", null, contentvalues);
+
+        long returnData = db.insert("EnableActivity", null, contentvalues);
+        return returnData;
     }
 
     public Cursor get_enableActivity(int serial) {
-        return db.query("EnableActivity", null, "Serial="+serial, null, null, null, null);
+
+        Cursor returnData =
+                db.query("EnableActivity", null, "Serial="+serial, null, null, null, null);
+        return returnData;
     }
 
     public Cursor getAll_enableActivity() {
-        return db.query("EnableActivity", null, null, null, null, null, "Type ASC");
+
+        Cursor returnData =
+                db.query("EnableActivity", null, null, null, null, null, "Type ASC");
+        return returnData;
     }
 
     public long remove_enableActivity_inStudying_bySaId(int saId) {
-        db = dbHelper.getWritableDatabase();
-        return db.delete("EnableActivity", "SaID="+saId+" AND Type="+this.TYPE_STUDY, null);
+
+        long returnData =
+                db.delete("EnableActivity", "SaID="+saId+" AND Type="+this.TYPE_STUDY, null);
+        return returnData;
     }
 
     public long removeAll_enableActivity() {
-        db = dbHelper.getWritableDatabase();
-        return db.delete("EnableActivity", null, null);
+
+        long returnData =
+                db.delete("EnableActivity", null, null);
+        return returnData;
     }
 
     public Cursor get_activity() {
-        return db.query("Activity", null, null, null, null, null, null);
+
+        Cursor returnData =
+                db.query("Activity", null, null, null, null, null, null);
+        return returnData;
+
     }
 
     public long insert_activity(String uId, int saId,
-                                int thId, String thName,
+                                int thId, String thName, int startTId,
                                 String startTime, int learnTime, boolean timeForce,
-                                int lMode, boolean lForce, String mMode,
+                                int lMode, boolean lForce, boolean enableVirtual, String mMode,
                                 int targetTotal, int learnedTotal) {
+
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("UID", uId);
         contentvalues.put("SaID", saId);
         contentvalues.put("ThID", thId);
         contentvalues.put("ThName", thName);
+        contentvalues.put("StartTID", startTId);
         contentvalues.put("StartTime", startTime);
         contentvalues.put("LearnTime", learnTime);
         contentvalues.put("TimeForce", timeForce);
         contentvalues.put("LMode", lMode);
         contentvalues.put("LForce", lForce);
+        contentvalues.put("EnableVirtual", enableVirtual);
         contentvalues.put("MMode", mMode);
         contentvalues.put("TargetTotal", targetTotal);
         contentvalues.put("LearnedTotal", learnedTotal);
-        return db.insert("Activity", null, contentvalues);
+        long returnData = db.insert("Activity", null, contentvalues);
+        return returnData;
     }
 
     public Integer get_activity_id() {
+
         Cursor the_query = db.query("Activity", null, null, null, null, null, null);
         the_query.moveToNext();
-        return Integer.valueOf( the_query.getString(the_query.getColumnIndex("SaID")) );
+        Integer returnData =
+                Integer.valueOf( the_query.getString(the_query.getColumnIndex("SaID")) );
+        return returnData;
     }
 
     public long removeAll_activity() {
-        db = dbHelper.getWritableDatabase();
-        return db.delete("Activity", null, null);
+
+        long returnData = db.delete("Activity", null, null);
+        return returnData;
     }
 
     public long insert_target(int thId, int tId, Integer hId, String hName,
                               Integer aId, String aName, Integer aFloor, Integer aNum,
                               Integer tNum, String tName, int learnTime,
                               String mapUrl, String materialUrl, String virtualMaterialUrl) {
+
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("ThID", thId);
         contentvalues.put("TID", tId);
@@ -168,30 +205,69 @@ public class DBProvider {
         contentvalues.put("MapUrl", mapUrl);
         contentvalues.put("MaterialUrl", materialUrl);
         contentvalues.put("VirtualMaterialUrl", virtualMaterialUrl);
-        return db.insert("Target", null, contentvalues);
+        long returnData = db.insert("Target", null, contentvalues);
+
+        return returnData;
     }
 
     public Cursor get_target(int tId) {
+
         Cursor the_query = db.query("Target", null, "TID="+tId, null, null, null, null);
-        the_query.moveToFirst();
+
         return the_query;
     }
 
     public long removeAll_target() {
-        db = dbHelper.getWritableDatabase();
-        return db.delete("Target", null, null);
+
+        long returnData = db.delete("Target", null, null);
+        return returnData;
+    }
+
+    public long insert_recommand(int tId, boolean isEntity) {
+
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("TID", tId);
+        contentvalues.put("IsEntity", isEntity);
+        long returnData = db.insert("Recommand", null, contentvalues);
+
+        return returnData;
+    }
+
+    public Cursor getAll_recommand() {
+
+        Cursor the_query = db.query("Recommand", null, null, null, null, null, null);
+        return the_query;
+    }
+
+    public Cursor get_recommand_byTargetId(int tId) {
+
+        Cursor the_query = db.query("Recommand", null, "TID="+tId, null, null, null, null);
+        return the_query;
+    }
+
+    public long removeAll_recommand() {
+
+        long returnData = db.delete("Recommand", null, null);
+        return returnData;
     }
 
     public String get_serverInfo(String name) {
+
         Cursor the_query = db.query("ServerInfo", new String[]{"Value"}, "Name='"+name+"'", null, null, null, null);
         the_query.moveToFirst();
-        return the_query.getString(0);
+        String returnData = the_query.getString(0);
+        return returnData;
     }
 
     public long set_serverInfo(String name, String value) {
+
         ContentValues values = new ContentValues();
         values.put("Value", value);
-        return db.update("ServerInfo", values, "Name = '"+name+"'", null);
+        long returnData = db.update("ServerInfo", values, "Name = '"+name+"'", null);
+
+        return returnData;
     }
+
+
 
 }

@@ -81,6 +81,7 @@ public class MaterialActivity extends ActionBarActivity {
         // 取得此標的學習時間
         DBProvider db = new DBProvider(MaterialActivity.this);
         Cursor targetQuery = db.get_target(tId);
+        targetQuery.moveToFirst();
         tLearnTime = targetQuery.getInt(targetQuery.getColumnIndex("LearnTime"));
 
         // ActionBar對應
@@ -287,6 +288,11 @@ public class MaterialActivity extends ActionBarActivity {
         } catch (UnsupportedEncodingException e) {
             ErrorUtils.error(MaterialActivity.this, e);
         }
+
+        // 告知上一個活動說剛剛學習到的是哪個標地
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("LearnedPointId", tId);
+        setResult(RESULT_OK, returnIntent);
 
         finish();
     }

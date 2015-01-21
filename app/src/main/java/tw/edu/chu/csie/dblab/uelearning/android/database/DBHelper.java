@@ -58,17 +58,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 "UID Varchar(30)," +
                 "ThID integer  NOT NULL DEFAULT 0," +
                 "ThName Varchar(100)," +
+                "StartTID integer," +
                 "StartTime Timestamp DEFAULT NULL," +
                 "LearnTime integer  NOT NULL DEFAULT 0," +
                 "TimeForce Boolean  NOT NULL DEFAULT 0," +
                 "LMode integer," +
                 "LForce Boolean DEFAULT NULL," +
+                "EnableVirtual Boolean DEFAULT 0," +
                 "MMode Varchar(10) DEFAULT NULL," +
                 "TargetTotal integer," +
                 "LearnedTotal integer DEFAULT 0)";
 
         String sql_create_enableActivity = "CREATE TABLE EnableActivity (" +
-                "Serial integer  PRIMARY KEY AUTOINCREMENT," +
+                "Serial integer PRIMARY KEY AUTOINCREMENT," +
                 "UID Varchar(30)," +
                 "Type Smallint DEFAULT 0," +
                 "SaID integer," +
@@ -82,6 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "TimeForce Boolean  NOT NULL DEFAULT 0," +
                 "LMode integer," +
                 "LForce Boolean DEFAULT NULL," +
+                "EnableVirtual Boolean DEFAULT 0," +
                 "MMode Varchar(10) DEFAULT NULL," +
                 "Lock Boolean  DEFAULT 0," +
                 "TargetTotal integer," +
@@ -102,6 +105,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 "MapUrl Varchar(1000)," +
                 "MaterialUrl Varchar(1000)," +
                 "VirtualMaterialUrl Varchar(1000)" +
+                ")";
+
+        String sql_create_recommand = "CREATE TABLE Recommand (" +
+                "Serial integer PRIMARY KEY AUTOINCREMENT," +
+                "TID integer," +
+                "IsEntity Boolean NOT NULL DEFAULT 0" +
                 ")";
 
         String sql_create_log = "CREATE TABLE \"Log\" (" +
@@ -130,6 +139,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sql_create_activity);
         db.execSQL(sql_create_enableActivity);
         db.execSQL(sql_create_target);
+        db.execSQL(sql_create_recommand);
         db.execSQL(sql_create_log);
         db.execSQL(sql_create_server_info);
         db.execSQL(sql_insert_server_info_1);
