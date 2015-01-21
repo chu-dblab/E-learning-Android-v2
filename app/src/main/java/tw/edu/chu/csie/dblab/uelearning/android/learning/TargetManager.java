@@ -1,9 +1,20 @@
 package tw.edu.chu.csie.dblab.uelearning.android.learning;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
+import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
 
 /**
  * Created by yuan on 2015/1/16.
@@ -16,6 +27,20 @@ public class TargetManager {
         activity.moveToFirst();
         int startTId = activity.getInt(activity.getColumnIndex("StartTID"));
         return startTId;
+    }
+
+    public static boolean isForceStudyInRecommand(Context context) {
+        DBProvider db = new DBProvider(context);
+        Cursor query = db.get_activity();
+        query.moveToFirst();
+
+        int lForceInt = query.getInt(query.getColumnIndex("LForce"));
+        if(lForceInt != 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -46,8 +71,63 @@ public class TargetManager {
         else return false;
     }
 
-    public void enterPointByDialog() {
+    public static void enterPointByDialog(final Context context) {
+        final AlertDialog.Builder mDialog_inputTId = new AlertDialog.Builder(context);
+        mDialog_inputTId.setTitle(R.string.keyin_tid_message);
 
+        final EditText mEdit_inputTId = new EditText(context);
+        mEdit_inputTId.setInputType(InputType.TYPE_CLASS_NUMBER);
+        // 設定最大長度
+        mEdit_inputTId.setFilters(new InputFilter[] {new InputFilter.LengthFilter(3)});
+
+        mDialog_inputTId.setView(mEdit_inputTId);
+        mDialog_inputTId.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+                // 取得輸入的標的編號
+                String tId_string = mEdit_inputTId.getText().toString();
+
+                // 判斷是否有輸入數字
+                if(!tId_string.equals("")) {
+                    // 取得剛剛輸入的編號
+                    int tId = Integer.valueOf(tId_string);
+
+                    // 進入教材頁面
+                    Activity activity = (Activity) context;
+                    Intent toMaterial = new Intent(activity, MaterialActivity.class);
+                    toMaterial.putExtra("tId", tId);
+                    activity.startActivityForResult(toMaterial, LearningActivity.RESULT_MATERIAL);
+                }
+
+            }
+        });
+        mDialog_inputTId.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        });
+        mDialog_inputTId.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        });
+        mDialog_inputTId.show();
+
+        // 馬上設定輸入點與顯示鍵盤
+        mEdit_inputTId.requestFocus();
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
 }

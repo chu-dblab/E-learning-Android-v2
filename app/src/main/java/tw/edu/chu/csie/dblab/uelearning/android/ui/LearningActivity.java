@@ -47,6 +47,7 @@ import org.json.JSONObject;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.PlaceInfoFragment;
@@ -57,7 +58,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class LearningActivity extends ActionBarActivity implements ActionBar.TabListener {
 
-    public static final int RESULT_MATERIAL = 1;
+    public static final int RESULT_MATERIAL = 507;
 
     ProgressDialog mProgress_activity_finish;
     StudyGuideFragment studyGuideFragment;
@@ -170,61 +171,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         // 輸入標的編號
         else if (id == R.id.menu_keyin_tid) {
 
-            final AlertDialog.Builder mDialog_inputTId = new AlertDialog.Builder(LearningActivity.this);
-            mDialog_inputTId.setTitle(R.string.keyin_tid_message);
-
-            final EditText mEdit_inputTId = new EditText(LearningActivity.this);
-            mEdit_inputTId.setInputType(InputType.TYPE_CLASS_NUMBER);
-            // 設定最大長度
-            mEdit_inputTId.setFilters(new InputFilter[] {new InputFilter.LengthFilter(3)});
-
-            mDialog_inputTId.setView(mEdit_inputTId);
-            mDialog_inputTId.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
-                    // 取得輸入的標的編號
-                    String tId_string = mEdit_inputTId.getText().toString();
-
-                    // 判斷是否有輸入數字
-                    if(!tId_string.equals("")) {
-                        // 取得剛剛輸入的編號
-                        int tId = Integer.valueOf(tId_string);
-
-                        // 進入教材頁面
-                        Intent toMaterial = new Intent(LearningActivity.this, MaterialActivity.class);
-                        toMaterial.putExtra("tId", tId);
-                        startActivityForResult(toMaterial, RESULT_MATERIAL);
-                    }
-
-                }
-            });
-            mDialog_inputTId.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                }
-            });
-            mDialog_inputTId.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    // 隱藏鍵盤（實際上是切換鍵盤是否顯示）
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                }
-            });
-            mDialog_inputTId.show();
-
-            // 馬上設定輸入點與顯示鍵盤
-            mEdit_inputTId.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            TargetManager.enterPointByDialog(LearningActivity.this);
 
         }
         // 結束學習活動
