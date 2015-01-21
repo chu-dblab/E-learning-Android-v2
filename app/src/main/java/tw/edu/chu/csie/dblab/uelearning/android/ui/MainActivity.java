@@ -552,7 +552,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         content = new String(responseBody, "UTF-8");
                         JSONObject response = new JSONObject(content);
                         JSONObject activityJson = response.getJSONObject("activity");
-//                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
+                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
 
                         int saId = activityJson.getInt("activity_id");
                         int thId = activityJson.getInt("theme_id");
@@ -579,50 +579,49 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
 
-//                        // 抓其中一個活動
-//                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
-//                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
-//
-//                            thId = thisTarget.getInt("theme_id");
-//                            int tId = thisTarget.getInt("target_id");
-//                            Integer hId = null;
-//                            if(!thisTarget.isNull("hall_id")) {
-//                                hId = thisTarget.getInt("hall_id");
-//                            }
-//                            String hName = thisTarget.getString("hall_name");
-//                            Integer aId = null;
-//                            if(!thisTarget.isNull("area_id")) {
-//                                aId = thisTarget.getInt("area_id");
-//                            }
-//                            String aName = thisTarget.getString("area_name");
-//                            Integer aFloor = null;
-//                            if(!thisTarget.isNull("floor")) {
-//                                aFloor = thisTarget.getInt("floor");
-//                            }
-//                            Integer aNum = null;
-//                            if(!thisTarget.isNull("area_number")) {
-//                                aNum = thisTarget.getInt("area_number");
-//                            }
-//                            Integer tNum = null;
-//                            if(!thisTarget.isNull("target_number")) {
-//                                tNum = thisTarget.getInt("target_number");
-//                            }
-//                            String tName = thisTarget.getString("name");
-//                            learnTime = thisTarget.getInt("learn_time");  //這邊
-//                            String mapUrl = thisTarget.getString("map_url");
-//                            String materialUrl = thisTarget.getString("material_url");
-//                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
-//
-//                            // 記錄進資料庫
-//                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, learnTime, mapUrl, materialUrl, virtualMaterialUrl);
-//                        }
+                        // 向伺服端取得今次活動所有的標的資訊
+                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
+                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
+
+                            thId = thisTarget.getInt("theme_id");
+                            int tId = thisTarget.getInt("target_id");
+                            Integer hId = null;
+                            if(!thisTarget.isNull("hall_id")) {
+                                hId = thisTarget.getInt("hall_id");
+                            }
+                            String hName = thisTarget.getString("hall_name");
+                            Integer aId = null;
+                            if(!thisTarget.isNull("area_id")) {
+                                aId = thisTarget.getInt("area_id");
+                            }
+                            String aName = thisTarget.getString("area_name");
+                            Integer aFloor = null;
+                            if(!thisTarget.isNull("floor")) {
+                                aFloor = thisTarget.getInt("floor");
+                            }
+                            Integer aNum = null;
+                            if(!thisTarget.isNull("area_number")) {
+                                aNum = thisTarget.getInt("area_number");
+                            }
+                            Integer tNum = null;
+                            if(!thisTarget.isNull("target_number")) {
+                                tNum = thisTarget.getInt("target_number");
+                            }
+                            String tName = thisTarget.getString("name");
+                            int targetLearnTime = thisTarget.getInt("learn_time");
+                            String mapUrl = thisTarget.getString("map_url");
+                            String materialUrl = thisTarget.getString("material_url");
+                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
+
+                            // 記錄進資料庫
+                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, targetLearnTime, mapUrl, materialUrl, virtualMaterialUrl);
+                        }
 
                         // TODO: 請在此次連接取得所有標的資訊
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(MainActivity.this);
                         db.removeAll_activity();
-                        db.removeAll_target();
                         db.insert_activity(db.get_user_id(), saId,
                                 thId, thName, startTId, startTime, learnTime, timeForce,
                                 lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
