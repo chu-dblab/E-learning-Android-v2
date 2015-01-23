@@ -64,7 +64,8 @@
         <activity
             android:name=".scanner.QRDecodeActivity"
             android:label="@string/title_activity_qrdecode"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" >
         </activity>
 
         <!-- 導覽中教材Activity -->
