@@ -579,6 +579,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                         else enableVirtual = false;
                         String mMode = activityJson.getString("material_mode");
 
+                        db.removeAll_target();
                         // 向伺服端取得今次活動所有的標的資訊
                         for (int i = 0; i < jsonAtt_targets.length(); i++) {
                             JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
