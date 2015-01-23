@@ -63,7 +63,8 @@
         <!-- QRCode掃描Activity -->
         <activity
             android:name=".scanner.QRDecodeActivity"
-            android:label="@string/title_activity_qrdecode" >
+            android:label="@string/title_activity_qrdecode"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
 
         <!-- 導覽中教材Activity -->
@@ -71,7 +72,7 @@
             android:name=".ui.MaterialActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_material"
-            android:theme="@style/AppTheme.material" >
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
 
     </application>

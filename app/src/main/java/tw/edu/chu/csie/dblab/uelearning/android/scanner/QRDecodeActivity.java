@@ -1,11 +1,11 @@
 package tw.edu.chu.csie.dblab.uelearning.android.scanner;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PointF;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -17,13 +17,13 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
-import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.StudyGuideFragment;
 
-public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
+public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadListener {
     //private TextView myTextView;
     private boolean tabEnable = true;
     private QRCodeReaderView mydecoderview;
     private String gettext = "";
+    private ActionBar actionbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +31,25 @@ public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
         setContentView(R.layout.activity_qr_decode);
 
         // 設定ActionBar
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_qr_decode);
+        setSupportActionBar(toolbar);
+        actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setSubtitle(R.string.subtitle_activity_qrdecode);
 
         mydecoderview = (QRCodeReaderView) findViewById(R.id.qrdecoderview);
         mydecoderview.setOnQRCodeReadListener(this);
 
     }
+
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 return true;
             default:
-                return super.onMenuItemSelected(featureId, item);
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -94,7 +99,7 @@ public class QRDecodeActivity extends Activity implements OnQRCodeReadListener {
                                 Toast.makeText(this, "這不是這次的推薦學習點喔～", Toast.LENGTH_LONG).show();
                                 finish();
                             }
-                        } catch(IllegalArgumentException ex) {
+                        } catch(IllegalArgumentException e) {
                             // TODO 拉開成String
                             Toast.makeText(this, "此內容不是數字喔!!", Toast.LENGTH_LONG).show();
                             finish();

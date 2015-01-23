@@ -80,7 +80,8 @@
     <string name="store_info">商店資訊</string>
 
     <!-- 其他 -->
-    <string name="title_activity_qrdecode">QRDecodeActivity</string>
+    <string name="title_activity_qrdecode">QRCode掃描</string>
+    <string name="subtitle_activity_qrdecode">請將相機對準現場的QRCode條碼</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 

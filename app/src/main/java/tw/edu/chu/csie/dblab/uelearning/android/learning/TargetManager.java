@@ -10,9 +10,11 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.scanner.QRDecodeActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
 
@@ -67,12 +69,14 @@ public class TargetManager {
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_recommand_byTargetId(tId);
 
-        if(query.getCount() > 1) return true;
+        if(query.getCount() >= 1) return true;
         else return false;
     }
 
     public static void enterPointByQRCode(final Context context) {
-
+        Intent toQRScan = new Intent(context, QRDecodeActivity.class);
+        Activity activity = (Activity) context;
+        activity.startActivityForResult(toQRScan, LearningActivity.RESULT_MATERIAL);
     }
 
     public static void enterPointByDialog(final Context context) {
@@ -102,10 +106,16 @@ public class TargetManager {
                     int tId = Integer.valueOf(tId_string);
 
                     // 進入教材頁面
-                    Activity activity = (Activity) context;
-                    Intent toMaterial = new Intent(activity, MaterialActivity.class);
-                    toMaterial.putExtra("tId", tId);
-                    activity.startActivityForResult(toMaterial, LearningActivity.RESULT_MATERIAL);
+                    if(isInRecommand(context, tId)) {
+
+                        Activity activity = (Activity) context;
+                        Intent toMaterial = new Intent(activity, MaterialActivity.class);
+                        toMaterial.putExtra("tId", tId);
+                        activity.startActivityForResult(toMaterial, LearningActivity.RESULT_MATERIAL);
+                    }
+                    else {
+                        Toast.makeText(context, "這不是這次的推薦學習點喔～", Toast.LENGTH_LONG).show();
+                    }
                 }
 
             }

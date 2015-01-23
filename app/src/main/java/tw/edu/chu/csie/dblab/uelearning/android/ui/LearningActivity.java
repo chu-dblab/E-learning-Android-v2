@@ -165,8 +165,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         // QR Code 掃描
         if (id == R.id.menu_qr_scan) {
 
-            // 呼叫studyGuideFragment的重新推薦學習點
-            //studyGuideFragment.updateNextPoint();
+            TargetManager.enterPointByQRCode(LearningActivity.this);
         }
         // 輸入標的編號
         else if (id == R.id.menu_keyin_tid) {
