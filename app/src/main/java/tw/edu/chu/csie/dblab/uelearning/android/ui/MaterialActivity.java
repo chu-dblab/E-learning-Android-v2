@@ -33,6 +33,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.js_handler.MaterialJSHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
@@ -115,7 +116,7 @@ public class MaterialActivity extends ActionBarActivity {
             webSettings.setBuiltInZoomControls(true);
             webSettings.setDisplayZoomControls(false);
             webSettings.setJavaScriptEnabled(true);
-            //mWebView.addJavascriptInterface(new MaterialJSCall(this), "Android");
+            mWebView.addJavascriptInterface(new MaterialJSHandler(this), "Android");
             mWebView.loadUrl("file://" + materialFilePath);
             if (Config.DEBUG_SHOW_MESSAGE) {
                 Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId, isEntity), Toast.LENGTH_SHORT).show();
