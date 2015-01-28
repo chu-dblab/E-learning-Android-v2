@@ -68,23 +68,28 @@ public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadL
             {
                 if(URLUtil.isNetworkUrl(text))
                 {
-                    // TODO 拉開成String
-                    Toast.makeText(this, "此 QR-code內容 是個網址，非「標的編號」!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.qr_is_url_not_num, Toast.LENGTH_LONG).show();
                     finish();
                 }
                 else
                 {
                     if(text.length()>2)
                     {
-                        // TODO 拉開成String
-                        Toast.makeText(this, "此內容不符合!!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.qr_is_illegal, Toast.LENGTH_LONG).show();
                         finish();
                     }
                     else{
                         try {
                             int targetId = Integer.valueOf(text);
                             // 解讀正確，進入學習教材
-                            if(TargetManager.isInRecommand(QRDecodeActivity.this, targetId)) {
+                            // 進入教材頁面
+                            if(TargetManager.isForceStudyInRecommand(QRDecodeActivity.this) &&
+                                    !TargetManager.isInRecommand(QRDecodeActivity.this, targetId)) {
+
+                                Toast.makeText(QRDecodeActivity.this, R.string.is_not_in_recommand, Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                            else {
                                 Intent toLearning = new Intent(this, MaterialActivity.class);
                                 toLearning.putExtra("tId", targetId);
                                 startActivityForResult(toLearning, LearningActivity.RESULT_MATERIAL);
@@ -94,14 +99,9 @@ public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadL
                                 setResult(RESULT_OK, returnIntent);
                                 finish();
                             }
-                            else {
-                                // TODO 拉開成String
-                                Toast.makeText(this, "這不是這次的推薦學習點喔～", Toast.LENGTH_LONG).show();
-                                finish();
-                            }
+
                         } catch(IllegalArgumentException e) {
-                            // TODO 拉開成String
-                            Toast.makeText(this, "此內容不是數字喔!!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, R.string.qr_is_not_num, Toast.LENGTH_LONG).show();
                             finish();
                         }
                     }
@@ -109,8 +109,7 @@ public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadL
             }
             else
             {
-                // TODO 拉開成String
-                Toast.makeText(this, "掃描內容為空!!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.qr_no_content, Toast.LENGTH_LONG).show();
                 finish();
             }
         }
@@ -126,7 +125,7 @@ public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadL
     @Override
     public void cameraNotFound() {
         // TODO 拉開成String
-        Toast.makeText(this, "行動裝置找不到Camera!!", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.no_camera, Toast.LENGTH_LONG).show();
     }
 
     // Called when there's no QR codes in the camera preview image

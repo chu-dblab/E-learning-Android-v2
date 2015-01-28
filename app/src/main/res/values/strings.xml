@@ -63,6 +63,14 @@
     <string name="learning_remaining_time">學習時間尚有:</string>
     <string name="learning_remaining_point">學習點剩餘:</string>
     <string name="learning_next_point_getting">取得中...</string>
+    <string name="is_not_in_recommand">這不是這次的推薦學習點喔～</string>
+
+    <!-- QRCode掃描 -->
+    <string name="no_camera">行動裝置找不到Camera!!</string>
+    <string name="qr_is_url_not_num">此 QR-code內容 是個網址，非「標的編號」!!</string>
+    <string name="qr_is_illegal">此內容不符合!!</string>
+    <string name="qr_is_not_num">此內容不是數字喔!!</string>
+    <string name="qr_no_content">掃描內容為空!!</string>
 
     <!-- 教材頁面 -->
     <string name="title_activity_material">教材</string>

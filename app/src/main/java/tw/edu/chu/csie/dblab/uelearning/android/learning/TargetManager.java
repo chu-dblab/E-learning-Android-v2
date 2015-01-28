@@ -23,6 +23,11 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
  */
 public class TargetManager {
 
+    /**
+     * 取得此主題起始標的
+     * @param context ANDROID基底
+     * @return int 起始標的編號
+     */
     public static int getStartTargetId(Context context) {
         DBProvider db = new DBProvider(context);
         Cursor activity = db.get_activity();
@@ -31,6 +36,11 @@ public class TargetManager {
         return startTId;
     }
 
+    /**
+     * 是否強制必須要在推薦的學習點內
+     * @param context ANDROID基底
+     * @return bool 是否強制
+     */
     public static boolean isForceStudyInRecommand(Context context) {
         DBProvider db = new DBProvider(context);
         Cursor query = db.get_activity();
@@ -106,15 +116,14 @@ public class TargetManager {
                     int tId = Integer.valueOf(tId_string);
 
                     // 進入教材頁面
-                    if(isInRecommand(context, tId)) {
-
+                    if(isForceStudyInRecommand(context) && !isInRecommand(context, tId)) {
+                        Toast.makeText(context, R.string.is_not_in_recommand, Toast.LENGTH_LONG).show();
+                    }
+                    else {
                         Activity activity = (Activity) context;
                         Intent toMaterial = new Intent(activity, MaterialActivity.class);
                         toMaterial.putExtra("tId", tId);
                         activity.startActivityForResult(toMaterial, LearningActivity.RESULT_MATERIAL);
-                    }
-                    else {
-                        Toast.makeText(context, "這不是這次的推薦學習點喔～", Toast.LENGTH_LONG).show();
                     }
                 }
 
