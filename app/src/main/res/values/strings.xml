@@ -52,6 +52,8 @@
     <string name="qrcode_scan">QR 掃描</string>
     <string name="keyin_tid">輸入標的編號</string>
     <string name="keyin_tid_message">請輸入標的編號</string>
+    <string name="finish_study_title_message">所有學習點都已學習完成</string>
+    <string name="finish_study_subtitle_message">請按下方按鈕離開</string>
 
     <!-- 瀏覽畫面 -->
     <string name="title_activity_browser">博物館瀏覽</string>

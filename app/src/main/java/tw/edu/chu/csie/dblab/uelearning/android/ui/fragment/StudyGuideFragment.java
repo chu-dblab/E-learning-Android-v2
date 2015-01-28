@@ -65,6 +65,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     private LinearLayout mLayout__nextPoint;
     private ImageView mImage_map;
     private Timer updateUITimer;
+    private LinearLayout mLayout_finishStudy;
     private Button mBtn_finishStudy;
 
     public static StudyGuideFragment newInstance(int sectionNumber) {
@@ -99,6 +100,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
         mLayout__nextPoint = (LinearLayout) rootView.findViewById(R.id.layout_learning_next_point);
         mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
+        mLayout_finishStudy = (LinearLayout) rootView.findViewById(R.id.layout_finish_study_activity);
         mBtn_finishStudy = (Button) rootView.findViewById(R.id.btn_finish_study_activity);
         mBtn_finishStudy.setOnClickListener(this);
 
@@ -266,6 +268,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             // 若已經學習完成的話
             if(ActivityManager.getRemainingPointTotal(getActivity()) <= 0) {
                 mBtn_finishStudy.setVisibility(View.VISIBLE);
+                mLayout_finishStudy.setVisibility(View.VISIBLE);
             }
         }
 
