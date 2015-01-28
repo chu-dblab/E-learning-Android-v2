@@ -46,8 +46,9 @@ android:orientation="vertical">
                         <ListView
                             android:layout_width="fill_parent"
                             android:layout_height="fill_parent"
+                            android:layout_weight="1"
                             android:id="@+id/list_learning_next_points"
-                            android:layout_weight="1" />
+                            android:choiceMode="singleChoice" />
                     </android.support.v4.widget.SwipeRefreshLayout>
 
             </LinearLayout>

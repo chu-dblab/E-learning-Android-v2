@@ -83,6 +83,10 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learning);
 
+        // 清除已推薦的學習點
+        DBProvider db = new DBProvider(LearningActivity.this);
+        db.removeAll_recommand();
+
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);

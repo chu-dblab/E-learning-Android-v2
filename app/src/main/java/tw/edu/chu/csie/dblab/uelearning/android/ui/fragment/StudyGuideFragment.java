@@ -79,20 +79,12 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
-        initUI(rootView);
         learningTime = ActivityManager.getRemainderLearningTime(getActivity());
-
+        initUI(rootView);
         // 若還沒有推薦的學習點
         if(!TargetManager.isHaveRecommand(getActivity())) {
             currentTId = TargetManager.getStartTargetId(getActivity());
-            list_select_nextPoint_item = 0;
-            updateUI();
             updateNextPoint(currentTId);
-        }
-        // 若已經有推薦的學習點
-        else {
-            list_select_nextPoint_item = 0;
-            updateUI();
         }
 
         return rootView;
@@ -256,10 +248,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                 //Integer aNum = query_t.getInt(query_t.getColumnIndex("ANum"));
                 //Integer tNum = query_t.getInt(query_t.getColumnIndex("TNum"));
                 String tName = query_t.getString(query_t.getColumnIndex("TName"));
-                //int learnTime = query_t.getInt(query_t.getColumnIndex("LearnTime"));
+                int learnTime = query_t.getInt(query_t.getColumnIndex("LearnTime"));
 
                 itemEnableActivity_tid[i] = tId;
-                itemEnableActivity[i] = new String(tId + ". "+tName);
+                itemEnableActivity[i] = new String(tId + ". "+tName + " ("+learnTime+" min)");
 
             }
             mBtn_finishStudy.setVisibility(View.GONE);
@@ -376,7 +368,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
         // 當已經有選取任何一項
         if(list_select_nextPoint_item != -1) {
-
             mList_nextPoints.setItemChecked(list_select_nextPoint_item, true);
 
             int tid = itemEnableActivity_tid[ list_select_nextPoint_item ];
