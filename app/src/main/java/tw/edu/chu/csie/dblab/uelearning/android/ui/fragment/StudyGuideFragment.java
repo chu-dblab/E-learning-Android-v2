@@ -144,11 +144,6 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         if (enableVirtualInt > 0) enableVirtual = true;
         else enableVirtual = false;
 
-        // TODO: 目前先暫時做假的出來
-//        db.insert_recommand(3,true);
-//        db.insert_recommand(7,true);
-//        db.insert_recommand(13,true);
-
         try {
             UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
                     "/activitys/" + saId + "/recommand?current_point=" + currentTId, null, new AsyncHttpResponseHandler() {
@@ -247,9 +242,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             }
         }
         else {
+            int startTId = TargetManager.getStartTargetId(getActivity());
             itemEnableActivity = new String[1];
             itemEnableActivity_tid = new int[1];
-            itemEnableActivity_tid[0] = currentTId;
+            itemEnableActivity_tid[0] = startTId;
             itemEnableActivity[0] = new String(getString(R.string.start_target));
         }
 

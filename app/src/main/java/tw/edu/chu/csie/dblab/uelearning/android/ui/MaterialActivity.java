@@ -79,10 +79,11 @@ public class MaterialActivity extends ActionBarActivity {
         this.tId = intent.getIntExtra("tId", 0);
         this.isEntity = intent.getBooleanExtra("is_entity", true);
 
-        // 取得此標的學習時間
+        // 取得此標的資訊
         DBProvider db = new DBProvider(MaterialActivity.this);
         Cursor targetQuery = db.get_target(tId);
         targetQuery.moveToFirst();
+        String tName = targetQuery.getString(targetQuery.getColumnIndex("TName"));
         tLearnTime = targetQuery.getInt(targetQuery.getColumnIndex("LearnTime"));
 
         // ActionBar對應
@@ -97,7 +98,7 @@ public class MaterialActivity extends ActionBarActivity {
         }
 
         // 在ActionBar顯示所在標的編號
-        actionbar.setTitle(getString(R.string.now_in_target).toString() +" "+ this.tId);
+        actionbar.setTitle(this.tId +". "+ tName);
         actionbar.setSubtitle(getString(R.string.in_target_time).toString() + "00:00");
 
         // 界面元件對應
