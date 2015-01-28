@@ -55,12 +55,29 @@ android:orientation="vertical">
         </LinearLayout>
 
         <!-- 右方區域 -->
-        <ImageView
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/image_learning_next_points"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:id="@+id/layout_learning_next_point">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/image_learning_next_points"
+                android:layout_weight="1" />
+
+        </LinearLayout>
     </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/finish_study_activity"
+        android:id="@+id/btn_finish_study_activity"
+        android:visibility="gone" />
 
     <!-- 下方的狀態區域 -->
     <LinearLayout

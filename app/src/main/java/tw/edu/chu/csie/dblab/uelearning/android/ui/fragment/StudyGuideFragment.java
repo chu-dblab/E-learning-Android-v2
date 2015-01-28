@@ -15,7 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +42,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
-import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
@@ -48,7 +50,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 /**
  * 學習引導畫面（顯示推薦學習點的地方）
  */
-public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
 
     public int currentTId = 0;
     protected static final int REMAINED_TIME = 0x101;
@@ -60,8 +62,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
     private SwipeRefreshLayout mSwipe_nextPoints;
     private TextView mText_remainedTime;
+    private LinearLayout mLayout__nextPoint;
     private ImageView mImage_map;
     private Timer updateUITimer;
+    private Button mBtn_finishStudy;
 
     public static StudyGuideFragment newInstance(int sectionNumber) {
         StudyGuideFragment fragment = new StudyGuideFragment();
@@ -101,7 +105,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mSwipe_nextPoints = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_next_points);
         mSwipe_nextPoints.setOnRefreshListener(this);
         mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
+        mLayout__nextPoint = (LinearLayout) rootView.findViewById(R.id.layout_learning_next_point);
         mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
+        mBtn_finishStudy = (Button) rootView.findViewById(R.id.btn_finish_study_activity);
+        mBtn_finishStudy.setOnClickListener(this);
 
         Message message = new Message();
         message.what = StudyGuideFragment.REMAINED_TIME;
@@ -162,16 +169,31 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                         DBProvider db = new DBProvider(getActivity());
                         db.removeAll_recommand();
 
-                        // 抓其中一個活動
-                        for (int i = 0; i < jsonAry_targets.length(); i++) {
-                            JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
+                        // 抓取是否已結束
+                        boolean isEnd = response.getBoolean("is_end");
 
-                            int tId = thisTarget.getInt("target_id");
-                            boolean isEntity = thisTarget.getBoolean("is_entity");
+                        // 還沒結束的話
+                        if(!isEnd) {
 
-                            // 記錄進資料庫
-                            db.insert_recommand(tId, isEntity);
+                            // 抓所有推薦的標的
+                            for (int i = 0; i < jsonAry_targets.length(); i++) {
+                                JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
+
+                                int tId = thisTarget.getInt("target_id");
+                                boolean isEntity = thisTarget.getBoolean("is_entity");
+
+                                // 記錄進資料庫
+                                db.insert_recommand(tId, isEntity);
+                            }
                         }
+                        // 已經結束的話
+                        else {
+
+                            // TODO: 改以隨時取得已學習標的數
+                            ActivityManager.setLearnedPointTotal(getActivity(),
+                                    ActivityManager.getPointTotal(getActivity()) -1);
+                        }
+
                     } catch (JSONException e) {
                         ErrorUtils.error(getActivity(), e);
                     } catch (UnsupportedEncodingException e) {
@@ -240,6 +262,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                 itemEnableActivity[i] = new String(tId + ". "+tName);
 
             }
+            mBtn_finishStudy.setVisibility(View.GONE);
         }
         else {
             int startTId = TargetManager.getStartTargetId(getActivity());
@@ -247,6 +270,11 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             itemEnableActivity_tid = new int[1];
             itemEnableActivity_tid[0] = startTId;
             itemEnableActivity[0] = new String(getString(R.string.start_target));
+
+            // 若已經學習完成的話
+            if(ActivityManager.getRemainingPointTotal(getActivity()) <= 0) {
+                mBtn_finishStudy.setVisibility(View.VISIBLE);
+            }
         }
 
         ArrayAdapter<String> arrayData ;
@@ -309,6 +337,20 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         rootView.addView(newView);
 
         initUI(rootView);
+    }
+
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+
+        if(id == R.id.btn_finish_study_activity) {
+            ((LearningActivity)getActivity()).finishStudyActivity();
+        }
     }
 
     /**

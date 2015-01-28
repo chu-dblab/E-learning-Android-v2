@@ -185,6 +185,22 @@ public class DBProvider {
         return returnData;
     }
 
+    public long set_activity_learnTime(int time) {
+        ContentValues values = new ContentValues();
+        values.put("LearnTime", time);
+        long returnData = db.update("Activity", values, null, null);
+
+        return returnData;
+    }
+
+    public long set_activity_learnedPointTotal(int total) {
+        ContentValues values = new ContentValues();
+        values.put("LearnedTotal", total);
+        long returnData = db.update("Activity", values, null, null);
+
+        return returnData;
+    }
+
     public long insert_target(int thId, int tId, Integer hId, String hName,
                               Integer aId, String aName, Integer aFloor, Integer aNum,
                               Integer tNum, String tName, int learnTime,

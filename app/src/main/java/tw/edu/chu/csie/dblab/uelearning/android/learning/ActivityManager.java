@@ -166,8 +166,41 @@ public class ActivityManager {
      * 是否已學習逾時
      * @return 是否已學習逾時
      */
-    public static boolean isLearningOver(Context context) {
+    public static boolean isLearningTimeOver(Context context) {
         if(getRemainderLearningTime(context).getTime() <= 0) return true;
         else return false;
+    }
+
+    // =============================================================================================
+
+    public static int getPointTotal(Context context) {
+        DBProvider db = new DBProvider(context);
+        Cursor query = db.get_activity();
+        int result = 0;
+        if(query.getCount()>0) {
+            query.moveToFirst();
+            result = query.getInt(query.getColumnIndex("TargetTotal"));
+        }
+        return result;
+    }
+
+    public static int getLearnedPointTotal(Context context) {
+        DBProvider db = new DBProvider(context);
+        Cursor query = db.get_activity();
+        int result = 0;
+        if(query.getCount()>0) {
+            query.moveToFirst();
+            result = query.getInt(query.getColumnIndex("LearnedTotal"));
+        }
+        return result;
+    }
+
+    public static void setLearnedPointTotal(Context context, int total) {
+        DBProvider db = new DBProvider(context);
+        db.set_activity_learnedPointTotal(total);
+    }
+
+    public static int getRemainingPointTotal(Context context) {
+        return getPointTotal(context)-1 - getLearnedPointTotal(context);
     }
 }

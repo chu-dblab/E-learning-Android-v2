@@ -64,7 +64,7 @@ public class TargetManager {
         DBProvider db = new DBProvider(context);
         Cursor query = db.getAll_recommand();
 
-        if(query.getCount() > 1) return true;
+        if(query.getCount() >= 1) return true;
         else return false;
     }
 
