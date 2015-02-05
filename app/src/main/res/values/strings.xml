@@ -24,6 +24,7 @@
     <string name="refresh">重新整理</string>
     <string name="system_settings">系統設定</string>
     <string name="minute">分鐘</string>
+    <string name="cancel">取消</string>
 
     <!-- 教材包、地圖包下載 -->
     <string name="material_downloader">教材下載</string>
@@ -41,6 +42,26 @@
     <string name="get_fail_enableActivity">可用的學習活動取得失敗</string>
     <string name="starting_study_activity">開始學習，請稍候...</string>
     <string name="finishing_study_activity">結束學習，請稍候...</string>
+
+    <!-- 選擇學習活動Dialog -->
+    <string name="title_start_study_activity_dialog">開始新的學習活動</string>
+    <string name="theme_id">主題編號: </string>
+    <string name="estimated_time">預估時間: </string>
+    <string name="have_point_total">共有 %d 個學習點</string>
+    <string name="will_id">預約編號: </string>
+    <string name="validity_date">期限: </string>
+    <string name="please_select_study_mode">請選擇導引模式</string>
+    <string name="theme_recommand">主題推薦</string>
+    <string name="force">強制</string>
+    <string name="free_study">自由探索</string>
+    <string name="recommand">推薦</string>
+    <string name="number_point">個學習點</string>
+    <string name="learning_time">學習時間</string>
+    <string name="learning_time_limit">時間限制: </string>
+    <string name="material_mode">偏好教材</string>
+    <string name="start_study_activity">開始學習</string>
+    <string name="resume_study_activity">繼續學習</string>
+    <string name="cancel_study_activity">撤銷學習</string>
 
     <!-- 學習畫面 -->
     <string name="study_guide">學習導覽</string>

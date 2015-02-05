@@ -1,7 +1,10 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -10,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -32,6 +36,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartStudyActivityDialog;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
@@ -41,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     private SwipeRefreshLayout mSwipe_activity;
     private ListView mListView_activity;
     ProgressDialog mProgress_start_studyActivity;
+
     private int[] itemSerial;
     private String[] itemEnableActivity;
     private String[] subitemEnableActivity;
@@ -241,6 +247,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         updateStudyActivityUI();
     }
 
+
     /**
      * 更新可用的學習活動清單到介面
      */
@@ -348,7 +355,18 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             startStudyActivity(thId, thName, learnTime, timeForce, lMode, lForce, mMode);
         }
         else/* if(type == DBProvider.TYPE_THEME) */{
-            startStudyActivity(thId, thName, null, null, null, null, null);
+
+            //Dialog
+            AlertDialog startDialog =
+                    new StartStudyActivityDialog(MainActivity.this, itemSerial[position]).create();
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(startDialog.getWindow().getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            startDialog.getWindow().setAttributes(lp);
+
+            startDialog.show();
+            //startStudyActivity(thId, thName, null, null, null, null, null);
         }
 
     }
