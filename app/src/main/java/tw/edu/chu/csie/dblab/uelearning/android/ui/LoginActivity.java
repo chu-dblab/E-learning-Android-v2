@@ -18,10 +18,12 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -103,6 +105,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         }
         else if (id == R.id.btn_login_ok) {
             // 開始像伺服端送出登入要求
+            getPlaceInfo();
             mlogin();
         }
         else if (id == R.id.btn_login_clear) {
@@ -303,6 +306,59 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
 
     }
+    public void getPlaceInfo() {
+        UElearningRestClient.get("/info/" , null, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                try {
+                    String content = new String(responseBody, "UTF-8");
+                    JSONObject response = new JSONObject(content);
+                    JSONObject userJson = response.getJSONObject("user");
+
+                    // 抓取伺服端資料
+                    int Iid = userJson.getInt("IID");
+                    String IName = response.getString("IName");
+                    String IContent = userJson.getString("IContent");
+                    int Pid = userJson.getInt("PID");
+                    String PName = response.getString("PName");
+                    String PURL = response.getString("PUrl");
+
+
+                    // 紀錄進資料庫
+                    DBProvider db = new DBProvider(LoginActivity.this);
+                    db.remove_place_info();
+                    db.remove_place_map();
+                    db.insert_place_info(Iid,IName,IContent);
+                    db.insert_place_map(Pid,PName,PURL);
+
+                    // 處理伺服端與本機端的時間差
+                    String nowDateString = response.getString("login_time");
+                    Date serverTime = TimeUtils.stringToDate(nowDateString);
+                    TimeUtils.setTimeAdjustByNowServerTime(LoginActivity.this, serverTime);
+
+                    // 前往MainActivity
+                    finish();
+                    Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(to_mainActivity);
+
+                }
+                catch (UnsupportedEncodingException e) {
+                    ErrorUtils.error(LoginActivity.this, e);
+                } catch (JSONException e) {
+                    ErrorUtils.error(LoginActivity.this, e);
+                } catch (ParseException e) {
+                    ErrorUtils.error(LoginActivity.this, e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
+
+    }
+
 
     /**
      * This method will be invoked when a menu item is clicked if the item itself did
