@@ -103,6 +103,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         }
         else if (id == R.id.btn_login_ok) {
             // 開始像伺服端送出登入要求
+            getPlaceInfo();
             mlogin();
         }
         else if (id == R.id.btn_login_clear) {
@@ -302,6 +303,10 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         }
 
 
+    }
+
+    public void getPlaceInfo() {
+        DBProvider db = new DBProvider(LoginActivity.this);
     }
 
     /**
