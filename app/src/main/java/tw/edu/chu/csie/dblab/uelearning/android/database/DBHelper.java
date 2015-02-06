@@ -134,6 +134,19 @@ public class DBHelper extends SQLiteOpenHelper {
         String sql_insert_server_info_4 =
                         "INSERT INTO `ServerInfo`(`Name`,`Value`) VALUES ('TimeAdjust',0);";
 
+        //Create Table
+        String sql_create_place_info = "CREATE TABLE Placeinfo (" +
+                "IID integer PRIMARY KEY," +
+                "IName Varchar(1000)," +
+                "IContent Varchar(1000)" +
+                ")";
+
+        String sql_create_place_map = "CREATE TABLE Placemap (" +
+                "PID integer PRIMARY KEY," +
+                "PName Varchar(1000)," +
+                "PUrl Varchar(1000)" +
+                ")";
+
         db.execSQL(sql_create_user);
         db.execSQL(sql_create_auth);
         db.execSQL(sql_create_activity);
@@ -146,6 +159,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sql_insert_server_info_2);
         db.execSQL(sql_insert_server_info_3);
         db.execSQL(sql_insert_server_info_4);
+        db.execSQL(sql_create_place_info);
+        db.execSQL(sql_create_place_map);
 
         Log.d("success", "SQLite: User, Auth, Activity, EnableActivity, Log 建表成功!!");
     }
