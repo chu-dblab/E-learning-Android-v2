@@ -47,6 +47,7 @@ import org.json.JSONObject;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
@@ -179,8 +180,29 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         }
         // 結束學習活動
         else if (id == R.id.menu_finish_study_activity) {
-            studyGuideFragment.stopUpdateUITask();
-            finishStudyActivity();
+
+            // 若尚未學習完成的話
+            if(ActivityManager.getRemainingPointTotal(LearningActivity.this) > 0) {
+                // 顯示確認訊息提示
+                AlertDialog.Builder finishDBuilder = new AlertDialog.Builder(LearningActivity.this);
+                finishDBuilder.setCancelable(true);
+                finishDBuilder.setTitle(R.string.finish_study_activity);
+                finishDBuilder.setMessage(R.string.finish_study_activity_unfinished_message);
+                finishDBuilder.setPositiveButton(R.string.finish_study_activity, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finishStudyActivity();
+                    }
+                });
+                finishDBuilder.setNegativeButton(R.string.cancel, null);
+
+                AlertDialog finishDialog = finishDBuilder.create();
+                finishDialog.show();
+            }
+            else {
+                finishStudyActivity();
+            }
+
         }
         // 暫停學習活動
         else if (id == R.id.menu_pause_study_activity) {
@@ -231,7 +253,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
      * 結束學習活動
      */
     public void finishStudyActivity() {
-
+        studyGuideFragment.stopUpdateUITask();
         mProgress_activity_finish.show();
 
         DBProvider db = new DBProvider(LearningActivity.this);

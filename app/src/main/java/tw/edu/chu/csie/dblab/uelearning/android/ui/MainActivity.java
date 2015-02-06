@@ -395,9 +395,15 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         final RequestParams startActivity_params = new RequestParams();
         startActivity_params.put("theme_id", thId);
         if(_learnTime != null) startActivity_params.put("learn_time", _learnTime);
-        if(_timeForce != null) startActivity_params.put("time_force", _timeForce);
+        if(_timeForce != null) {
+            if(_timeForce == true) startActivity_params.put("time_force", "1");
+            else startActivity_params.put("time_force", "0");
+        }
         if(_lMode != null)     startActivity_params.put("learnStyle_mode", _lMode);
-        if(_lForce != null)    startActivity_params.put("learnStyle_force", _lForce);
+        if(_lForce != null) {
+            if(_lForce == true) startActivity_params.put("learnStyle_force", "1");
+            else startActivity_params.put("learnStyle_force", "0");
+        }
         if(_mMode != null)     startActivity_params.put("material_mode", _mMode);
 
         // 對伺服器加入新的學習活動
