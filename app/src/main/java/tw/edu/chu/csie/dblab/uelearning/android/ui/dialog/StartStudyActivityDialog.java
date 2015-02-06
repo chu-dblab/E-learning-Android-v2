@@ -8,8 +8,10 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -24,7 +26,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
  * Created by yuan on 2015/2/2.
  */
 public class StartStudyActivityDialog extends AlertDialog.Builder
-        implements DialogInterface.OnClickListener {
+        implements DialogInterface.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     protected int thId;
     protected String thName;
@@ -35,7 +37,7 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
     View rootView;
     Context context;
     private TextView mText_themeId, mText_estimated_time, mText_have_point_total;
-    private ScrollView mScroll_theme_introduction;
+    private LinearLayout mLayout_theme_introduction, mLayout_learn_mode;
     private TextView mText_theme_introduction;
     private RadioGroup mRadioG_learnMode;
     private CheckBox mCheck_learnMode_force, mCheck_timeLimit;
@@ -82,13 +84,16 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
         mText_themeId = (TextView) rootView.findViewById(R.id.text_theme_id);
         mText_estimated_time = (TextView) rootView.findViewById(R.id.text_estimated_time);
         mText_have_point_total = (TextView) rootView.findViewById(R.id.text_have_point_total);
-        mScroll_theme_introduction = (ScrollView) rootView.findViewById(R.id.scroll_theme_introduction);
+        mLayout_theme_introduction = (LinearLayout) rootView.findViewById(R.id.layout_theme_introduction);
         mText_theme_introduction = (TextView) rootView.findViewById(R.id.text_theme_introduction);
+        mLayout_learn_mode = (LinearLayout) rootView.findViewById(R.id.layout_learn_mode);
         mRadioG_learnMode = (RadioGroup) rootView.findViewById(R.id.radioG_learn_mode);
+        mRadioG_learnMode.setOnCheckedChangeListener(this);
         mEdit_learnMode = (EditText) rootView.findViewById(R.id.edit_learn_mode);
         mCheck_learnMode_force = (CheckBox) rootView.findViewById(R.id.check_learn_mode_force);
         mEdit_timeLimit = (EditText) rootView.findViewById(R.id.edit_learning_time_limit);
         mCheck_timeLimit = (CheckBox) rootView.findViewById(R.id.check_learning_time_limit);
+        mSpinner_materialMode = (Spinner) rootView.findViewById(R.id.spinner_material_mode);
     }
 
     public void displayUi() {
@@ -101,15 +106,20 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
                 thPointTotal);
         mText_have_point_total.setText(have_point_total_string);
         if(thIntroduction.equals("null")) {
-            mScroll_theme_introduction.setVisibility(View.GONE);
+            mLayout_theme_introduction.setVisibility(View.GONE);
         }
         else {
-            mScroll_theme_introduction.setVisibility(View.VISIBLE);
+            mLayout_theme_introduction.setVisibility(View.VISIBLE);
             mText_theme_introduction.setText(thIntroduction);
         }
 
+        // TODO: 抓取登記在使用者的習慣數據來作為預設選項
         mEdit_learnMode.setText("3");
         mEdit_timeLimit.setText(""+thTime);
+
+        String[] materialMode = {"normal"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, materialMode);
+        mSpinner_materialMode.setAdapter(adapter);
     }
 
 
@@ -119,7 +129,13 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
 
             int learnTime = Integer.valueOf( mEdit_timeLimit.getText().toString() );
             boolean timeForce = mCheck_timeLimit.isChecked();
-            int lMode = Integer.valueOf( mEdit_learnMode.getText().toString() );
+            int lMode = 0;
+            if(mRadioG_learnMode.getCheckedRadioButtonId() == R.id.radio_learn_mode_recommand) {
+                lMode = Integer.valueOf( mEdit_learnMode.getText().toString() );
+            }
+            else {
+                lMode = 0;
+            }
             boolean lForce = mCheck_learnMode_force.isChecked();
             String mMode = null;
 
@@ -128,6 +144,16 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
         }
         else if(which == DialogInterface.BUTTON_NEGATIVE) {
             dialog.cancel();
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        if(checkedId == R.id.radio_learn_mode_recommand) {
+            mLayout_learn_mode.setVisibility(View.VISIBLE);
+        }
+        else {
+            mLayout_learn_mode.setVisibility(View.GONE);
         }
     }
 }
