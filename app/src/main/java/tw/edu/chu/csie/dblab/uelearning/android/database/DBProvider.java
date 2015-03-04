@@ -73,6 +73,41 @@ public class DBProvider {
 
     // --------------------------------------------------------------------------------------------
 
+    // ============================================================================================
+    public long insert_place_info(Integer IID, String IName,String IContent) {
+
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("IID", IID);
+        contentvalues.put("IName", IName);
+        contentvalues.put("IContent", IContent);
+
+        long returnData = db.insert("Placeinfo", null, contentvalues);
+
+        return returnData;
+    }
+    public long remove_place_info() {
+
+        long returnData = db.delete("Placeinfo", null, null);
+        return returnData;
+    }
+    public long insert_place_map(Integer PID, String PName,String PUrl) {
+
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("PID", PID);
+        contentvalues.put("PName", PName);
+        contentvalues.put("PUrl", PUrl);
+
+        long returnData = db.insert("Placemap", null, contentvalues);
+
+        return returnData;
+    }
+    public long remove_place_map() {
+
+        long returnData = db.delete("Placemap", null, null);
+        return returnData;
+    }
+    // --------------------------------------------------------------------------------------------
+
     public static final int TYPE_STUDY = 1;
     public static final int TYPE_WILL = 2;
     public static final int TYPE_THEME = 3;
