@@ -5,10 +5,12 @@
 
     <item android:id="@+id/menu_qr_scan"
         android:title="@string/qrcode_scan"
+        android:icon="@drawable/ic_action_qr"
         app:showAsAction="always" />
 
     <item android:id="@+id/menu_keyin_tid"
         android:title="@string/keyin_tid"
+        android:icon="@drawable/ic_action_keyboard"
         app:showAsAction="always" />
 
     <item android:id="@+id/menu_pause_study_activity"
