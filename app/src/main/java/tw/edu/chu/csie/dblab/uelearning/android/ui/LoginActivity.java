@@ -19,6 +19,7 @@ import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -225,6 +226,18 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                         String nowDateString = response.getString("login_time");
                         Date serverTime = TimeUtils.stringToDate(nowDateString);
                         TimeUtils.setTimeAdjustByNowServerTime(LoginActivity.this, serverTime);
+
+                        // 抓取可用的教材類型
+                        db.removeAll_materialKind();
+                        JSONArray materialKindArr = response.getJSONArray("material_kind");
+                        for(int i=0; i<materialKindArr.length(); i++) {
+                            JSONObject the_mkJSON = materialKindArr.getJSONObject(i);
+                            String mkId = the_mkJSON.getString("material_kind_id");
+                            String mkName = the_mkJSON.getString("material_kind_name");
+
+                            db.insert_materialKind(mkId, mkName);
+                        }
+
 
                         // 前往MainActivity
                         finish();

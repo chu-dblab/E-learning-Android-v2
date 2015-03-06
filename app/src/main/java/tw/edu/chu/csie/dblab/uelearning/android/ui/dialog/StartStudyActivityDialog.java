@@ -33,6 +33,8 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
     protected int thTime;
     protected int thPointTotal;
     protected String thIntroduction;
+    protected String[] mkId;
+    protected String[] mkName;
 
     View rootView;
     Context context;
@@ -62,6 +64,17 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
         this.setCancelable(true);
         this.setPositiveButton(R.string.start_study_activity, this);
         this.setNegativeButton(R.string.cancel, this);
+
+        // 取得可用的教材類型
+        DBProvider db = new DBProvider(context);
+        Cursor materialKindQuery = db.getAll_materialKind();
+        mkId = new String[materialKindQuery.getCount()];
+        mkName = new String[materialKindQuery.getCount()];
+        for(int i=0; i<mkId.length; i++) {
+            materialKindQuery.moveToPosition(i);
+            mkId[i] = materialKindQuery.getString(materialKindQuery.getColumnIndex("MkID"));
+            mkName[i] = materialKindQuery.getString(materialKindQuery.getColumnIndex("MkName"));
+        }
 
         checkData(position);
         initUi();
@@ -117,8 +130,7 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
         mEdit_learnMode.setText("3");
         mEdit_timeLimit.setText(""+thTime);
 
-        String[] materialMode = {"normal"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, materialMode);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, mkName);
         mSpinner_materialMode.setAdapter(adapter);
     }
 
@@ -137,7 +149,8 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
                 lMode = 0;
             }
             boolean lForce = mCheck_learnMode_force.isChecked();
-            String mMode = null;
+            int mModeSelect = mSpinner_materialMode.getSelectedItemPosition();
+            String mMode = mkId[mModeSelect];
 
             ((MainActivity) context).startStudyActivity(thId, thName, learnTime, timeForce, lMode, lForce, mMode);
 

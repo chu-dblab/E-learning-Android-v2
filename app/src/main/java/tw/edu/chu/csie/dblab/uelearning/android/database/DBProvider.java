@@ -236,6 +236,25 @@ public class DBProvider {
         return returnData;
     }
 
+    public long insert_materialKind(String mkId, String mkName) {
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("MkID", mkId);
+        contentvalues.put("MkName", mkName);
+        long returnData = db.insert("MaterialKind", null, contentvalues);
+
+        return returnData;
+    }
+
+    public Cursor getAll_materialKind() {
+        Cursor the_query = db.query("MaterialKind", null, null, null, null, null, null);
+        return the_query;
+    }
+
+    public long removeAll_materialKind() {
+        long returnData = db.delete("MaterialKind", null, null);
+        return returnData;
+    }
+
     public long insert_target(int thId, int tId, Integer hId, String hName,
                               Integer aId, String aName, Integer aFloor, Integer aNum,
                               Integer tNum, String tName, int learnTime,
