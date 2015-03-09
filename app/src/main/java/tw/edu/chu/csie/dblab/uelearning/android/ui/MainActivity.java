@@ -293,7 +293,6 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
         ArrayAdapter<String> listAdapter;
         listAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, itemEnableActivity);
-        //ArrayAdapter listAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_2,list){
         mListView_activity.setAdapter(listAdapter);
     }
 
@@ -748,6 +747,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             db.removeAll_enableActivity();
             db.removeAll_activity();
             db.removeAll_recommand();
+            db.removeAll_materialKind();
             db.removeAll_target();
 
             // 回到登入畫面

@@ -30,6 +30,10 @@
 3. 看看能不能跑吧～
 
 ## 圖示來源
+### App icon
+* 下載來源 <http://findicons.com/icon/258242/library?id=258242>
+* By: [Matthew McClintock](http://www.studiotwentyeight.net/)
+
 ### Logout icon
 * 下載來源 <https://www.iconfinder.com/icons/175529/logout_icon>
 * By: [Visual Pharm](http://icons8.com/)

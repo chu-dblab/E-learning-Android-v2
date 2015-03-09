@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -122,6 +123,13 @@ public class MaterialActivity extends ActionBarActivity {
             if (Config.DEBUG_SHOW_MESSAGE) {
                 Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId, isEntity), Toast.LENGTH_SHORT).show();
             }
+            mWebView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    mWebView.loadUrl("javascript:uelearning.setAndroid()");
+                }
+            });
         } else {
             ErrorUtils.error(MaterialActivity.this, "No Material Files");
         }
@@ -199,20 +207,26 @@ public class MaterialActivity extends ActionBarActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
-                    try {
-                        // TODO: 錯誤處理
-                        String content = new String(responseBody, HTTP.UTF_8);
-                        if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MaterialActivity.this,
-                                    "s: " + statusCode + "\n" + content,
-                                    Toast.LENGTH_LONG).show();
+                    if(statusCode != 0) {
+
+                        try {
+                            // TODO: 錯誤處理
+                            String content = new String(responseBody, HTTP.UTF_8);
+                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                Toast.makeText(MaterialActivity.this,
+                                        "s: " + statusCode + "\n" + content,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else {
-                            Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                        catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MaterialActivity.this, e);
                         }
                     }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MaterialActivity.this, e);
+                    else {
+                        ErrorUtils.error(MaterialActivity.this, error);
                     }
                 }
             });

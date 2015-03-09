@@ -43,7 +43,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "CID integer DEFAULT NULL,\n" +
                 "CName Varchar(100) DEFAULT NULL,\n" +
                 "LMode integer DEFAULT NULL,\n" +
-                "MMode Varchar(10) DEFAULT NULL,\n" +
+                "MMode Varchar(25) DEFAULT NULL,\n" +
                 "Enable_NoAppoint Boolean DEFAULT NULL,\n" +
                 "NickName Varchar(50) DEFAULT NULL,\n" +
                 "RealName Varchar(50) DEFAULT NULL,\n" +
@@ -65,7 +65,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "LMode integer," +
                 "LForce Boolean DEFAULT NULL," +
                 "EnableVirtual Boolean DEFAULT 0," +
-                "MMode Varchar(10) DEFAULT NULL," +
+                "MMode Varchar(25) DEFAULT NULL," +
                 "TargetTotal integer," +
                 "LearnedTotal integer DEFAULT 0)";
 
@@ -85,10 +85,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 "LMode integer," +
                 "LForce Boolean DEFAULT NULL," +
                 "EnableVirtual Boolean DEFAULT 0," +
-                "MMode Varchar(10) DEFAULT NULL," +
+                "MMode Varchar(25) DEFAULT NULL," +
                 "Lock Boolean  DEFAULT 0," +
                 "TargetTotal integer," +
                 "LearnedTotal integer DEFAULT 0)";
+
+        String sql_create_material_kind = "CREATE TABLE MaterialKind (" +
+                "MkID Varchar(25) PRIMARY KEY," +
+                "MkName Varchar(100)" +
+                ")";
 
         String sql_create_target = "CREATE TABLE Target (" +
                 "ThID integer," +
@@ -151,6 +156,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sql_create_auth);
         db.execSQL(sql_create_activity);
         db.execSQL(sql_create_enableActivity);
+        db.execSQL(sql_create_material_kind);
         db.execSQL(sql_create_target);
         db.execSQL(sql_create_recommand);
         db.execSQL(sql_create_log);
