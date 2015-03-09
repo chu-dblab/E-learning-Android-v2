@@ -1,6 +1,7 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui.js_handler;
 
 import android.webkit.JavascriptInterface;
+import android.widget.Toast;
 
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
 
@@ -36,5 +37,10 @@ public class MaterialJSHandler {
     @JavascriptInterface
     public void learnFinish(String[] ansQID, String[] ansCheck) {
         learnFinish();
+    }
+
+    @JavascriptInterface
+    public void goBack() {
+        //context.webViewBackToView();
     }
 }

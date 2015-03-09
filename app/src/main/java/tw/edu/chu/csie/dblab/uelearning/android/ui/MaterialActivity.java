@@ -63,6 +63,8 @@ public class MaterialActivity extends ActionBarActivity {
      */
     protected Date startTime;
 
+    protected String materialFilePath;
+
     // UI上的元件
     private ActionBar actionbar;
     private WebView mWebView;
@@ -106,7 +108,7 @@ public class MaterialActivity extends ActionBarActivity {
         mWebView = (WebView) findViewById(R.id.webview_material);
 
         // 取得教材路徑
-        String materialFilePath = FileUtils.getMaterialFilePath(MaterialActivity.this, tId, true);
+        materialFilePath = FileUtils.getMaterialFilePath(MaterialActivity.this, tId, true);
 
         // 有查到此標的的教材路徑
         if (!materialFilePath.equals(null)) {
@@ -143,6 +145,10 @@ public class MaterialActivity extends ActionBarActivity {
         String inTimeString = TimeUtils.timeeToStringNoHour(inTime);
         actionbar.setSubtitle(getString(R.string.in_target_time).toString() +" "+ inTimeString + ", "
                 + getString(R.string.target_learn_time) +" "+ tLearnTime + getString(R.string.minute));
+    }
+
+    public void webViewBackToView() {
+        mWebView.loadUrl("file://" + materialFilePath);
     }
 
     /**
