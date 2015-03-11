@@ -37,6 +37,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartStudyActivityDialog;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartWillStudyActivityLockDialog;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
@@ -338,22 +339,17 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         }
         else if(type == DBProvider.TYPE_WILL) {
 
-            learnTime     = query.getInt   ( query.getColumnIndex("LearnTime") );
-            timeForce_int = query.getInt   ( query.getColumnIndex("TimeForce") );
-            lMode         = query.getInt   ( query.getColumnIndex("LMode")     );
-            lForce_int    = query.getInt   ( query.getColumnIndex("LForce")    );
-            mMode         = query.getString( query.getColumnIndex("") );
+            AlertDialog startDialog =
+                    new StartWillStudyActivityLockDialog(MainActivity.this, itemSerial[position]).create();
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(startDialog.getWindow().getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            startDialog.getWindow().setAttributes(lp);
 
-            boolean timeForce;
-            if(timeForce_int>=1) timeForce = true;
-            else timeForce = false;
-            boolean lForce;
-            if(lForce_int>=1) lForce = true;
-            else lForce = false;
-
-            startStudyActivity(thId, thName, learnTime, timeForce, lMode, lForce, mMode);
+            startDialog.show();
         }
-        else/* if(type == DBProvider.TYPE_THEME) */{
+        else {
 
             //Dialog
             AlertDialog startDialog =

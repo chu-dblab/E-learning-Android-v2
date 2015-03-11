@@ -51,11 +51,13 @@
     <string name="will_id">預約編號: </string>
     <string name="validity_date">期限: </string>
     <string name="please_select_study_mode">請選擇導引模式</string>
+    <string name="will_select_study_mode">將採用的導引模式</string>
     <string name="theme_recommand">主題推薦</string>
     <string name="force">強制</string>
     <string name="free_study">自由探索</string>
     <string name="recommand">推薦</string>
     <string name="number_point">個學習點</string>
+    <string name="recommand_number_point">推薦 %d 個學習點</string>
     <string name="learning_time">學習時間</string>
     <string name="learning_time_limit">時間限制: </string>
     <string name="material_mode">偏好教材</string>

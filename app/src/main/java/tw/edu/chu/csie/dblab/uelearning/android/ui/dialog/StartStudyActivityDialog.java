@@ -65,17 +65,6 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
         this.setPositiveButton(R.string.start_study_activity, this);
         this.setNegativeButton(R.string.cancel, this);
 
-        // 取得可用的教材類型
-        DBProvider db = new DBProvider(context);
-        Cursor materialKindQuery = db.getAll_materialKind();
-        mkId = new String[materialKindQuery.getCount()];
-        mkName = new String[materialKindQuery.getCount()];
-        for(int i=0; i<mkId.length; i++) {
-            materialKindQuery.moveToPosition(i);
-            mkId[i] = materialKindQuery.getString(materialKindQuery.getColumnIndex("MkID"));
-            mkName[i] = materialKindQuery.getString(materialKindQuery.getColumnIndex("MkName"));
-        }
-
         checkData(position);
         initUi();
         displayUi();
@@ -91,6 +80,16 @@ public class StartStudyActivityDialog extends AlertDialog.Builder
         thIntroduction = query.getString( query.getColumnIndex("ThIntroduction") );
         thTime = query.getInt( query.getColumnIndex("LearnTime") );
         thPointTotal = query.getInt( query.getColumnIndex("TargetTotal") );
+
+        // 取得可用的教材類型
+        Cursor materialKindQuery = db.getAll_materialKind();
+        mkId = new String[materialKindQuery.getCount()];
+        mkName = new String[materialKindQuery.getCount()];
+        for(int i=0; i<mkId.length; i++) {
+            materialKindQuery.moveToPosition(i);
+            mkId[i] = materialKindQuery.getString(materialKindQuery.getColumnIndex("MkID"));
+            mkName[i] = materialKindQuery.getString(materialKindQuery.getColumnIndex("MkName"));
+        }
     }
 
     public void initUi() {
