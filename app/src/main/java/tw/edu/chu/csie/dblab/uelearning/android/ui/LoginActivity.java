@@ -320,53 +320,51 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
     }
     public void getPlaceInfo() {
-        UElearningRestClient.get("/info/" , null, new AsyncHttpResponseHandler() {
+        UElearningRestClient.get("/info" , null, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
                     String content = new String(responseBody, "UTF-8");
                     JSONObject response = new JSONObject(content);
-                    JSONObject userJson = response.getJSONObject("user");
-
-                    // 抓取伺服端資料
-                    int Iid = userJson.getInt("IID");
-                    String IName = response.getString("IName");
-                    String IContent = userJson.getString("IContent");
-                    int Pid = userJson.getInt("PID");
-                    String PName = response.getString("PName");
-                    String PURL = response.getString("PUrl");
-
+                    JSONArray placeInfoJson = response.getJSONArray("place_info");
+                    JSONArray placeMapJson = response.getJSONArray("place_map");
 
                     // 紀錄進資料庫
                     DBProvider db = new DBProvider(LoginActivity.this);
                     db.remove_place_info();
                     db.remove_place_map();
-                    db.insert_place_info(Iid,IName,IContent);
-                    db.insert_place_map(Pid,PName,PURL);
 
-                    // 處理伺服端與本機端的時間差
-                    String nowDateString = response.getString("login_time");
-                    Date serverTime = TimeUtils.stringToDate(nowDateString);
-                    TimeUtils.setTimeAdjustByNowServerTime(LoginActivity.this, serverTime);
 
-                    // 前往MainActivity
-                    finish();
-                    Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(to_mainActivity);
+                    // 抓取伺服端資料
+                    for(int i=0; i<placeInfoJson.length(); i++) {
+                        JSONObject thisData = placeInfoJson.getJSONObject(i);
+                        int idData = thisData.getInt("id");
+                        String nameData = thisData.getString("name");
+                        String contentData = thisData.getString("content");
+
+                        db.insert_place_info(idData,nameData,contentData);
+                    }
+
+                    for(int i=0; i<placeMapJson.length(); i++) {
+                        JSONObject thisData = placeMapJson.getJSONObject(i);
+                        int idData = thisData.getInt("id");
+                        String nameData = thisData.getString("name");
+                        String mapUrlData = thisData.getString("url");
+
+                        db.insert_place_map(idData,nameData,mapUrlData);
+                    }
 
                 }
                 catch (UnsupportedEncodingException e) {
                     ErrorUtils.error(LoginActivity.this, e);
                 } catch (JSONException e) {
                     ErrorUtils.error(LoginActivity.this, e);
-                } catch (ParseException e) {
-                    ErrorUtils.error(LoginActivity.this, e);
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                ErrorUtils.error(LoginActivity.this, error);
             }
         });
 
