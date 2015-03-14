@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.apache.http.protocol.HTTP;
@@ -145,9 +146,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         if (enableVirtualInt > 0) enableVirtual = true;
         else enableVirtual = false;
 
+        final RequestParams recommand_params = new RequestParams();
         try {
-            UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
-                    "/activitys/" + saId + "/recommand?current_point=" + currentTId, null, new AsyncHttpResponseHandler() {
+            UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                    "/activitys/" + saId + "/recommand?current_point=" + currentTId, recommand_params, new AsyncHttpResponseHandler() {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -167,7 +169,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                         boolean isEnd = response.getBoolean("is_end");
 
                         // 還沒結束的話
-                        if(!isEnd) {
+                        if (!isEnd) {
 
                             // 抓所有推薦的標的
                             for (int i = 0; i < jsonAry_targets.length(); i++) {
@@ -185,7 +187,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
                             // TODO: 改以隨時取得已學習標的數
                             ActivityManager.setLearnedPointTotal(getActivity(),
-                                    ActivityManager.getPointTotal(getActivity()) -1);
+                                    ActivityManager.getPointTotal(getActivity()) - 1);
                         }
 
                     } catch (JSONException e) {
@@ -196,7 +198,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
                     // 介面調整
                     mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item=0;
+                    list_select_nextPoint_item = 0;
                     updateUI();
                 }
 
@@ -205,7 +207,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
                     // 介面調整
                     mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item=0;
+                    list_select_nextPoint_item = 0;
                     updateUI();
                 }
             });
