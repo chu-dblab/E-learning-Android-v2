@@ -28,7 +28,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
 
     Button mBtn_hello;
-    Button mBtn_sql_insert_user, mBtn_sql_remove_user, mBtn_sql_get_siteInfo, mBtn_sql_set_siteInfo;
+    Button mBtn_sql_insert_user, mBtn_sql_remove_user, mBtn_sql_get_siteInfo, mBtn_sql_set_siteInfo,mBtn_sql_insert_log,mBtn_sql_get_log;
     Button mBtn_time_now, mBtn_time_start, mBtn_time_learning, mBtn_time_remainder;
 
     @Override
@@ -50,6 +50,9 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
 
         mBtn_sql_get_siteInfo = (Button) findViewById(R.id.btn_tester_sqlite_get_site_info);
         mBtn_sql_get_siteInfo.setOnClickListener(this);
+
+        mBtn_sql_insert_log = (Button) findViewById(R.id.btn_tester_sqlite_get_site_info);
+        mBtn_sql_insert_log.setOnClickListener(this);
 
         mBtn_sql_set_siteInfo = (Button) findViewById(R.id.btn_tester_sqlite_set_site_info);
         mBtn_sql_set_siteInfo.setOnClickListener(this);
@@ -83,6 +86,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         else if(id == R.id.btn_tester_sqlite_insert_user) {
             DBProvider db = new DBProvider(this);
             db.insert_user("tsdnfknasdn", "eric", "2014-11-23 17:37:59", "user", "使用者", null, null, null, null, null, "圓兒～", null,null);
+            db.insert_log(2, "ad", "2014-11-23 17:37:59", 3, 3, "ad", "adb", null, null, null);
         }
         else if(id == R.id.btn_tester_sqlite_remove_user) {
             DBProvider db = new DBProvider(this);
