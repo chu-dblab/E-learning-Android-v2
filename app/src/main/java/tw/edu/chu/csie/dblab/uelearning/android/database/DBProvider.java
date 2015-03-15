@@ -109,7 +109,7 @@ public class DBProvider {
     // --------------------------------------------------------------------------------------------
 
     // ============================================================================================
-    public long insert_log(Integer LID, String UID,String Date,Integer SaID,Integer TID,String ActionGroup,String Encode,Integer QID,String Aswer,String Other) {
+    public long insert_log(String LID, String UID,String Date,Integer SaID,Integer TID,String ActionGroup,String Encode,Integer QID,String Answer,String Other) {
 
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("LID", LID);
@@ -120,7 +120,7 @@ public class DBProvider {
         contentvalues.put("ActionGroup", ActionGroup);
         contentvalues.put("Encode", Encode);
         contentvalues.put("QID", QID);
-        contentvalues.put("Aswer", Aswer);
+        contentvalues.put("Aswer", Answer);
         contentvalues.put("Other", Other);
 
         long returnData = db.insert("Log", null, contentvalues);

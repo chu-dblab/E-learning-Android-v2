@@ -49,6 +49,24 @@ public class TimeUtils {
         return inTimeString;
     }
 
+    public static String dateToString(Date date) {
+        Calendar nowCalendar = Calendar.getInstance();
+        nowCalendar.setTime(date);
+
+        String yearString = String.format( "%04d", nowCalendar.get(Calendar.YEAR));
+        String monthString = String.format( "%02d", nowCalendar.get(Calendar.MONTH));
+        String dayString = String.format( "%02d", nowCalendar.get(Calendar.DAY_OF_MONTH));
+        String dateString = yearString + "-" + monthString + "-" + dayString;
+
+        String hourString = String.format( "%02d", nowCalendar.get(Calendar.HOUR_OF_DAY));
+        String minuteString = String.format("%02d", nowCalendar.get(Calendar.MINUTE));
+        String secondString = String.format( "%02d", nowCalendar.get(Calendar.SECOND));
+        String timeString =hourString + ":" + minuteString + ":" + secondString;
+
+        String output = dateString + " " +timeString;
+        return output;
+    }
+
     /**
      * 設定與伺服端的時間差
      *

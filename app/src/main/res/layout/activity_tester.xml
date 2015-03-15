@@ -121,8 +121,25 @@
                 android:text="remainder"
                 android:id="@+id/btn_tester_time_remainder" />
 
+        </LinearLayout>
 
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/horizontal_line" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sha1"
+                android:id="@+id/btn_tester_sha1" />
 
         </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

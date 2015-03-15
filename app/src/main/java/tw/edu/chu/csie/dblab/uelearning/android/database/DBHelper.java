@@ -119,7 +119,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 ")";
 
         String sql_create_log = "CREATE TABLE Log(" +
-                "LID integer  PRIMARY KEY AUTOINCREMENT DEFAULT NULL," +
+                "LID Varchar(40)  PRIMARY KEY," +
                 "UID Varchar(30)," +
                 "Date Timestamp  NOT NULL  DEFAULT CURRENT_TIMESTAMP," +
                 "SaID integer," +

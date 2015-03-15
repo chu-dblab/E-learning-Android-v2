@@ -3,7 +3,11 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui.js_handler;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
+import java.util.Date;
+
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
  * Created by yuan on 2015/1/24.
@@ -14,6 +18,17 @@ public class MaterialJSHandler {
 
     public MaterialJSHandler(MaterialActivity context) {
         this.context = context;
+    }
+
+    @JavascriptInterface
+    public void pressFinishButton() {
+
+    }
+
+    @JavascriptInterface
+    public void answerError(int topicId, int atIndex) {
+        Toast.makeText(context, "Topic: "+topicId+" index: "+atIndex, Toast.LENGTH_SHORT).show();
+
     }
 
     /**

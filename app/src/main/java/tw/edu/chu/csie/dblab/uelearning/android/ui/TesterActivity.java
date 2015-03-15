@@ -23,6 +23,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.util.EncryptUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
@@ -30,6 +31,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
     Button mBtn_hello;
     Button mBtn_sql_insert_user, mBtn_sql_remove_user, mBtn_sql_get_siteInfo, mBtn_sql_set_siteInfo,mBtn_sql_insert_log,mBtn_sql_get_log;
     Button mBtn_time_now, mBtn_time_start, mBtn_time_learning, mBtn_time_remainder;
+    Button mBtn_sha1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,9 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
 
         mBtn_time_remainder = (Button) findViewById(R.id.btn_tester_time_remainder);
         mBtn_time_remainder.setOnClickListener(this);
+
+        mBtn_sha1 = (Button) findViewById(R.id.btn_tester_sha1);
+        mBtn_sha1.setOnClickListener(this);
     }
 
 
@@ -85,8 +90,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         }
         else if(id == R.id.btn_tester_sqlite_insert_user) {
             DBProvider db = new DBProvider(this);
-            db.insert_user("tsdnfknasdn", "eric", "2014-11-23 17:37:59", "user", "使用者", null, null, null, null, null, "圓兒～", null,null);
-            db.insert_log(2, "ad", "2014-11-23 17:37:59", 3, 3, "ad", "adb", null, null, null);
+            db.insert_user("tsdnfknasdn", "eric", "2014-11-23 17:37:59", "user", "使用者", null, null, null, null, null, "圓兒～", null, null);
         }
         else if(id == R.id.btn_tester_sqlite_remove_user) {
             DBProvider db = new DBProvider(this);
@@ -103,15 +107,14 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         }
         else if(id == R.id.btn_tester_time_now) {
             // 取得現在時間
-            Date nowDate = TimeUtils.getNowServerTime(TesterActivity.this);
+//            Date nowDate = TimeUtils.getNowServerTime(TesterActivity.this);
+            Date nowDate = TimeUtils.getNowClientTime();
 
             Toast.makeText(TesterActivity.this, "Now: "+nowDate.getTime(), Toast.LENGTH_SHORT).show();
             //Toast.makeText(TesterActivity.this, "Now: "+nowDate.getHours()+":"+nowDate.getMinutes()+":"+nowDate.getSeconds(), 0).show();
 
             // 顯示時間
-            Calendar nowCalendar = Calendar.getInstance();
-            nowCalendar.setTime(nowDate);
-            Toast.makeText(TesterActivity.this, "Now: "+nowCalendar.get(Calendar.HOUR_OF_DAY)+":"+nowCalendar.get(Calendar.MINUTE)+":"+nowCalendar.get(Calendar.SECOND), 0).show();
+            Toast.makeText(TesterActivity.this, "Now: " + TimeUtils.dateToString(nowDate), Toast.LENGTH_SHORT).show();
         }
         else if(id == R.id.btn_tester_time_start) {
 
@@ -146,6 +149,12 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
             int LearningMin = ActivityManager.getRemainderLearningMinTime(TesterActivity.this);
             Toast.makeText(TesterActivity.this, "Remainder: "+ LearningMin, Toast.LENGTH_SHORT).show();
             //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
+        }
+        else if(id == R.id.btn_tester_sha1) {
+            String origin = "abcde";
+            String encypted = EncryptUtils.sha1(origin);
+
+            Toast.makeText(TesterActivity.this, "原本: "+origin+"\n加密後"+encypted, Toast.LENGTH_SHORT).show();
         }
     }
 
