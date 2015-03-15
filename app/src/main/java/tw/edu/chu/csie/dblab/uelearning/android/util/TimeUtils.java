@@ -54,7 +54,7 @@ public class TimeUtils {
         nowCalendar.setTime(date);
 
         String yearString = String.format( "%04d", nowCalendar.get(Calendar.YEAR));
-        String monthString = String.format( "%02d", nowCalendar.get(Calendar.MONTH));
+        String monthString = String.format( "%02d", monthToInt(nowCalendar));
         String dayString = String.format( "%02d", nowCalendar.get(Calendar.DAY_OF_MONTH));
         String dateString = yearString + "-" + monthString + "-" + dayString;
 
@@ -65,6 +65,50 @@ public class TimeUtils {
 
         String output = dateString + " " +timeString;
         return output;
+    }
+
+    public static int monthToInt(Calendar rightNow) {
+        int intMonth = 0;
+        switch(rightNow.get(Calendar.MONTH)) {
+            case Calendar.JANUARY:
+                intMonth = 1;
+                break;
+            case Calendar.FEBRUARY:
+                intMonth = 2;
+                break;
+            case Calendar.MARCH:
+                intMonth = 3;
+                break;
+            case Calendar.APRIL:
+                intMonth = 4;
+                break;
+            case Calendar.MAY:
+                intMonth = 5;
+                break;
+            case Calendar.JUNE:
+                intMonth = 6;
+                break;
+            case Calendar.JULY:
+                intMonth = 7;
+                break;
+            case Calendar.AUGUST:
+                intMonth = 8;
+                break;
+            case Calendar.SEPTEMBER:
+                intMonth = 9;
+                break;
+            case Calendar.OCTOBER:
+                intMonth = 10;
+                break;
+            case Calendar.NOVEMBER:
+                intMonth = 11;
+                break;
+            case Calendar.DECEMBER:
+                intMonth = 12;
+                break;
+        }
+
+        return intMonth;
     }
 
     /**
