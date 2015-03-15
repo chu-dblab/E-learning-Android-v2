@@ -108,6 +108,38 @@ public class DBProvider {
     }
     // --------------------------------------------------------------------------------------------
 
+    // ============================================================================================
+    public long insert_log(Integer LID, String UID,String Date,Integer SaID,Integer TID,String ActionGroup,String Encode,Integer QID,String Aswer,String Other) {
+
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("LID", LID);
+        contentvalues.put("UID", UID);
+        contentvalues.put("Date", Date);
+        contentvalues.put("SaID", SaID);
+        contentvalues.put("TID", TID);
+        contentvalues.put("ActionGroup", ActionGroup);
+        contentvalues.put("Encode", Encode);
+        contentvalues.put("QID", QID);
+        contentvalues.put("Aswer", Aswer);
+        contentvalues.put("Other", Other);
+
+        long returnData = db.insert("Log", null, contentvalues);
+
+        return returnData;
+    }
+    public long remove_log() {
+
+        long returnData = db.delete("Log", null, null);
+        return returnData;
+    }
+
+    public Cursor getAll_log() {
+
+        Cursor returnData =
+                db.query("Log", null, null, null, null, null, null);
+        return returnData;
+    }
+    // --------------------------------------------------------------------------------------------
     public static final int TYPE_STUDY = 1;
     public static final int TYPE_WILL = 2;
     public static final int TYPE_THEME = 3;

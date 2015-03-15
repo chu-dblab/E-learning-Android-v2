@@ -118,12 +118,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 "IsEntity Boolean NOT NULL DEFAULT 0" +
                 ")";
 
-        String sql_create_log = "CREATE TABLE \"Log\" (" +
+        String sql_create_log = "CREATE TABLE Log(" +
                 "LID integer  PRIMARY KEY AUTOINCREMENT DEFAULT NULL," +
                 "UID Varchar(30)," +
                 "Date Timestamp  NOT NULL  DEFAULT CURRENT_TIMESTAMP," +
+                "SaID integer," +
+                "TID integer," +
+                "ActionGroup Varchar(50)," +
                 "Encode Varchar(3)," +
-                "Data Varchar(100))";
+                "QID integer," +
+                "Aswer Varchar(30)," +
+                "Other Varchar(50))";
 
         // Create Table
         String sql_create_server_info = "CREATE TABLE ServerInfo (\n" +
@@ -151,6 +156,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "PName Varchar(1000)," +
                 "PUrl Varchar(1000)" +
                 ")";
+
+
 
         db.execSQL(sql_create_user);
         db.execSQL(sql_create_auth);
