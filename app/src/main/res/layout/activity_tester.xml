@@ -75,6 +75,7 @@
                 android:layout_height="wrap_content"
                 android:text="SiteInfo"
                 android:id="@+id/btn_tester_sqlite_set_site_info" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -133,11 +134,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <Button
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="sha1"
-                android:id="@+id/btn_tester_sha1" />
+                android:text="Utils" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="sha1"
+                    android:id="@+id/btn_tester_sha1" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Log"
+                    android:id="@+id/btn_tester_log" />
+            </LinearLayout>
 
         </LinearLayout>
 

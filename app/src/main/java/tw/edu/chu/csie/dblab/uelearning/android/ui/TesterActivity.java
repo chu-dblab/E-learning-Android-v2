@@ -24,12 +24,13 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.EncryptUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class TesterActivity extends ActionBarActivity implements View.OnClickListener {
 
     Button mBtn_hello;
-    Button mBtn_sql_insert_user, mBtn_sql_remove_user, mBtn_sql_get_siteInfo, mBtn_sql_set_siteInfo,mBtn_sql_insert_log,mBtn_sql_get_log;
+    Button mBtn_sql_insert_user, mBtn_sql_remove_user, mBtn_sql_get_siteInfo, mBtn_sql_set_siteInfo,mBtn_sql_insert_log, mBtn_sql_log;
     Button mBtn_time_now, mBtn_time_start, mBtn_time_learning, mBtn_time_remainder;
     Button mBtn_sha1;
 
@@ -58,6 +59,9 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
 
         mBtn_sql_set_siteInfo = (Button) findViewById(R.id.btn_tester_sqlite_set_site_info);
         mBtn_sql_set_siteInfo.setOnClickListener(this);
+
+        mBtn_sql_log = (Button) findViewById(R.id.btn_tester_log);
+        mBtn_sql_log.setOnClickListener(this);
 
         mBtn_time_now = (Button) findViewById(R.id.btn_tester_time_now);
         mBtn_time_now.setOnClickListener(this);
@@ -105,10 +109,13 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
             DBProvider db = new DBProvider(this);
             db.set_serverInfo("TimeAdjust", String.valueOf(5));
         }
+        else if(id == R.id.btn_tester_log) {
+            LogUtils.Insert.answer(TesterActivity.this, 3,3,2,"4");
+        }
         else if(id == R.id.btn_tester_time_now) {
             // 取得現在時間
-//            Date nowDate = TimeUtils.getNowServerTime(TesterActivity.this);
-            Date nowDate = TimeUtils.getNowClientTime();
+            Date nowDate = TimeUtils.getNowServerTime(TesterActivity.this);
+//            Date nowDate = TimeUtils.getNowClientTime();
 
             Toast.makeText(TesterActivity.this, "Now: "+nowDate.getTime(), Toast.LENGTH_SHORT).show();
             //Toast.makeText(TesterActivity.this, "Now: "+nowDate.getHours()+":"+nowDate.getMinutes()+":"+nowDate.getSeconds(), 0).show();

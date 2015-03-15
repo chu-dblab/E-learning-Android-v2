@@ -127,7 +127,7 @@ public class DBProvider {
 
         return returnData;
     }
-    public long remove_log() {
+    public long removeAll_log() {
 
         long returnData = db.delete("Log", null, null);
         return returnData;

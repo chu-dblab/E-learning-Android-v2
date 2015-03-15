@@ -11,7 +11,19 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
  */
 public class LogUtils {
 
-    public void insert(Context context, Integer said, Integer tid, String actionGroup, String encode, Integer qid, String answer, String other) {
+    /**
+     * 插入一筆Log資料
+     *
+     * @param context Android基底
+     * @param said 活動編號
+     * @param tid 標的編號
+     * @param actionGroup 動作類型
+     * @param encode 動作名稱
+     * @param qid 問題編號
+     * @param answer 答案編號
+     * @param other 其他
+     */
+    public static void insert(Context context, Integer said, Integer tid, String actionGroup, String encode, Integer qid, String answer, String other) {
         DBProvider db = new DBProvider(context);
         Date nowDate = TimeUtils.getNowServerTime(context);
         String nowString = TimeUtils.dateToString(nowDate);
@@ -21,6 +33,32 @@ public class LogUtils {
 
 
         db.insert_log(id, uid, nowString, said, tid, actionGroup, encode, qid, answer, other);
+    }
+
+    /**
+     * 清除所有的Log資料
+     * @param context Android基底
+     */
+    public static void removeAll(Context context) {
+        DBProvider db = new DBProvider(context);
+        db.removeAll_log();
+    }
+
+    public static class Insert {
+        /**
+         * 新增回答紀錄
+         *
+         * @param context Android基底
+         * @param said 活動編號
+         * @param tid 標的編號
+         * @param qid 問題編號
+         * @param answer 答案編號
+         */
+        public static void answer(Context context, int said, int tid, int qid, String answer) {
+            insert(context, said, tid, "Material", "Answer", qid, answer, null);
+        }
+
+
     }
 
 }
