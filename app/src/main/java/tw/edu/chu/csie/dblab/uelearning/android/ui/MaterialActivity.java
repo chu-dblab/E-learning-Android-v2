@@ -37,6 +37,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.js_handler.MaterialJSHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class MaterialActivity extends ActionBarActivity {
@@ -120,7 +121,7 @@ public class MaterialActivity extends ActionBarActivity {
             webSettings.setBuiltInZoomControls(true);
             webSettings.setDisplayZoomControls(false);
             webSettings.setJavaScriptEnabled(true);
-            mWebView.addJavascriptInterface(new MaterialJSHandler(this), "Android");
+            mWebView.addJavascriptInterface(new MaterialJSHandler(this, tId), "Android");
             mWebView.loadUrl("file://" + materialFilePath);
             if (Config.DEBUG_SHOW_MESSAGE) {
                 Toast.makeText(this, FileUtils.getMaterialFilePath(this, tId, isEntity), Toast.LENGTH_SHORT).show();
@@ -155,7 +156,6 @@ public class MaterialActivity extends ActionBarActivity {
      * 開始學習
      */
     public void startLearn() {
-
         // 取得現在時間
         startTime = TimeUtils.getNowClientTime();
 
@@ -165,6 +165,9 @@ public class MaterialActivity extends ActionBarActivity {
         // 抓取目前狀態所需資料
         String token = db.get_token();
         int saId = db.get_activity_id();
+
+        // 紀錄
+        LogUtils.Insert.toInTarget(MaterialActivity.this, saId, tId);
 
         // 帶入參數
         final RequestParams sId_params = new RequestParams();
@@ -249,6 +252,9 @@ public class MaterialActivity extends ActionBarActivity {
         // 抓取目前狀態所需資料
         String token = db.get_token();
         int saId = db.get_activity_id();
+
+        // 紀錄
+        LogUtils.Insert.toOutTarget(MaterialActivity.this, saId, tId);
 
         // 帶入參數
         final RequestParams out_params = new RequestParams();

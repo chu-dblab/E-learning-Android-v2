@@ -17,6 +17,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.scanner.QRDecodeActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 
 /**
  * Created by yuan on 2015/1/16.
@@ -120,6 +121,7 @@ public class TargetManager {
                         Toast.makeText(context, R.string.is_not_in_recommand, Toast.LENGTH_LONG).show();
                     }
                     else {
+                        // 進入教材頁面
                         Activity activity = (Activity) context;
                         Intent toMaterial = new Intent(activity, MaterialActivity.class);
                         toMaterial.putExtra("tId", tId);

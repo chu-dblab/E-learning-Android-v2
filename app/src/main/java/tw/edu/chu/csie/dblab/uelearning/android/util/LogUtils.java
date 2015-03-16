@@ -45,6 +45,71 @@ public class LogUtils {
     }
 
     public static class Insert {
+
+
+        /**
+         * 開始向伺服端取得推薦學習點
+         *
+         * @param context Android基底
+         * @param said 活動編號
+         */
+        public static void toRecommand(Context context, int said) {
+            insert(context, said, null, "Learning", "ToRecommand", null, null, null);
+        }
+
+        /**
+         * 取得到的推薦學習點
+         *
+         * @param context Android基底
+         * @param said 活動編號
+         * @param tid 標的
+         */
+        public static void recommandResult(Context context, int said, int[] tid) {
+
+            String tids_string = "";
+            for(int i=0; i<tid.length; i++) {
+                tids_string = tids_string+tid[i]+", ";
+            }
+            insert(context, said, null, "Learning", "Recommand", null, null, tids_string);
+        }
+
+        /**
+         * 以QRCode掃描方式進入標的
+         *
+         * @param context Android基底
+         * @param said 活動編號
+         * @param tid 標的
+         */
+        public static void scan_withQr(Context context, int said, int tid) {
+
+            insert(context, said, tid, "Scan", "WithQR", null, null, null);
+        }
+
+        /**
+         * 以輸入方式進入標的
+         *
+         * @param context Android基底
+         * @param said 活動編號
+         * @param tid 標的
+         */
+        public static void scan_withKeyIn(Context context, int said, int tid) {
+
+            insert(context, said, tid, "Scan", "WithKeyIn", null, null, null);
+        }
+
+
+        public static void toInTarget(Context context, int said, int tid) {
+            insert(context, said, tid, "Learning", "ToInTarget", null, null, null);
+        }
+
+        public static void toOutTarget(Context context, int said, int tid) {
+            insert(context, said, tid, "Learning", "ToOutTarget", null, null, null);
+        }
+
+        public static void material_pressFinishButton(Context context, int said, int tid) {
+            insert(context, said, tid, "Material", "PressFinishButton", null, null, null);
+        }
+
         /**
          * 新增回答紀錄
          *
@@ -53,11 +118,18 @@ public class LogUtils {
          * @param tid 標的編號
          * @param qid 問題編號
          * @param answer 答案編號
+         * @param isCorrect 是否回答正確
          */
-        public static void answer(Context context, int said, int tid, int qid, String answer) {
-            insert(context, said, tid, "Material", "Answer", qid, answer, null);
+        public static void material_answer(Context context, int said, int tid, int qid, String answer, boolean isCorrect) {
+            String correctString;
+            if(isCorrect) { correctString = "Correct"; }
+            else { correctString = "Error"; }
+            insert(context, said, tid, "Material", "Answer", qid, answer, correctString);
         }
 
+        public static void material_goBack(Context context, int said, int tid) {
+            insert(context, said, tid, "Material", "GoBack", null, null, null);
+        }
 
     }
 

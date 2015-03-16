@@ -7,6 +7,7 @@ import java.util.Date;
 
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
@@ -14,21 +15,32 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
  */
 public class MaterialJSHandler {
 
+    protected int studyActivityId;
+    protected int targetId;
     private MaterialActivity context;
 
-    public MaterialJSHandler(MaterialActivity context) {
+    public MaterialJSHandler(MaterialActivity context, int targetId) {
         this.context = context;
+        this.targetId = targetId;
+        DBProvider db = new DBProvider(context);
+        this.studyActivityId = db.get_activity_id();
     }
 
     @JavascriptInterface
     public void pressFinishButton() {
-
+        LogUtils.Insert.material_pressFinishButton(context, studyActivityId, targetId);
     }
 
     @JavascriptInterface
-    public void answerError(int topicId, int atIndex) {
-        Toast.makeText(context, "Topic: "+topicId+" index: "+atIndex, Toast.LENGTH_SHORT).show();
+    public void answerCorrect(int topicId, String atIndex) {
+        LogUtils.Insert.material_answer(context, studyActivityId, targetId, topicId, atIndex, true);
+    }
 
+    @JavascriptInterface
+    public void answerError(int topicId, String atIndex) {
+        DBProvider db = new DBProvider(context);
+        int saId = db.get_activity_id();
+        LogUtils.Insert.material_answer(context, saId, targetId, topicId, atIndex, true);
     }
 
     /**
@@ -56,6 +68,6 @@ public class MaterialJSHandler {
 
     @JavascriptInterface
     public void goBack() {
-        //context.webViewBackToView();
+        LogUtils.Insert.material_goBack(context, studyActivityId, targetId);
     }
 }

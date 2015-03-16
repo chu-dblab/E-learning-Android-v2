@@ -110,7 +110,7 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
             db.set_serverInfo("TimeAdjust", String.valueOf(5));
         }
         else if(id == R.id.btn_tester_log) {
-            LogUtils.Insert.answer(TesterActivity.this, 3,3,2,"4");
+            LogUtils.Insert.material_answer(TesterActivity.this, 3,3,2,"4", true);
         }
         else if(id == R.id.btn_tester_time_now) {
             // 取得現在時間

@@ -14,9 +14,11 @@ import qrcodereaderview.QRCodeReaderView;
 import qrcodereaderview.QRCodeReaderView.OnQRCodeReadListener;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
+import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 
 public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadListener {
     //private TextView myTextView;
@@ -90,6 +92,7 @@ public class QRDecodeActivity extends ActionBarActivity implements OnQRCodeReadL
                                 finish();
                             }
                             else {
+                                // 進入教材頁面
                                 Intent toLearning = new Intent(this, MaterialActivity.class);
                                 toLearning.putExtra("tId", targetId);
                                 startActivityForResult(toLearning, LearningActivity.RESULT_MATERIAL);
