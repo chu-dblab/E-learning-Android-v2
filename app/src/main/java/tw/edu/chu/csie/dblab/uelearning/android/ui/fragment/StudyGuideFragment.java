@@ -46,6 +46,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
@@ -142,7 +143,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         // 取得目前學習活動資料
         Cursor query_activity = db.get_activity();
         query_activity.moveToFirst();
-        int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
+        final int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
         int enableVirtualInt = query_activity.getInt(query_activity.getColumnIndex("EnableVirtual"));
         boolean enableVirtual;
         if (enableVirtualInt > 0) enableVirtual = true;
@@ -176,21 +177,24 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                             if(jsonAry_targets.length() <= 0) {
 
                                 // 自動重新推薦學習點
-                                updateNextPoint(currentTId);
+                                //updateNextPoint(currentTId);
                                 //retryRecommandTimer = new Timer();
                                 //retryRecommandTimer.schedule(new RetryRecommandTask(), 0, 1 * 10000);
                             }
 
                             // 抓所有推薦的標的
+                            int recommandTid[] = new int[jsonAry_targets.length()];
                             for (int i = 0; i < jsonAry_targets.length(); i++) {
                                 JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
 
                                 int tId = thisTarget.getInt("target_id");
+                                recommandTid[i] = tId;
                                 boolean isEntity = thisTarget.getBoolean("is_entity");
 
                                 // 記錄進資料庫
                                 db.insert_recommand(tId, isEntity);
                             }
+                            LogUtils.Insert.recommandResult(getActivity(), saId, recommandTid);
                         }
                         // 已經結束的話
                         else {
