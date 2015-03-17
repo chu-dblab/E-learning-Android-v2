@@ -5,13 +5,10 @@ import java.net.URLEncoder;
 import java.util.Locale;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -20,20 +17,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.text.InputFilter;
-import android.text.InputType;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -154,6 +139,12 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_learning, menu);
+        if(!Config.SCAN_BY_KEYIN_ENABLE) {
+            menu.findItem(R.id.menu_keyin_tid).setVisible(false);
+        }
+        if(!Config.Earlier_FINISH_ACTIVITY_ENABLE) {
+            menu.findItem(R.id.menu_finish_study_activity).setVisible(false);
+        }
         if(Config.DEBUG_ACTIVITY) {
             menu.findItem(R.id.menu_inside_tester).setVisible(true);
         }
@@ -390,7 +381,9 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         @Override
         public int getCount() {
             // Show 4 total pages.
-            return 4;
+            //return 4;
+            // TODO: 因為其他功能尚未實作，故先隱藏
+            return 1;
         }
 
         @Override

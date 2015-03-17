@@ -22,10 +22,8 @@
         app:showAsAction="never" />
 
     <item android:id="@+id/menu_help"
+        android:visible="false"
         android:title="@string/help" />
-
-    <item android:id="@+id/menu_setting"
-        android:title="@string/system_settings" />
 
     <item android:id="@+id/menu_about"
         android:title="@string/about"

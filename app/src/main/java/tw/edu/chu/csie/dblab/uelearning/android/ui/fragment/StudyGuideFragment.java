@@ -55,6 +55,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     public int currentTId = 0;
     protected static final int REMAINED_TIME = 0x101;
+    protected static final int RETRY_RECOMMAND = 0x102;
     private String[] itemEnableActivity_default = {"Entry"};
     private int[] itemEnableActivity_tid = {0};
     private Date learningTime;
@@ -66,6 +67,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     private LinearLayout mLayout__nextPoint;
     private ImageView mImage_map;
     private Timer updateUITimer;
+    private Timer retryRecommandTimer;
     private LinearLayout mLayout_finishStudy;
     private Button mBtn_finishStudy;
 
@@ -124,7 +126,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     /**
      * 取得下一個推薦學習點
      */
-    public void updateNextPoint(int currentTId) {
+    public void updateNextPoint(final int currentTId) {
         mSwipe_nextPoints.setRefreshing(true);
 
         this.currentTId = currentTId;
@@ -170,6 +172,14 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
                         // 還沒結束的話
                         if (!isEnd) {
+
+                            if(jsonAry_targets.length() <= 0) {
+
+                                // 自動重新推薦學習點
+                                updateNextPoint(currentTId);
+                                //retryRecommandTimer = new Timer();
+                                //retryRecommandTimer.schedule(new RetryRecommandTask(), 0, 1 * 10000);
+                            }
 
                             // 抓所有推薦的標的
                             for (int i = 0; i < jsonAry_targets.length(); i++) {
@@ -261,16 +271,25 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             mBtn_finishStudy.setVisibility(View.GONE);
         }
         else {
-            int startTId = TargetManager.getStartTargetId(getActivity());
-            itemEnableActivity = new String[1];
-            itemEnableActivity_tid = new int[1];
-            itemEnableActivity_tid[0] = startTId;
-            itemEnableActivity[0] = new String(getString(R.string.start_target));
 
             // 若已經學習完成的話
             if(ActivityManager.getRemainingPointTotal(getActivity()) <= 0) {
+                int startTId = TargetManager.getStartTargetId(getActivity());
+                itemEnableActivity = new String[1];
+                itemEnableActivity_tid = new int[1];
+                itemEnableActivity_tid[0] = startTId;
+                itemEnableActivity[0] = new String(getString(R.string.start_target));
+
                 mBtn_finishStudy.setVisibility(View.VISIBLE);
                 mLayout_finishStudy.setVisibility(View.VISIBLE);
+            }
+            // 若還沒學完，而沒推薦到學習點的話
+            else {
+                int startTId = TargetManager.getStartTargetId(getActivity());
+                itemEnableActivity = new String[1];
+                itemEnableActivity_tid = new int[1];
+                itemEnableActivity_tid[0] = startTId;
+                itemEnableActivity[0] = new String(getString(R.string.learning_no_get_recommand));
             }
         }
 
@@ -295,6 +314,9 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                     }
                     mText_remainedTime.setText(TimeUtils.timerToString(learningTime));
                     break;
+                case RETRY_RECOMMAND:
+                    updateNextPoint(currentTId);
+                    break;
             }
         };
     };
@@ -307,6 +329,19 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             message.what = StudyGuideFragment.REMAINED_TIME;
 
             updateUIHandler.sendMessage(message);
+        }
+
+    }
+
+    class RetryRecommandTask extends TimerTask {
+
+        @Override
+        public void run() {
+            Message message = new Message();
+            message.what = StudyGuideFragment.RETRY_RECOMMAND;
+
+            updateUIHandler.sendMessage(message);
+            this.cancel();
         }
 
     }

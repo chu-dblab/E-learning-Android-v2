@@ -70,6 +70,17 @@ public class Config {
      *  是否允許未經作答就返回
      */
     public static final boolean LEARNING_BACK_ENABLE = true;
+
+    /**
+     *  是否允許直接輸入標的編號來進入標的
+     */
+    public static final boolean SCAN_BY_KEYIN_ENABLE = false;
+
+    /**
+     *  是否允許提早結束學習
+     */
+    public static final boolean Earlier_FINISH_ACTIVITY_ENABLE = true;
+
     /**
      *  是否允許離開此程式(尚未實作)
      */

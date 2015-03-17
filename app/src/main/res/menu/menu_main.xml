@@ -12,9 +12,11 @@
         app:showAsAction="always" />
 
     <item android:id="@+id/menu_help"
+        android:visible="false"
         android:title="@string/help" />
 
     <item android:id="@+id/menu_setting"
+        android:visible="false"
         android:title="@string/system_settings" />
 
     <item android:id="@+id/menu_about"

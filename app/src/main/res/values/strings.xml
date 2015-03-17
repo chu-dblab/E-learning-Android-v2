@@ -88,7 +88,8 @@
     <string name="learning_next_point_time">下個點預估所需時間:</string>
     <string name="learning_remaining_time">學習時間尚有:</string>
     <string name="learning_remaining_point">學習點剩餘:</string>
-    <string name="learning_next_point_getting">取得中...</string>
+    <string name="learning_no_get_recommand">沒推薦到學習點，請重新取得一次</string>
+    <string name="learning_next_point_getting">取得中，請稍後...</string>
     <string name="is_not_in_recommand">這不是這次的推薦學習點喔～</string>
 
     <!-- QRCode掃描 -->
