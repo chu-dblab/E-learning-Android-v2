@@ -394,6 +394,10 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
             toBrowser.putExtra("to", BrowserActivity.TO_MAP);
             startActivity(toBrowser);
         }
+        else if(id == R.id.menu_log_manager) {
+            Intent toLogMgr = new Intent(LoginActivity.this, LogActivity.class);
+            startActivity(toLogMgr);
+        }
         else if (id == R.id.menu_browse_material) {
             Intent toBrowser = new Intent(LoginActivity.this, BrowserActivity.class);
             toBrowser.putExtra("to", BrowserActivity.TO_MATERIAL);

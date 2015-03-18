@@ -752,6 +752,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             startActivity(to_login);
             return true;
         }
+        else if(id == R.id.menu_log_manager) {
+            Intent toLogMgr = new Intent(MainActivity.this, LogActivity.class);
+            startActivity(toLogMgr);
+        }
         else if (id == R.id.menu_about) {
             HelpUtils.showAboutDialog(MainActivity.this);
             return true;

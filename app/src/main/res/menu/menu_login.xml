@@ -18,6 +18,9 @@
         android:visible="false"
         android:title="@string/material_downloader" />
 
+    <item android:id="@+id/menu_log_manager"
+        android:title="@string/log_manager" />
+
     <item android:id="@+id/menu_help"
         android:visible="false"
         android:title="@string/help" />

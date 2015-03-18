@@ -29,6 +29,11 @@
     <!-- 教材包、地圖包下載 -->
     <string name="material_downloader">教材下載</string>
 
+    <!-- 使用記錄 -->
+    <string name="log_manager">記錄管理</string>
+    <string name="title_activity_log">LogActivity</string>
+    <string name="upload_all_log">上傳所有記錄</string>
+
     <!-- 選擇學習活動主畫面 -->
     <string name="title_activity_main">MainActivity</string>
     <string name="welcome">歡迎!</string>

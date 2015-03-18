@@ -64,8 +64,8 @@
         <activity
             android:name=".scanner.QRDecodeActivity"
             android:label="@string/title_activity_qrdecode"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
 
         <!-- 導覽中教材Activity -->
@@ -75,7 +75,10 @@
             android:label="@string/title_activity_material"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
-
+        <activity
+            android:name=".ui.LogActivity"
+            android:label="@string/title_activity_log" >
+        </activity>
     </application>
 
 </manifest>

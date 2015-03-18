@@ -11,6 +11,9 @@
         android:icon="@drawable/ic_action_light_logout"
         app:showAsAction="always" />
 
+    <item android:id="@+id/menu_log_manager"
+        android:title="@string/log_manager" />
+
     <item android:id="@+id/menu_help"
         android:visible="false"
         android:title="@string/help" />
