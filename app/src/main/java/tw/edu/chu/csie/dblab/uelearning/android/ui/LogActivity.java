@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,15 +12,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
+import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 
 public class LogActivity extends ActionBarActivity implements View.OnClickListener {
@@ -55,6 +65,7 @@ public class LogActivity extends ActionBarActivity implements View.OnClickListen
         Cursor query_allLog = db.getAll_log();
         int log_total = query_allLog.getCount();
 
+        JSONObject postData = new JSONObject();
         JSONArray logs = new JSONArray();
         try {
             for(int i=0; i<log_total; i++) {
@@ -73,24 +84,66 @@ public class LogActivity extends ActionBarActivity implements View.OnClickListen
 
                 JSONObject thisLog = new JSONObject();
                 thisLog.put("LID", lId);
-                thisLog.put("UID", lId);
-                thisLog.put("Date", lId);
-                thisLog.put("SaID", lId);
-                thisLog.put("ActionGroup", lId);
-                thisLog.put("Encode", lId);
-                thisLog.put("TID", lId);
-                thisLog.put("QID", lId);
-                thisLog.put("Aswer", lId);
-                thisLog.put("Other", lId);
+                thisLog.put("UID", uId);
+                thisLog.put("Date", date);
+                thisLog.put("SaID", saId);
+                thisLog.put("ActionGroup", actionG);
+                thisLog.put("Encode", action);
+                thisLog.put("TID", tId);
+                thisLog.put("QID", qId);
+                thisLog.put("Answer", answer);
+                thisLog.put("Other", other);
 
                 logs.put(thisLog);
             }
+            postData.put("logs_data", logs);
         } catch (JSONException e) {
             ErrorUtils.error(LogActivity.this, e);
         }
 
         // 顯示挖出來的資料
-        Toast.makeText(this, logs.toString(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, postData.toString(), Toast.LENGTH_LONG).show();
+        try {
+            StringEntity entity = new StringEntity(postData.toString());
+            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                    UElearningRestClient.post(LogActivity.this, "/logs", entity, "application/json", new AsyncHttpResponseHandler() {
+
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                            String responseString = null;
+                            try {
+                                responseString = new String(responseBody, "UTF-8");
+                                Toast.makeText(LogActivity.this, responseString, Toast.LENGTH_LONG).show();
+                            } catch (UnsupportedEncodingException e) {
+                                ErrorUtils.error(LogActivity.this, e);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                            if (responseBody != null) {
+
+                                try {
+                                    String content = new String(responseBody, HTTP.UTF_8);
+                                    if (Config.DEBUG_SHOW_MESSAGE) {
+                                        Toast.makeText(LogActivity.this,
+                                                "s: " + statusCode + "\n" + content,
+                                                Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(LogActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (UnsupportedEncodingException e) {
+                                    ErrorUtils.error(LogActivity.this, e);
+                                }
+                            } else {
+                                ErrorUtils.error(LogActivity.this, error);
+                            }
+                        }
+                    });
+        }
+        catch (UnsupportedEncodingException e) {
+            ErrorUtils.error(LogActivity.this, e);
+        }
     }
 
     @Override

@@ -1,8 +1,13 @@
 package tw.edu.chu.csie.dblab.uelearning.android.server;
 
+import android.content.Context;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.StringEntity;
 
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 
@@ -20,6 +25,10 @@ public class UElearningRestClient {
 
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.post(getAbsoluteUrl(url), params, responseHandler);
+    }
+
+    public static void post(Context context, String url, StringEntity params, String type, AsyncHttpResponseHandler responseHandler) {
+        client.post(context, getAbsoluteUrl(url), params, type, responseHandler);
     }
 
     public static void put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
