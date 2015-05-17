@@ -31,6 +31,7 @@ import java.util.Date;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.UserUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
@@ -155,164 +156,64 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         // 初步驗證正常，開始對伺服端進行登入
         if(isOK) {
 
-            // 帶入登入參數
-            RequestParams login_params = new RequestParams();
-            login_params.put("user_id", mID);
-            login_params.put("password", mPassword);
-            login_params.put("browser", "android");
+            new UserUtils().userLogin(LoginActivity.this, mID, mPassword, new UserUtils.UserLoginHandler() {
 
-            // 對伺服端進行登入動作
-            UElearningRestClient.post("/tokens", login_params, new AsyncHttpResponseHandler() {
+                // 開始登入
                 @Override
                 public void onStart() {
                     mProgress_login.show();
-                    super.onStart();
                 }
 
-                /**
-                 * Fired when a request returns successfully, override to handle in your own code
-                 *
-                 * @param statusCode   the status code of the response
-                 * @param headers      return headers, if any
-                 * @param responseBody the body of the HTTP response from the server
-                 */
+                // 登入成功
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                public void onSuccess() {
                     mProgress_login.dismiss();
-
-                    try {
-                        String content = new String(responseBody, "UTF-8");
-                        JSONObject response = new JSONObject(content);
-                        JSONObject userJson = response.getJSONObject("user");
-
-                        // 抓取伺服端資料
-                        String token = response.getString("token");
-                        String uid = userJson.getString("user_id");
-                        String loginDate = response.getString("login_time");
-                        String gId = userJson.getString("group_id");
-                        String gName = userJson.getString("group_name");
-                        Integer cId = null;
-                        if(!userJson.isNull("class_id")) {
-                            cId = userJson.getInt("class_id");
-                        }
-                        String cName = null;
-                        if(!userJson.isNull("class_name")) {
-                            cName = userJson.getString("class_name");
-                        }
-                        Integer lMode = null;
-                        if(!userJson.isNull("learnStyle_mode")) {
-                            lMode = userJson.getInt("learnStyle_mode");
-                        }
-                        String mMode = userJson.getString("material_mode");
-                        Boolean enableNoAppoint = userJson.getBoolean("enable_noAppoint");
-                        String nickName = userJson.getString("nickname");
-                        String realName = userJson.getString("realname");
-                        String email = userJson.getString("email");
-
-                        // 顯示拿到的Token
-                        if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(LoginActivity.this, "S: "+token, Toast.LENGTH_SHORT).show();
-                        }
-
-                        // 紀錄進資料庫
-                        DBProvider db = new DBProvider(LoginActivity.this);
-                        db.remove_user();
-                        db.insert_user(token, uid, loginDate,
-                                gId, gName, cId, cName,
-                                lMode, mMode, enableNoAppoint,
-                                nickName, realName, email);
-
-                        // 處理伺服端與本機端的時間差
-                        String nowDateString = response.getString("login_time");
-                        Date serverTime = TimeUtils.stringToDate(nowDateString);
-                        TimeUtils.setTimeAdjustByNowServerTime(LoginActivity.this, serverTime);
-
-                        // 抓取可用的教材類型
-                        db.removeAll_materialKind();
-                        JSONArray materialKindArr = response.getJSONArray("material_kind");
-                        for(int i=0; i<materialKindArr.length(); i++) {
-                            JSONObject the_mkJSON = materialKindArr.getJSONObject(i);
-                            String mkId = the_mkJSON.getString("material_kind_id");
-                            String mkName = the_mkJSON.getString("material_kind_name");
-
-                            db.insert_materialKind(mkId, mkName);
-                        }
-
-
-                        // 前往MainActivity
-                        finish();
-                        Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(to_mainActivity);
-
-                    }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(LoginActivity.this, e);
-                    } catch (JSONException e) {
-                        ErrorUtils.error(LoginActivity.this, e);
-                    } catch (ParseException e) {
-                        ErrorUtils.error(LoginActivity.this, e);
-                    }
+                    // 前往MainActivity
+                    finish();
+                    Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(to_mainActivity);
                 }
 
-                /**
-                 * Fired when a request fails to complete, override to handle in your own code
-                 *
-                 * @param statusCode   return HTTP status code
-                 * @param headers      return headers, if any
-                 * @param responseBody the response body, if any
-                 * @param error        the underlying cause of the failure
-                 */
+                // 找不到此帳號
                 @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                public void onNoUser() {
                     mProgress_login.dismiss();
+                    mEdit_account.setError(getString(R.string.error_no_account));
+                    mEdit_account.requestFocus();
+                }
 
-                    // 找不到此帳號
-                    if(statusCode == 404) {
-                        mEdit_account.setError(getString(R.string.error_no_account));
-                        mEdit_account.requestFocus();
-                    }
-                    else if(statusCode == 401) {
+                // 密碼錯誤
+                @Override
+                public void onPasswordErr() {
+                    mProgress_login.dismiss();
+                    mEdit_password.setError(getString(R.string.error_password));
+                    mEdit_password.requestFocus();
+                }
 
-                        try {
-                            String content = new String(responseBody, "UTF-8");
-                            JSONObject response = new JSONObject(content);
+                // 此帳號被停用
+                @Override
+                public void onNoEnable() {
+                    mProgress_login.dismiss();
+                    mEdit_account.setError(getString(R.string.error_account_no_enable));
+                    mEdit_account.requestFocus();
+                }
 
-                            // 密碼錯誤
-                            if(response.getInt("substatus") == 201) {
-                                mEdit_password.setError(getString(R.string.error_password));
-                                mEdit_password.requestFocus();
-                            }
-                            // 此帳號被停用
-                            else if(response.getInt("substatus") == 202) {
-                                mEdit_account.setError(getString(R.string.error_account_no_enable));
-                                mEdit_account.requestFocus();
-                            }
-                            // 其他錯誤
-                            else {
-                                ErrorUtils.error(LoginActivity.this, content);
-                            }
-                        } catch (UnsupportedEncodingException e) {
-                            ErrorUtils.error(LoginActivity.this, e);
-                        } catch (JSONException e) {
-                            ErrorUtils.error(LoginActivity.this, e);
-                        }
-                    }
-                    // 其他錯誤
-                    else {
-                        String content = ""+statusCode;
-                        if(responseBody != null) {
+                // 其他錯誤
+                @Override
+                public void onOtherErr() {
+                    mProgress_login.dismiss();
+                }
 
-                            try {
-                                content = new String(responseBody, "UTF-8");
-                                ErrorUtils.error(LoginActivity.this, content);
-                            } catch (UnsupportedEncodingException e) {
-                                ErrorUtils.error(LoginActivity.this, e);
-                            }
-                        }
-                        else {
-                            ErrorUtils.error(LoginActivity.this, content);
-                        }
-                    }
+                @Override
+                public void onOtherErr(String content) {
+                    mProgress_login.dismiss();
+                    ErrorUtils.error(LoginActivity.this, content);
+                }
+
+                @Override
+                public void onOtherErr(Throwable e) {
+                    mProgress_login.dismiss();
+                    ErrorUtils.error(LoginActivity.this, e);
                 }
             });
         }

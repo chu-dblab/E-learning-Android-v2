@@ -6,8 +6,16 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.util.Date;
 
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 
@@ -42,5 +50,18 @@ public class UElearningRestClient {
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }
+
+    public static void userLogin(String userId, String userPasswd, AsyncHttpResponseHandler responseHandler) {
+        // 帶入登入參數
+        RequestParams login_params = new RequestParams();
+        login_params.put("user_id", userId);
+        login_params.put("password", userPasswd);
+        login_params.put("browser", "android");
+
+        // 對伺服端進行登入動作
+        UElearningRestClient.post("/tokens", login_params, responseHandler);
+    }
+
+
 
 }
