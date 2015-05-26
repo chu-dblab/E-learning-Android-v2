@@ -9,11 +9,13 @@ import com.loopj.android.http.RequestParams;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -47,11 +49,17 @@ public class UElearningRestClient {
         client.delete(getAbsoluteUrl(url), responseHandler);
     }
 
-    private static String getAbsoluteUrl(String relativeUrl) {
+    private static String getAbsoluteUrl(final String relativeUrl) {
         return BASE_URL + relativeUrl;
     }
 
-    public static void userLogin(String userId, String userPasswd, AsyncHttpResponseHandler responseHandler) {
+    /**
+     * 使用者登入
+     * @param userId
+     * @param userPasswd
+     * @param responseHandler
+     */
+    public static void userLogin(final String userId, final String userPasswd, final AsyncHttpResponseHandler responseHandler) {
         // 帶入登入參數
         RequestParams login_params = new RequestParams();
         login_params.put("user_id", userId);
@@ -62,6 +70,72 @@ public class UElearningRestClient {
         UElearningRestClient.post("/tokens", login_params, responseHandler);
     }
 
+    /**
+     * 使用者登出
+     * @param token
+     * @param responseHandler
+     * @throws UnsupportedEncodingException
+     */
+    public static void userLogout(final String token, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
+        // 對伺服端進行登入動作
+        UElearningRestClient.delete("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8), responseHandler);
+    }
+
+    /**
+     * 取得可用的學習活動清單
+     * @param token
+     * @param responseHandler
+     */
+    public static void getEnableActivityList(final String token, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+
+        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", null, responseHandler);
+    }
+
+    /**
+     * 開始進行新的學習活動
+     * @param token
+     * @param thId
+     * @param _learnTime
+     * @param _timeForce
+     * @param _lMode
+     * @param _lForce
+     * @param _mMode
+     * @param responseHandler
+     */
+    public static void startStudyActivity(final String token, final int thId,
+                                          final Integer _learnTime, final Boolean _timeForce,
+                                          final Integer _lMode, final Boolean _lForce, final String _mMode,
+                                          final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+
+        RequestParams startActivity_params = new RequestParams();
+        // 帶入登入參數
+        startActivity_params.put("theme_id", thId);
+        if(_learnTime != null) startActivity_params.put("learn_time", _learnTime);
+        if(_timeForce != null) {
+            if(_timeForce == true) startActivity_params.put("time_force", "1");
+            else startActivity_params.put("time_force", "0");
+        }
+        if(_lMode != null)     startActivity_params.put("learnStyle_mode", _lMode);
+        if(_lForce != null) {
+            if(_lForce == true) startActivity_params.put("learnStyle_force", "1");
+            else startActivity_params.put("learnStyle_force", "0");
+        }
+        if(_mMode != null)     startActivity_params.put("material_mode", _mMode);
+
+        UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", startActivity_params, responseHandler);
+    }
+
+    /**
+     * 取得活動資訊
+     * @param token
+     * @param said
+     * @param responseHandler
+     * @throws UnsupportedEncodingException
+     */
+    public static void getActivityInfo(final String token, final int said, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+
+        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", null, responseHandler);
+    }
 
 }

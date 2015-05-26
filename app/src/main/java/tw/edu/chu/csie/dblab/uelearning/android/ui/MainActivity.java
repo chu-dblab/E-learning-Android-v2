@@ -35,7 +35,10 @@ import java.net.URLEncoder;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.UserUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartStudyActivityDialog;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartWillStudyActivityLockDialog;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
@@ -125,121 +128,46 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
      * 取得學習活動
      */
     public void getStudyActivityList() {
-        DBProvider db = new DBProvider(MainActivity.this);
 
-        // 抓取目前已登入的Token
-        String token = db.get_token();
+        ActivityManager.updateEnableActivityList(MainActivity.this, new UElearningRestHandler() {
 
+            @Override
+            public void onStart() {
+                super.onStart();
+                mSwipe_activity.setRefreshing(true);
 
-        try {
-            UElearningRestClient.get("/tokens/"+URLEncoder.encode(token, HTTP.UTF_8)+"/activitys",
-                    null, new AsyncHttpResponseHandler() {
+                // 更新目前可用的學習活動清單到介面上
+                updateStudyActivityUI();
+            }
 
-                @Override
-                public void onStart() {
-                    mSwipe_activity.setRefreshing(true);
-                }
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                mSwipe_activity.setRefreshing(false);
+            }
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    mSwipe_activity.setRefreshing(false);
+            @Override
+            public void onNoLogin() {
+                super.onNoLogin();
+                mSwipe_activity.setRefreshing(false);
+            }
 
-                    String content;
-                    try {
-                        content = new String(responseBody, HTTP.UTF_8);
-                        JSONObject response = new JSONObject(content);
+            @Override
+            public void onNoResponse() {
+                mSwipe_activity.setRefreshing(false);
+            }
 
-                        JSONArray jsonArr_enableStudy = response.getJSONArray("enable_activity");
+            @Override
+            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                ErrorUtils.error(MainActivity.this, error);
+            }
 
-                        // 清除目前的活動清單
-                        DBProvider db = new DBProvider(MainActivity.this);
-                        db.removeAll_enableActivity();
+            @Override
+            public void onOtherErr(Throwable e) {
+                mSwipe_activity.setRefreshing(false);
 
-                        // 抓其中一個活動
-                        for(int i=0; i<jsonArr_enableStudy.length(); i++) {
-                            JSONObject thisActivity = jsonArr_enableStudy.getJSONObject(i);
-
-                            // 抓取資料
-                            String type = thisActivity.getString("type");
-                            Integer saId = null;
-                            if(!thisActivity.isNull("activity_id")) {
-                                saId = thisActivity.getInt("activity_id");
-                            }
-                            Integer swId = null;
-                            if(!thisActivity.isNull("activity_will_id")) {
-                                swId = thisActivity.getInt("activity_will_id");
-                            }
-                            int thId = thisActivity.getInt("theme_id");
-                            String thName = thisActivity.getString("theme_name");
-                            String thIntroduction = thisActivity.getString("theme_introduction");
-                            String startTime = thisActivity.getString("start_time");
-                            String expiredTime = thisActivity.getString("expired_time");
-                            int learnTime = thisActivity.getInt("remaining_time");
-                            Boolean timeForce = thisActivity.getBoolean("time_force");
-                            Integer lMode = null;
-                            if(!thisActivity.isNull("learnStyle_mode")) {
-                                lMode = thisActivity.getInt("learnStyle_mode");
-                            }
-                            Boolean lForce = thisActivity.getBoolean("learnStyle_force");
-                            Boolean enableVirtual = thisActivity.getBoolean("enable_virtual");
-                            String mMode = thisActivity.getString("material_mode");
-                            Boolean lock = thisActivity.getBoolean("lock");
-                            int targetTotal = thisActivity.getInt("target_total");
-                            int learnedTotal = thisActivity.getInt("learned_total");
-
-                            int typeId;
-                            if(type.equals("theme")) typeId = DBProvider.TYPE_THEME;
-                            else if(type.equals("will")) typeId = DBProvider.TYPE_WILL;
-                            else if(type.equals("study")) typeId = DBProvider.TYPE_STUDY;
-                            else typeId = 0;
-
-                            // 紀錄進資料庫裡
-                            db.insert_enableActivity(db.get_user_id(), typeId, saId, swId,
-                                    thId, thName, thIntroduction, startTime, expiredTime,
-                                    learnTime, timeForce, lMode, lForce, enableVirtual, mMode,
-                                    lock, targetTotal, learnedTotal);
-                        }
-
-                    } catch (UnsupportedEncodingException | JSONException e) {
-                        ErrorUtils.error(MainActivity.this, e);
-                    }
-
-                    // 更新目前可用的學習活動清單到介面上
-                    updateStudyActivityUI();
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    mSwipe_activity.setRefreshing(false);
-
-                    if(responseBody != null) {
-
-                        try {
-                            // TODO: 取得可用的學習活動失敗的錯誤處理
-                            String content = new String(responseBody, HTTP.UTF_8);
-                            if(Config.DEBUG_SHOW_MESSAGE) {
-                                Toast.makeText(MainActivity.this,
-                                        "s: "+statusCode+"\n"
-                                                + getResources().getString(R.string.get_fail_enableActivity)+"\n"+content,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            else {
-                                Toast.makeText(MainActivity.this, R.string.get_fail_enableActivity, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        catch (UnsupportedEncodingException e) {
-                            ErrorUtils.error(MainActivity.this, e);
-                        }
-                    } else {
-                        ErrorUtils.error(MainActivity.this, error);
-                    }
-
-                }
-            });
-        } catch (UnsupportedEncodingException e) {
-            ErrorUtils.error(MainActivity.this, e);
-        }
-
+                ErrorUtils.error(MainActivity.this, e);
+            }
+        });
     }
 
     @Override
@@ -381,312 +309,75 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                    final Integer _learnTime, final Boolean _timeForce,
                                    final Integer _lMode, final Boolean _lForce, final String _mMode) {
 
-        final DBProvider db = new DBProvider(MainActivity.this);
 
-        // 抓取目前已登入的Token
-        final String token = db.get_token();
+        ActivityManager.startStudyActivity(MainActivity.this, thId, _learnTime, _timeForce, _lMode, _lForce, _mMode, new UElearningRestHandler() {
 
-        // 帶入登入參數
-        final RequestParams startActivity_params = new RequestParams();
-        startActivity_params.put("theme_id", thId);
-        if(_learnTime != null) startActivity_params.put("learn_time", _learnTime);
-        if(_timeForce != null) {
-            if(_timeForce == true) startActivity_params.put("time_force", "1");
-            else startActivity_params.put("time_force", "0");
-        }
-        if(_lMode != null)     startActivity_params.put("learnStyle_mode", _lMode);
-        if(_lForce != null) {
-            if(_lForce == true) startActivity_params.put("learnStyle_force", "1");
-            else startActivity_params.put("learnStyle_force", "0");
-        }
-        if(_mMode != null)     startActivity_params.put("material_mode", _mMode);
+            @Override
+            public void onStart() {
+                mProgress_start_studyActivity.show();
+            }
 
-        // 對伺服器加入新的學習活動
-        try {
-            UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys",
-                    startActivity_params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                mProgress_start_studyActivity.dismiss();
 
-                @Override
-                public void onStart() {
-                    mProgress_start_studyActivity.show();
-                }
+                // 進入學習畫面
+                Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                startActivity(toLearning);
+            }
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+            @Override
+            public void onNoResponse() {
+                mProgress_start_studyActivity.dismiss();
+            }
 
-                    String content = null;
-                    try {
-                        content = new String(responseBody, "UTF-8");
-                        final JSONObject response = new JSONObject(content);
-                        JSONObject activityJson = response.getJSONObject("activity");
-                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
+            @Override
+            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                mProgress_start_studyActivity.dismiss();
+                ErrorUtils.error(MainActivity.this, error);
+            }
 
+            @Override
+            public void onOtherErr(Throwable e) {
+                mProgress_start_studyActivity.dismiss();
+                ErrorUtils.error(MainActivity.this, e);
+            }
+        });
 
-                        // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
-                        int saId = activityJson.getInt("activity_id");
-                        int startTId = activityJson.getInt("start_target_id");
-                        String startTime = activityJson.getString("start_time");
-                        String expiredTime = activityJson.getString("expired_time");
-                        int targetTotal = activityJson.getInt("target_total");
-                        int learnedTotal = activityJson.getInt("learned_total");
-                        int learnTime = activityJson.getInt("have_time");
-                        boolean timeForce;
-                        if(activityJson.getString("time_force") == "true")
-                            timeForce = true;
-                        else timeForce = false;
-                        int lMode = activityJson.getInt("learnStyle_mode");
-                        boolean lForce;
-                        if(activityJson.getString("learnStyle_force") == "true")
-                            lForce = true;
-                        else lForce = false;
-                        boolean enableVirtual;
-                        if(activityJson.getString("enable_virtual") == "true")
-                            enableVirtual = true;
-                        else enableVirtual = false;
-                        String mMode = activityJson.getString("material_mode");
-
-                        // 紀錄進資料庫
-                        DBProvider db = new DBProvider(MainActivity.this);
-                        db.removeAll_activity();
-                        db.removeAll_recommand();
-                        db.removeAll_target();
-
-                        // 向伺服端取得今次活動所有的標的資訊
-                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
-                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
-
-                            int thId = thisTarget.getInt("theme_id");
-                            int tId = thisTarget.getInt("target_id");
-                            Integer hId = null;
-                            if(!thisTarget.isNull("hall_id")) {
-                                hId = thisTarget.getInt("hall_id");
-                            }
-                            String hName = thisTarget.getString("hall_name");
-                            Integer aId = null;
-                            if(!thisTarget.isNull("area_id")) {
-                                aId = thisTarget.getInt("area_id");
-                            }
-                            String aName = thisTarget.getString("area_name");
-                            Integer aFloor = null;
-                            if(!thisTarget.isNull("floor")) {
-                                aFloor = thisTarget.getInt("floor");
-                            }
-                            Integer aNum = null;
-                            if(!thisTarget.isNull("area_number")) {
-                                aNum = thisTarget.getInt("area_number");
-                            }
-                            Integer tNum = null;
-                            if(!thisTarget.isNull("target_number")) {
-                                tNum = thisTarget.getInt("target_number");
-                            }
-                            String tName = thisTarget.getString("name");
-                            int targetLearnTime = thisTarget.getInt("learn_time");  //這邊
-                            String mapUrl = thisTarget.getString("map_url");
-                            String materialUrl = thisTarget.getString("material_url");
-                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
-
-                            // 記錄進資料庫
-                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, targetLearnTime, mapUrl, materialUrl, virtualMaterialUrl);
-                        }
-
-                        db.insert_activity(db.get_user_id(), saId,
-                                thId, thName, startTId, startTime, learnTime, timeForce,
-                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
-                        db.insert_enableActivity(db.get_user_id(), DBProvider.TYPE_STUDY,
-                                saId, null, thId, thName, null,
-                                startTime, expiredTime, learnTime, timeForce,
-                                lMode, lForce, enableVirtual, mMode, true, targetTotal, learnedTotal);
-
-                        mProgress_start_studyActivity.dismiss();
-
-                        // 進入學習畫面
-                        Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
-                        startActivity(toLearning);
-
-                    }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MainActivity.this, e);
-                    }
-                    catch (JSONException e) {
-                        ErrorUtils.error(MainActivity.this, e);
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    mProgress_start_studyActivity.dismiss();
-
-                    if(responseBody != null) {
-
-                        try {
-                            // TODO: 取得可用的學習活動失敗的錯誤處理
-                            String content = new String(responseBody, HTTP.UTF_8);
-                            if(Config.DEBUG_SHOW_MESSAGE) {
-                                Toast.makeText(MainActivity.this,
-                                        "s: " + statusCode + "\n" + content,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            else {
-                                Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        catch (UnsupportedEncodingException e) {
-                            ErrorUtils.error(MainActivity.this, e);
-                        }
-                    }
-                    else {
-                        ErrorUtils.error(MainActivity.this, error);
-                    }
-                }
-            });
-        } catch (UnsupportedEncodingException e) {
-            ErrorUtils.error(MainActivity.this, e);
-        }
     }
 
     public void resumeStudyActivity(final int saId) {
 
-        final DBProvider db = new DBProvider(MainActivity.this);
+        ActivityManager.resumeStudyActivity(MainActivity.this, saId, new UElearningRestHandler() {
+            @Override
+            public void onStart() {
+                mProgress_start_studyActivity.show();
+            }
 
-        // 抓取目前已登入的Token
-        String token = db.get_token();
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                mProgress_start_studyActivity.dismiss();
 
-        // 查訊伺服器那邊的學習狀況資料
-        try {
-            UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
-                            "/activitys/" + saId, null, new AsyncHttpResponseHandler() {
+                // 進入學習畫面
+                Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                startActivity(toLearning);
+            }
 
-                @Override
-                public void onStart() {
-                    super.onStart();
-                    mProgress_start_studyActivity.show();
-                }
+            @Override
+            public void onNoResponse() {
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    mProgress_start_studyActivity.dismiss();
+            }
 
-                    String content = null;
-                    try {
-                        content = new String(responseBody, "UTF-8");
-                        JSONObject response = new JSONObject(content);
-                        JSONObject activityJson = response.getJSONObject("activity");
-                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
+            @Override
+            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                ErrorUtils.error(MainActivity.this, error);
+            }
 
-                        int saId = activityJson.getInt("activity_id");
-                        int thId = activityJson.getInt("theme_id");
-                        String thName = activityJson.getString("theme_name");
-                        int startTId = activityJson.getInt("start_target_id");
-                        String startTime = activityJson.getString("start_time");
-                        String expiredTime = activityJson.getString("expired_time");
-                        int targetTotal = activityJson.getInt("target_total");
-                        int learnedTotal = activityJson.getInt("learned_total");
-                        int learnTime = activityJson.getInt("have_time");
-                        boolean timeForce;
-                        if(activityJson.getString("time_force") == "true")
-                            timeForce = true;
-                        else timeForce = false;
-                        int lMode = activityJson.getInt("learnStyle_mode");
-                        boolean lForce;
-
-                        if(activityJson.getString("learnStyle_force") == "true")
-                            lForce = true;
-                        else lForce = false;
-                        boolean enableVirtual;
-                        if(activityJson.getString("enable_virtual") == "true")
-                            enableVirtual = true;
-                        else enableVirtual = false;
-                        String mMode = activityJson.getString("material_mode");
-
-                        db.removeAll_target();
-                        // 向伺服端取得今次活動所有的標的資訊
-                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
-                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
-
-                            thId = thisTarget.getInt("theme_id");
-                            int tId = thisTarget.getInt("target_id");
-                            Integer hId = null;
-                            if(!thisTarget.isNull("hall_id")) {
-                                hId = thisTarget.getInt("hall_id");
-                            }
-                            String hName = thisTarget.getString("hall_name");
-                            Integer aId = null;
-                            if(!thisTarget.isNull("area_id")) {
-                                aId = thisTarget.getInt("area_id");
-                            }
-                            String aName = thisTarget.getString("area_name");
-                            Integer aFloor = null;
-                            if(!thisTarget.isNull("floor")) {
-                                aFloor = thisTarget.getInt("floor");
-                            }
-                            Integer aNum = null;
-                            if(!thisTarget.isNull("area_number")) {
-                                aNum = thisTarget.getInt("area_number");
-                            }
-                            Integer tNum = null;
-                            if(!thisTarget.isNull("target_number")) {
-                                tNum = thisTarget.getInt("target_number");
-                            }
-                            String tName = thisTarget.getString("name");
-                            int targetLearnTime = thisTarget.getInt("learn_time");
-                            String mapUrl = thisTarget.getString("map_url");
-                            String materialUrl = thisTarget.getString("material_url");
-                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
-
-                            // 記錄進資料庫
-                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, targetLearnTime, mapUrl, materialUrl, virtualMaterialUrl);
-                        }
-
-                        // TODO: 請在此次連接取得所有標的資訊
-
-                        // 紀錄進資料庫
-                        DBProvider db = new DBProvider(MainActivity.this);
-                        db.removeAll_activity();
-                        db.insert_activity(db.get_user_id(), saId,
-                                thId, thName, startTId, startTime, learnTime, timeForce,
-                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
-
-                        // 進入學習畫面
-                        Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
-                        startActivity(toLearning);
-
-                    } catch (JSONException e) {
-                        ErrorUtils.error(MainActivity.this, e);
-                    } catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MainActivity.this, e);
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    mProgress_start_studyActivity.dismiss();
-
-                    if(responseBody != null) {
-                        try {
-                            // TODO: 取得可用的學習活動失敗的錯誤處理
-                            String content = new String(responseBody, HTTP.UTF_8);
-                            if(Config.DEBUG_SHOW_MESSAGE) {
-                                Toast.makeText(MainActivity.this,
-                                        "s: " + statusCode + "\n" + content,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            else {
-                                Toast.makeText(MainActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        catch (UnsupportedEncodingException e) {
-                            ErrorUtils.error(MainActivity.this, e);
-                        }
-                    }
-                    else {
-                        ErrorUtils.error(MainActivity.this, error);
-                    }
-                }
-            });
-        }
-        catch (UnsupportedEncodingException e) {
-            ErrorUtils.error(MainActivity.this, e);
-        }
+            @Override
+            public void onOtherErr(Throwable e) {
+                ErrorUtils.error(MainActivity.this, e);
+            }
+        });
     }
 
     @Override
@@ -719,24 +410,29 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             String token = db.get_token();
 
             // 告訴伺服端說已登出
-            try {
-                UElearningRestClient.delete("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8), new AsyncHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                                if(Config.DEBUG_SHOW_MESSAGE) {
-                                    Toast.makeText(MainActivity.this, "伺服器已接受登出" ,Toast.LENGTH_SHORT).show();
-                                }
-                            }
+            UserUtils.userLogout(MainActivity.this, new UElearningRestHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    if(Config.DEBUG_SHOW_MESSAGE) {
+                        Toast.makeText(MainActivity.this, "伺服器已接受登出" ,Toast.LENGTH_SHORT).show();
+                    }
+                }
 
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                                Toast.makeText(MainActivity.this, "伺服器登出失敗" ,Toast.LENGTH_SHORT).show();
-                                ErrorUtils.error(MainActivity.this, error);
-                            }
-                });
-            } catch (UnsupportedEncodingException e) {
-                ErrorUtils.error(MainActivity.this, e);
-            }
+                @Override
+                public void onNoResponse() {
+
+                }
+
+                @Override
+                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    ErrorUtils.error(MainActivity.this, error);
+                }
+
+                @Override
+                public void onOtherErr(Throwable e) {
+                    ErrorUtils.error(MainActivity.this, e);
+                }
+            });
 
             // 清除登入資料
             db.remove_user();

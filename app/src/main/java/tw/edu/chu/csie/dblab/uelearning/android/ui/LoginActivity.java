@@ -166,7 +166,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
                 // 登入成功
                 @Override
-                public void onSuccess() {
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                     mProgress_login.dismiss();
                     // 前往MainActivity
                     finish();
@@ -198,16 +198,15 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     mEdit_account.requestFocus();
                 }
 
-                // 其他錯誤
                 @Override
-                public void onOtherErr() {
-                    mProgress_login.dismiss();
+                public void onNoResponse() {
+
                 }
 
                 @Override
-                public void onOtherErr(String content) {
+                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     mProgress_login.dismiss();
-                    ErrorUtils.error(LoginActivity.this, content);
+                    ErrorUtils.error(LoginActivity.this, error);
                 }
 
                 @Override

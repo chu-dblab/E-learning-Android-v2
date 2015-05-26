@@ -40,7 +40,7 @@ import java.util.TimerTask;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
-import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.TheActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
@@ -84,7 +84,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
-        learningTime = ActivityManager.getRemainderLearningTime(getActivity());
+        learningTime = TheActivity.getRemainderLearningTime(getActivity());
         initUI(rootView);
         // 若還沒有推薦的學習點
         if(!TargetManager.isHaveRecommand(getActivity())) {
@@ -200,8 +200,8 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                         else {
 
                             // TODO: 改以隨時取得已學習標的數
-                            ActivityManager.setLearnedPointTotal(getActivity(),
-                                    ActivityManager.getPointTotal(getActivity()) - 1);
+                            TheActivity.setLearnedPointTotal(getActivity(),
+                                    TheActivity.getPointTotal(getActivity()) - 1);
                         }
 
                     } catch (JSONException e) {
@@ -277,7 +277,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         else {
 
             // 若已經學習完成的話
-            if(ActivityManager.getRemainingPointTotal(getActivity()) <= 0) {
+            if(TheActivity.getRemainingPointTotal(getActivity()) <= 0) {
                 int startTId = TargetManager.getStartTargetId(getActivity());
                 itemEnableActivity = new String[1];
                 itemEnableActivity_tid = new int[1];
@@ -441,7 +441,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onResume() {
-        learningTime = ActivityManager.getRemainderLearningTime(getActivity());
+        learningTime = TheActivity.getRemainderLearningTime(getActivity());
         updateUITimer = new Timer();
         updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
         super.onResume();

@@ -19,4 +19,12 @@ public class NetworkUtils {
             return false;
         }
     }
+
+    /**
+     * 跳出沒有網路的Dialog
+     * @param context
+     */
+    public static void showNoNetworkDialog(Context context) {
+
+    }
 }

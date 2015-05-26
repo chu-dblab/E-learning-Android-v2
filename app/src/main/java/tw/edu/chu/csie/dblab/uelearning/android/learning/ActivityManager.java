@@ -1,206 +1,387 @@
 package tw.edu.chu.csie.dblab.uelearning.android.learning;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.Cursor;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
-import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
-import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.exception.NoLoginException;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestHandler;
+import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
 
 /**
- * Created by yuan on 2015/1/16.
+ * Created by yuan on 2015/5/19.
  */
 public class ActivityManager {
 
-    /**
-     * 取得開始學習的時間物件
-     * @return 已學習的Date物件
-     */
-    @SuppressLint("SimpleDateFormat")
-    public static Date getStartDate(Context context) {
-        // 取得開始學習時間
-        DBProvider db = new DBProvider(context);
-        Cursor query = db.get_activity();
+    public static void updateEnableActivityList(final Context context, final UElearningRestHandler handler) {
 
-        if(query.getCount()>0) {
+        try {
+            // 取得目前登入的Token
+            String token = UserUtils.getToken(context);
 
-            query.moveToFirst();
-            String startDateDB = query.getString(query.getColumnIndex("StartTime"));
+            UElearningRestClient.getEnableActivityList(URLEncoder.encode(token, HTTP.UTF_8), new AsyncHttpResponseHandler() {
 
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date startDate = new Date();
-            try {
-                startDate = format.parse(startDateDB);
+                @Override
+                public void onStart() {
+                    handler.onStart();
+                    super.onStart();
+                }
 
-                return startDate;
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
-            } catch (ParseException e) {
-                ErrorUtils.error(context, e);
-                return null;
-            }
+                    String content;
+                    try {
+                        content = new String(responseBody, HTTP.UTF_8);
+                        JSONObject response = new JSONObject(content);
+
+                        JSONArray jsonArr_enableStudy = response.getJSONArray("enable_activity");
+
+                        // 清除目前的活動清單
+                        DBProvider db = new DBProvider(context);
+                        db.removeAll_enableActivity();
+
+                        // 抓其中一個活動
+                        for (int i = 0; i < jsonArr_enableStudy.length(); i++) {
+                            JSONObject thisActivity = jsonArr_enableStudy.getJSONObject(i);
+
+                            // 抓取資料
+                            String type = thisActivity.getString("type");
+                            Integer saId = null;
+                            if (!thisActivity.isNull("activity_id")) {
+                                saId = thisActivity.getInt("activity_id");
+                            }
+                            Integer swId = null;
+                            if (!thisActivity.isNull("activity_will_id")) {
+                                swId = thisActivity.getInt("activity_will_id");
+                            }
+                            int thId = thisActivity.getInt("theme_id");
+                            String thName = thisActivity.getString("theme_name");
+                            String thIntroduction = thisActivity.getString("theme_introduction");
+                            String startTime = thisActivity.getString("start_time");
+                            String expiredTime = thisActivity.getString("expired_time");
+                            int learnTime = thisActivity.getInt("remaining_time");
+                            Boolean timeForce = thisActivity.getBoolean("time_force");
+                            Integer lMode = null;
+                            if (!thisActivity.isNull("learnStyle_mode")) {
+                                lMode = thisActivity.getInt("learnStyle_mode");
+                            }
+                            Boolean lForce = thisActivity.getBoolean("learnStyle_force");
+                            Boolean enableVirtual = thisActivity.getBoolean("enable_virtual");
+                            String mMode = thisActivity.getString("material_mode");
+                            Boolean lock = thisActivity.getBoolean("lock");
+                            int targetTotal = thisActivity.getInt("target_total");
+                            int learnedTotal = thisActivity.getInt("learned_total");
+
+                            int typeId;
+                            if (type.equals("theme")) typeId = DBProvider.TYPE_THEME;
+                            else if (type.equals("will")) typeId = DBProvider.TYPE_WILL;
+                            else if (type.equals("study")) typeId = DBProvider.TYPE_STUDY;
+                            else typeId = 0;
+
+                            // 紀錄進資料庫裡
+                            db.insert_enableActivity(db.get_user_id(), typeId, saId, swId,
+                                    thId, thName, thIntroduction, startTime, expiredTime,
+                                    learnTime, timeForce, lMode, lForce, enableVirtual, mMode,
+                                    lock, targetTotal, learnedTotal);
+                        }
+                        handler.onSuccess(statusCode, headers, responseBody);
+
+                    } catch (UnsupportedEncodingException | JSONException e) {
+                        handler.onOtherErr(e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    if (statusCode == 401) {
+                        handler.onNoLogin();
+                    }
+                    else if (statusCode == 0) {
+                        handler.onNoResponse();
+                    } else {
+                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    }
+                }
+            });
+        } catch (NoLoginException e) {
+            handler.onNoLogin();
+        } catch (UnsupportedEncodingException e) {
+            handler.onOtherErr(e);
         }
-        else return null;
     }
 
-
     /**
-     * 取得已經學習的時間物件
-     * @return 已學習的Date物件
+     * 開始進行學習
+     *
+     * @param thId 主題編號
+     * @param _learnTime 學習時間
+     * @param _timeForce 時間到強制結束學習
+     * @param _lMode 學習導引模式
+     * @param _lForce 強制學習導引
+     * @param _mMode 教材模式
      */
-    @SuppressLint("SimpleDateFormat")
-    public static Date getLearningTime(Context context) {
-        // 取得現在時間
-        Date nowDate = TimeUtils.getNowServerTime(context);
+    public static void startStudyActivity(final Context context, final int thId,
+                                          final Integer _learnTime, final Boolean _timeForce,
+                                          final Integer _lMode, final Boolean _lForce, final String _mMode,
+                                          final UElearningRestHandler handler) {
 
-        // 取得開始學習時間
-        DBProvider db = new DBProvider(context);
-        Cursor query = db.get_activity();
-        if(query.getCount()>0) {
+        try {
+            // 抓取目前已登入的Token
+            final String token = UserUtils.getToken(context);
 
-            query.moveToFirst();
-            String startDateDB = query.getString(query.getColumnIndex("StartTime"));
+            // 對伺服器加入新的學習活動
+            UElearningRestClient.startStudyActivity(token, thId, _learnTime, _timeForce, _lMode, _lForce, _mMode, new AsyncHttpResponseHandler() {
 
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date startDate = new Date();
-            try {
-                startDate = format.parse(startDateDB);
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    handler.onStart();
+                }
 
-                // 回傳時間差
-                Date date= new Date(nowDate.getTime()-startDate.getTime());
-                return date;
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
-            } catch (ParseException e) {
-                ErrorUtils.error(context, e);
-                return null;
-            }
+                    try {
+                        String content = new String(responseBody, "UTF-8");
+                        final JSONObject response = new JSONObject(content);
+                        JSONObject activityJson = response.getJSONObject("activity");
+                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
+
+
+                        // TODO: 對照輸入的資訊與伺服端接到的資訊是否吻合
+                        int saId = activityJson.getInt("activity_id");
+                        String thName = activityJson.getString("theme_name");
+                        int startTId = activityJson.getInt("start_target_id");
+                        String startTime = activityJson.getString("start_time");
+                        String expiredTime = activityJson.getString("expired_time");
+                        int targetTotal = activityJson.getInt("target_total");
+                        int learnedTotal = activityJson.getInt("learned_total");
+                        int learnTime = activityJson.getInt("have_time");
+                        boolean timeForce;
+                        if (activityJson.getString("time_force") == "true")
+                            timeForce = true;
+                        else timeForce = false;
+                        int lMode = activityJson.getInt("learnStyle_mode");
+                        boolean lForce;
+                        if (activityJson.getString("learnStyle_force") == "true")
+                            lForce = true;
+                        else lForce = false;
+                        boolean enableVirtual;
+                        if (activityJson.getString("enable_virtual") == "true")
+                            enableVirtual = true;
+                        else enableVirtual = false;
+                        String mMode = activityJson.getString("material_mode");
+
+                        // 紀錄進資料庫
+                        DBProvider db = new DBProvider(context);
+                        db.removeAll_activity();
+                        db.removeAll_recommand();
+                        db.removeAll_target();
+
+                        // 向伺服端取得今次活動所有的標的資訊
+                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
+                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
+
+                            int thId = thisTarget.getInt("theme_id");
+                            int tId = thisTarget.getInt("target_id");
+                            Integer hId = null;
+                            if (!thisTarget.isNull("hall_id")) {
+                                hId = thisTarget.getInt("hall_id");
+                            }
+                            String hName = thisTarget.getString("hall_name");
+                            Integer aId = null;
+                            if (!thisTarget.isNull("area_id")) {
+                                aId = thisTarget.getInt("area_id");
+                            }
+                            String aName = thisTarget.getString("area_name");
+                            Integer aFloor = null;
+                            if (!thisTarget.isNull("floor")) {
+                                aFloor = thisTarget.getInt("floor");
+                            }
+                            Integer aNum = null;
+                            if (!thisTarget.isNull("area_number")) {
+                                aNum = thisTarget.getInt("area_number");
+                            }
+                            Integer tNum = null;
+                            if (!thisTarget.isNull("target_number")) {
+                                tNum = thisTarget.getInt("target_number");
+                            }
+                            String tName = thisTarget.getString("name");
+                            int targetLearnTime = thisTarget.getInt("learn_time");  //這邊
+                            String mapUrl = thisTarget.getString("map_url");
+                            String materialUrl = thisTarget.getString("material_url");
+                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
+
+                            // 記錄進資料庫
+                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, targetLearnTime, mapUrl, materialUrl, virtualMaterialUrl);
+                        }
+
+                        db.insert_activity(db.get_user_id(), saId,
+                                thId, thName, startTId, startTime, learnTime, timeForce,
+                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
+                        db.insert_enableActivity(db.get_user_id(), DBProvider.TYPE_STUDY,
+                                saId, null, thId, thName, null,
+                                startTime, expiredTime, learnTime, timeForce,
+                                lMode, lForce, enableVirtual, mMode, true, targetTotal, learnedTotal);
+
+                        handler.onSuccess(statusCode, headers, responseBody);
+
+                    } catch (UnsupportedEncodingException e) {
+                        handler.onOtherErr(e);
+                    } catch (JSONException e) {
+                        handler.onOtherErr(e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    if (statusCode == 401) {
+                        handler.onNoLogin();
+                    }
+                    else if (statusCode == 0) {
+                        handler.onNoResponse();
+                    } else {
+                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    }
+                }
+            });
         }
-        else return null;
-    }
-
-    /**
-     * 取得已經學了多少分鐘
-     * @return 分鐘
-     */
-    public static Integer getLearningMinTime(Context context) {
-        Date learningDate = getLearningTime(context);
-
-        if(learningDate != null) {
-
-            Calendar learningCal = Calendar.getInstance();
-            learningCal.setTime(learningDate);
-            learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-            return learningCal.get(Calendar.HOUR_OF_DAY)*60 + learningCal.get(Calendar.MINUTE);
+        catch (NoLoginException e) {
+            handler.onNoLogin();
+        } catch (UnsupportedEncodingException e) {
+            handler.onOtherErr(e);
         }
-        return null;
     }
 
-    /**
-     * 取得可學習的時間物件
-     * @return 可學習的時間Date物件
-     */
-    public static Date getlimitTime(Context context) {
+    public static void resumeStudyActivity(final Context context, final int saId, final UElearningRestHandler handler) {
 
-        Calendar limitCal = Calendar.getInstance();
-        limitCal.setTime(new Date(0));
-        Integer limitMin = getlimitMin(context);
-        if(limitMin != null) {
-            limitCal.set(Calendar.MINUTE, limitMin);
-            return limitCal.getTime();
+        try {
+            // 取得登入Token
+            String token = UserUtils.getToken(context);
+
+            // 向伺服器查詢學習活動資訊
+            UElearningRestClient.getActivityInfo(token, saId, new AsyncHttpResponseHandler() {
+                @Override
+                public void onStart() {
+                    handler.onStart();
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    try {
+                        String content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONObject activityJson = response.getJSONObject("activity");
+                        JSONArray jsonAtt_targets = response.getJSONArray("targets");
+
+                        int saId = activityJson.getInt("activity_id");
+                        int thId = activityJson.getInt("theme_id");
+                        String thName = activityJson.getString("theme_name");
+                        int startTId = activityJson.getInt("start_target_id");
+                        String startTime = activityJson.getString("start_time");
+                        String expiredTime = activityJson.getString("expired_time");
+                        int targetTotal = activityJson.getInt("target_total");
+                        int learnedTotal = activityJson.getInt("learned_total");
+                        int learnTime = activityJson.getInt("have_time");
+                        boolean timeForce;
+                        if(activityJson.getString("time_force") == "true")
+                            timeForce = true;
+                        else timeForce = false;
+                        int lMode = activityJson.getInt("learnStyle_mode");
+                        boolean lForce;
+
+                        if(activityJson.getString("learnStyle_force") == "true")
+                            lForce = true;
+                        else lForce = false;
+                        boolean enableVirtual;
+                        if(activityJson.getString("enable_virtual") == "true")
+                            enableVirtual = true;
+                        else enableVirtual = false;
+                        String mMode = activityJson.getString("material_mode");
+
+                        // 向伺服端取得今次活動所有的標的資訊
+                        DBProvider db = new DBProvider(context);
+                        db.removeAll_target();
+                        for (int i = 0; i < jsonAtt_targets.length(); i++) {
+                            JSONObject thisTarget = jsonAtt_targets.getJSONObject(i);
+
+                            thId = thisTarget.getInt("theme_id");
+                            int tId = thisTarget.getInt("target_id");
+                            Integer hId = null;
+                            if(!thisTarget.isNull("hall_id")) {
+                                hId = thisTarget.getInt("hall_id");
+                            }
+                            String hName = thisTarget.getString("hall_name");
+                            Integer aId = null;
+                            if(!thisTarget.isNull("area_id")) {
+                                aId = thisTarget.getInt("area_id");
+                            }
+                            String aName = thisTarget.getString("area_name");
+                            Integer aFloor = null;
+                            if(!thisTarget.isNull("floor")) {
+                                aFloor = thisTarget.getInt("floor");
+                            }
+                            Integer aNum = null;
+                            if(!thisTarget.isNull("area_number")) {
+                                aNum = thisTarget.getInt("area_number");
+                            }
+                            Integer tNum = null;
+                            if(!thisTarget.isNull("target_number")) {
+                                tNum = thisTarget.getInt("target_number");
+                            }
+                            String tName = thisTarget.getString("name");
+                            int targetLearnTime = thisTarget.getInt("learn_time");
+                            String mapUrl = thisTarget.getString("map_url");
+                            String materialUrl = thisTarget.getString("material_url");
+                            String virtualMaterialUrl = thisTarget.getString("virtual_material_url");
+
+                            // 記錄進資料庫
+                            db.insert_target(thId, tId, hId, hName, aId, aName, aFloor, aNum, tNum, tName, targetLearnTime, mapUrl, materialUrl, virtualMaterialUrl);
+                        }
+
+                        // 紀錄進資料庫
+                        db.removeAll_activity();
+                        db.insert_activity(db.get_user_id(), saId,
+                                thId, thName, startTId, startTime, learnTime, timeForce,
+                                lMode, lForce, enableVirtual, mMode, targetTotal, learnedTotal);
+
+                        handler.onSuccess(statusCode, headers, responseBody);
+
+                    } catch (JSONException e) {
+                        handler.onOtherErr(e);
+                    } catch (UnsupportedEncodingException e) {
+                        handler.onOtherErr(e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    if (statusCode == 401) {
+                        handler.onNoLogin();
+                    }
+                    else if (statusCode == 0) {
+                        handler.onNoResponse();
+                    } else {
+                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    }
+                }
+            });
+        } catch (NoLoginException e) {
+            handler.onNoLogin();
+        } catch (UnsupportedEncodingException e) {
+            handler.onOtherErr(e);
         }
-        else return null;
-    }
-
-    /**
-     * 取得可學習的分鐘
-     * @return 可學習的分鐘
-     */
-    public static Integer getlimitMin(Context context) {
-        // 取得開始學習時間
-        DBProvider db = new DBProvider(context);
-        Cursor query = db.get_activity();
-        if(query.getCount()>0) {
-            query.moveToFirst();
-            int limitMin = query.getInt(query.getColumnIndex("LearnTime"));
-            return limitMin;
-        }
-        else return null;
-    }
-
-    /**
-     * 取得剩餘學習時間物件
-     * @return 剩餘學習時間Date物件
-     */
-    public static Date getRemainderLearningTime(Context context) {
-        Date limitDate = getlimitTime(context);
-        Date learningDate = getLearningTime(context);
-
-        long milliseconds = limitDate.getTime() - learningDate.getTime();
-
-        if(milliseconds > 0) return new Date(milliseconds);
-        else return new Date(0);
-    }
-
-    /**
-     * 取得剩餘學習時間分鐘
-     * @return 剩餘學習時間分鐘
-     */
-    public static int getRemainderLearningMinTime(Context context) {
-        Date remainderLearningDate = getRemainderLearningTime(context);
-
-        Calendar learningCal = Calendar.getInstance();
-        learningCal.setTime(remainderLearningDate);
-        learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        return learningCal.get(Calendar.HOUR_OF_DAY)*60 + learningCal.get(Calendar.MINUTE);
-    }
-
-    /**
-     * 是否已學習逾時
-     * @return 是否已學習逾時
-     */
-    public static boolean isLearningTimeOver(Context context) {
-        if(getRemainderLearningTime(context).getTime() <= 0) return true;
-        else return false;
-    }
-
-    // =============================================================================================
-
-    public static int getPointTotal(Context context) {
-        DBProvider db = new DBProvider(context);
-        Cursor query = db.get_activity();
-        int result = 0;
-        if(query.getCount()>0) {
-            query.moveToFirst();
-            result = query.getInt(query.getColumnIndex("TargetTotal"));
-        }
-        return result;
-    }
-
-    public static int getLearnedPointTotal(Context context) {
-        DBProvider db = new DBProvider(context);
-        Cursor query = db.get_activity();
-        int result = 0;
-        if(query.getCount()>0) {
-            query.moveToFirst();
-            result = query.getInt(query.getColumnIndex("LearnedTotal"));
-        }
-        return result;
-    }
-
-    public static void setLearnedPointTotal(Context context, int total) {
-        DBProvider db = new DBProvider(context);
-        db.set_activity_learnedPointTotal(total);
-    }
-
-    public static int getRemainingPointTotal(Context context) {
-        return getPointTotal(context)-1 - getLearnedPointTotal(context);
     }
 }

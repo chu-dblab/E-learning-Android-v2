@@ -32,7 +32,7 @@ import org.json.JSONObject;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
-import tw.edu.chu.csie.dblab.uelearning.android.learning.ActivityManager;
+import tw.edu.chu.csie.dblab.uelearning.android.learning.TheActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
@@ -173,7 +173,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         else if (id == R.id.menu_finish_study_activity) {
 
             // 若尚未學習完成的話
-            if(ActivityManager.getRemainingPointTotal(LearningActivity.this) > 0) {
+            if(TheActivity.getRemainingPointTotal(LearningActivity.this) > 0) {
                 // 顯示確認訊息提示
                 AlertDialog.Builder finishDBuilder = new AlertDialog.Builder(LearningActivity.this);
                 finishDBuilder.setCancelable(true);
