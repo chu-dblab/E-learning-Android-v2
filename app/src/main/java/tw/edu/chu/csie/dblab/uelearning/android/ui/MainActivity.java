@@ -43,6 +43,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartStudyActivityDial
 import tw.edu.chu.csie.dblab.uelearning.android.ui.dialog.StartWillStudyActivityLockDialog;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.NetworkUtils;
 
 public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemClickListener {
 
@@ -135,14 +136,14 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             public void onStart() {
                 super.onStart();
                 mSwipe_activity.setRefreshing(true);
-
-                // 更新目前可用的學習活動清單到介面上
-                updateStudyActivityUI();
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 mSwipe_activity.setRefreshing(false);
+
+                // 更新目前可用的學習活動清單到介面上
+                updateStudyActivityUI();
             }
 
             @Override
@@ -173,7 +174,12 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     @Override
     protected void onResume() {
         super.onResume();
-        updateStudyActivityUI();
+        if(NetworkUtils.isNetworkConnected(MainActivity.this)){
+            updateStudyActivityUI();
+        }
+        else {
+            NetworkUtils.showNoNetworkDialog(MainActivity.this, false);
+        }
     }
 
 
@@ -413,8 +419,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             UserUtils.userLogout(MainActivity.this, new UElearningRestHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    if(Config.DEBUG_SHOW_MESSAGE) {
-                        Toast.makeText(MainActivity.this, "伺服器已接受登出" ,Toast.LENGTH_SHORT).show();
+                    if (Config.DEBUG_SHOW_MESSAGE) {
+                        Toast.makeText(MainActivity.this, "伺服器已接受登出", Toast.LENGTH_SHORT).show();
                     }
                 }
 

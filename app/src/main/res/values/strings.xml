@@ -24,7 +24,11 @@
     <string name="refresh">重新整理</string>
     <string name="system_settings">系統設定</string>
     <string name="minute">分鐘</string>
+    <string name="retry">重試</string>
+    <string name="exit">離開</string>
     <string name="cancel">取消</string>
+    <string name="no_network_dialog_title">沒有網路</string>
+    <string name="no_network_dialog_message">無法連線到伺服器，沒有連線的情況下，無法繼續進行導引學習。</string>
 
     <!-- 教材包、地圖包下載 -->
     <string name="material_downloader">教材下載</string>
