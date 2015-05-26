@@ -11,6 +11,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.exception.NoStudyActivityException;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
@@ -18,6 +21,32 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
  * Created by yuan on 2015/1/16.
  */
 public class TheActivity {
+
+    public static int getActivityId(final Context context) throws NoStudyActivityException {
+        DBProvider db = new DBProvider(context);
+        Cursor the_query = db.get_activity();
+        if(the_query.getCount() > 0) {
+            the_query.moveToNext();
+            Integer returnData =
+                    Integer.valueOf( the_query.getString(the_query.getColumnIndex("SaID")) );
+            return returnData;
+        }
+        else {
+            throw new NoStudyActivityException();
+        }
+    }
+
+    public static void finishTheActivity(final Context context, final UElearningRestHandler handler) {
+
+        try {
+            int saId = getActivityId(context);
+            ActivityManager.finishStudyActivity(context, saId, handler);
+        }
+        catch (NoStudyActivityException e) {
+            handler.onNoStudyActivity();
+        }
+
+    }
 
     /**
      * 取得開始學習的時間物件

@@ -384,4 +384,74 @@ public class ActivityManager {
             handler.onOtherErr(e);
         }
     }
+
+    public static void finishStudyActivity(final Context context, final int saId, final UElearningRestHandler handler) {
+
+        // 取得登入Token
+        try {
+            String token = UserUtils.getToken(context);
+
+            UElearningRestClient.finishStudyActivity(token, saId, new AsyncHttpResponseHandler() {
+                @Override
+                public void onStart() {
+                    handler.onStart();
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    try {
+                        String content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONObject activityJson = response.getJSONObject("activity");
+
+                        // 紀錄進資料庫
+                        DBProvider db = new DBProvider(context);
+                        int saId = db.get_activity_id();
+                        db.remove_enableActivity_inStudying_bySaId(saId);
+                        db.removeAll_target();
+                        db.removeAll_recommand();
+                        db.removeAll_activity();
+
+                        handler.onSuccess(statusCode, headers, responseBody);
+                    } catch (UnsupportedEncodingException e) {
+                        handler.onOtherErr(e);
+                    } catch (JSONException e) {
+                        handler.onOtherErr(e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    // 此學習活動早已結束
+                    if(statusCode == 405) {
+
+                        // 紀錄進資料庫
+                        DBProvider db = new DBProvider(context);
+                        int saId = db.get_activity_id();
+                        db.remove_enableActivity_inStudying_bySaId(saId);
+                        db.removeAll_target();
+                        db.removeAll_recommand();
+                        db.removeAll_activity();
+
+                        handler.onSuccess(statusCode, headers, responseBody);
+                    }
+                    else if (statusCode == 401) {
+                        handler.onNoLogin();
+                    }
+                    else if (statusCode == 0) {
+                        handler.onNoResponse();
+                    } else {
+                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    }
+                }
+            });
+
+        } catch (NoLoginException e) {
+            handler.onNoLogin();
+        } catch (UnsupportedEncodingException e) {
+            handler.onOtherErr(e);
+        }
+
+    }
+
 }

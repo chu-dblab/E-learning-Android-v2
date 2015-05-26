@@ -129,13 +129,27 @@ public class UElearningRestClient {
     /**
      * 取得活動資訊
      * @param token
-     * @param said
+     * @param saId
      * @param responseHandler
      * @throws UnsupportedEncodingException
      */
-    public static void getActivityInfo(final String token, final int said, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+    public static void getActivityInfo(final String token, final int saId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
-        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", null, responseHandler);
+        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId, null, responseHandler);
+    }
+
+    /**
+     * 結束本次的學習活動
+     * @param token
+     * @param saId
+     * @param responseHandler
+     * @throws UnsupportedEncodingException
+     */
+    public static void finishStudyActivity(final String token, final int saId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+
+        RequestParams finish_params = new RequestParams();
+        UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId + "/finish",
+                finish_params, responseHandler);
     }
 
 }

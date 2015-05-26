@@ -35,6 +35,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TheActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.PlaceInfoFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.PlaceMapFragment;
@@ -244,103 +245,37 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
      * 結束學習活動
      */
     public void finishStudyActivity() {
-        studyGuideFragment.stopUpdateUITask();
-        mProgress_activity_finish.show();
 
-        DBProvider db = new DBProvider(LearningActivity.this);
-        // 取得目前使用者的登入階段Token
-        String token = db.get_token();
+        TheActivity.finishTheActivity(LearningActivity.this, new UElearningRestHandler() {
+            @Override
+            public void onStart() {
+                mProgress_activity_finish.show();
+            }
 
-        // 取得目前正在學習的活動編號
-        int saId = db.get_activity_id();
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                studyGuideFragment.stopUpdateUITask();
+                // 離開學習畫面
+                LearningActivity.this.finish();
+            }
 
-        // 對伺服器通知學習活動已結束
-        RequestParams finish_params = new RequestParams();
-        try {
-            UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
-                    "/activitys/" + saId + "/finish",
-                    finish_params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onNoResponse() {
+                mProgress_activity_finish.dismiss();
+            }
 
-                        @Override
-                        public void onStart() {
-                            mProgress_activity_finish.show();
-                        }
+            @Override
+            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                mProgress_activity_finish.dismiss();
+            }
 
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                            mProgress_activity_finish.dismiss();
+            @Override
+            public void onOtherErr(Throwable e) {
+                mProgress_activity_finish.dismiss();
+                ErrorUtils.error(LearningActivity.this, e);
+            }
+        });
 
-                            String content = null;
-                            try {
-                                content = new String(responseBody, "UTF-8");
-                                JSONObject response = new JSONObject(content);
-                                JSONObject activityJson = response.getJSONObject("activity");
-
-                                // 停止學習導引界面計時
-                                //studyGuideFragment.stopUpdateUITask();
-
-                                // 紀錄進資料庫
-                                DBProvider db = new DBProvider(LearningActivity.this);
-                                int saId = db.get_activity_id();
-                                db.remove_enableActivity_inStudying_bySaId(saId);
-                                db.removeAll_target();
-                                db.removeAll_recommand();
-                                db.removeAll_activity();
-
-                                // 離開學習畫面
-                                LearningActivity.this.finish();
-
-                            } catch (UnsupportedEncodingException e) {
-                                ErrorUtils.error(LearningActivity.this, e);
-                            } catch (JSONException e) {
-                                ErrorUtils.error(LearningActivity.this, e);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                            mProgress_activity_finish.dismiss();
-
-                            // 此學習活動早已結束
-                            if(statusCode == 405) {
-
-                                // 紀錄進資料庫
-                                DBProvider db = new DBProvider(LearningActivity.this);
-                                int saId = db.get_activity_id();
-                                db.removeAll_activity();
-                                db.remove_enableActivity_inStudying_bySaId(saId);
-
-                                // 離開學習畫面
-                                LearningActivity.this.finish();
-                            }
-                            // 其他錯誤
-                            else {
-                                if(responseBody != null) {
-
-                                    try {
-                                        // TODO: 取得可用的學習活動失敗的錯誤處理
-                                        String content = new String(responseBody, HTTP.UTF_8);
-                                        if (Config.DEBUG_SHOW_MESSAGE) {
-                                            Toast.makeText(LearningActivity.this,
-                                                    "s: " + statusCode + "\n" + content,
-                                                    Toast.LENGTH_LONG).show();
-                                        } else {
-                                            Toast.makeText(LearningActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
-                                        }
-                                    } catch (UnsupportedEncodingException e) {
-                                        ErrorUtils.error(LearningActivity.this, e);
-                                    }
-                                }
-                                else {
-                                    ErrorUtils.error(LearningActivity.this, error);
-                                }
-                            }
-
-                        }
-                    });
-        } catch (UnsupportedEncodingException e) {
-            ErrorUtils.error(LearningActivity.this, e);
-        }
     }
 
     /**
