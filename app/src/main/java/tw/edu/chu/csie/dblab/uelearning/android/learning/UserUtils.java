@@ -84,6 +84,7 @@ public class UserUtils {
 
                     // 紀錄進資料庫
                     DBProvider db = new DBProvider(context);
+                    db.removeAllUserData();
                     db.remove_user();
                     db.insert_user(token, uid, loginDate,
                             gId, gName, cId, cName,
@@ -197,6 +198,7 @@ public class UserUtils {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    new DBProvider(context).removeAllUserData();
                     handler.onSuccess(statusCode, headers, responseBody);
                 }
 

@@ -17,6 +17,17 @@ public class DBProvider {
         db = dbHelper.getWritableDatabase();
     }
 
+    public void removeAllUserData() {
+        DBProvider db = this;
+
+        db.remove_user();
+        db.removeAll_enableActivity();
+        db.removeAll_activity();
+        db.removeAll_recommand();
+        db.removeAll_materialKind();
+        db.removeAll_target();
+    }
+
     // ============================================================================================
 
 

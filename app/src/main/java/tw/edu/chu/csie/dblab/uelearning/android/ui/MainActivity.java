@@ -434,14 +434,6 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 }
             });
 
-            // 清除登入資料
-            db.remove_user();
-            db.removeAll_enableActivity();
-            db.removeAll_activity();
-            db.removeAll_recommand();
-            db.removeAll_materialKind();
-            db.removeAll_target();
-
             // 回到登入畫面
             finish();
             Intent to_login = new Intent(MainActivity.this, LoginActivity.class);
