@@ -231,6 +231,12 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
                 Toast.makeText(TesterActivity.this, "失敗", Toast.LENGTH_SHORT).show();
                 super.onFailure(statusCode, headers, responseString, throwable);
             }
+
+            @Override
+            public void onRetry(int retryNo) {
+                Toast.makeText(TesterActivity.this, "重試中"+retryNo, Toast.LENGTH_SHORT).show();
+                super.onRetry(retryNo);
+            }
         });
     }
 }

@@ -36,47 +36,47 @@ public class UElearningRestClient {
     private static AsyncHttpClient client = new AsyncHttpClient();
 
     public static RequestHandle get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
-        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
-        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
-        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
-        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        client.allowRetryExceptionClass(IOException.class);
+        client.allowRetryExceptionClass(SocketTimeoutException.class);
+        client.allowRetryExceptionClass(ConnectTimeoutException.class);
+        client.blockRetryExceptionClass(UnknownHostException.class);
+        client.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
         return client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
     public static RequestHandle post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
-        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
-        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
-        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
-        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        client.allowRetryExceptionClass(IOException.class);
+        client.allowRetryExceptionClass(SocketTimeoutException.class);
+        client.allowRetryExceptionClass(ConnectTimeoutException.class);
+        client.blockRetryExceptionClass(UnknownHostException.class);
+        client.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
         return client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
     public static RequestHandle post(Context context, String url, StringEntity params, String type, AsyncHttpResponseHandler responseHandler) {
-        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
-        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
-        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
-        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
-        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        client.allowRetryExceptionClass(IOException.class);
+        client.allowRetryExceptionClass(SocketTimeoutException.class);
+        client.allowRetryExceptionClass(ConnectTimeoutException.class);
+        client.blockRetryExceptionClass(UnknownHostException.class);
+        client.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
         return client.post(context, getAbsoluteUrl(url), params, type, responseHandler);
     }
 
     public static RequestHandle put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
-        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
-        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
-        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
-        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        client.allowRetryExceptionClass(IOException.class);
+        client.allowRetryExceptionClass(SocketTimeoutException.class);
+        client.allowRetryExceptionClass(ConnectTimeoutException.class);
+        client.blockRetryExceptionClass(UnknownHostException.class);
+        client.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
         return client.put(getAbsoluteUrl(url), params, responseHandler);
     }
 
     public static RequestHandle delete(String url, AsyncHttpResponseHandler responseHandler) {
-        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
-        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
-        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
-        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
-        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        client.allowRetryExceptionClass(IOException.class);
+        client.allowRetryExceptionClass(SocketTimeoutException.class);
+        client.allowRetryExceptionClass(ConnectTimeoutException.class);
+        client.blockRetryExceptionClass(UnknownHostException.class);
+        client.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
         return client.delete(getAbsoluteUrl(url), responseHandler);
     }
 
@@ -94,6 +94,7 @@ public class UElearningRestClient {
 
         // 帶入登入參數
         RequestParams login_params = new RequestParams();
+        login_params.setHttpEntityIsRepeatable(true);
         login_params.put("user_id", userId);
         login_params.put("password", userPasswd);
         login_params.put("browser", "android");

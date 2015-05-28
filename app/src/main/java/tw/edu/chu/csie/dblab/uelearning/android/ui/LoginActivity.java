@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -174,6 +175,11 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     startActivity(to_mainActivity);
                 }
 
+                @Override
+                public void onRetry(int retryNo) {
+                    Toast.makeText(LoginActivity.this, "重試中"+retryNo, Toast.LENGTH_SHORT).show();
+                }
+
                 // 找不到此帳號
                 @Override
                 public void onNoUser() {
@@ -200,12 +206,13 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
                 @Override
                 public void onNoResponse() {
-
+                    mProgress_login.dismiss();
                 }
 
                 @Override
                 public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     mProgress_login.dismiss();
+                    Toast.makeText(LoginActivity.this, "Status:"+statusCode, Toast.LENGTH_SHORT).show();
                     ErrorUtils.error(LoginActivity.this, error);
                 }
 
@@ -264,7 +271,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                ErrorUtils.error(LoginActivity.this, error);
+//                ErrorUtils.error(LoginActivity.this, error);
             }
         });
 

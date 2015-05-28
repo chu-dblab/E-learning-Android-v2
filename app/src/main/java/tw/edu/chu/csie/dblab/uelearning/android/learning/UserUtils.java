@@ -29,6 +29,7 @@ public class UserUtils {
     public static abstract class UserLoginHandler extends UElearningRestHandler {
         private static final String LOG_TAG = "Uelearning-Login";
         public abstract void onStart();
+        public abstract void onRetry(int retryNo);
         public abstract void onNoUser();
         public abstract void onPasswordErr();
         public abstract void onNoEnable();
@@ -122,6 +123,7 @@ public class UserUtils {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
                 // 找不到此帳號
                 if(statusCode == 404) {
                     loginHandler.onNoUser();
@@ -150,11 +152,8 @@ public class UserUtils {
                         loginHandler.onOtherErr(error);
                     }
                 }
-                else if(statusCode == 0) {
-                    loginHandler.onNoResponse();
-                }
                 else {
-                    loginHandler.onOtherErr(statusCode, headers, responseBody, error);
+                    loginHandler.onFailure(statusCode, headers, responseBody, error);
                 }
             }
 
@@ -212,11 +211,8 @@ public class UserUtils {
                     if(statusCode == 404) {
                         handler.onNoLogin();
                     }
-                    else if(statusCode == 0) {
-                        handler.onNoResponse();
-                    }
                     else {
-                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                        handler.onFailure(statusCode, headers, responseBody, error);
                     }
                 }
 

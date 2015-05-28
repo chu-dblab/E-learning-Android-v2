@@ -155,7 +155,7 @@ public class TheActivity {
                         handler.onNoResponse();
                     }
                     else {
-                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                        handler.onFailure(statusCode, headers, responseBody, error);
                     }
                 }
 

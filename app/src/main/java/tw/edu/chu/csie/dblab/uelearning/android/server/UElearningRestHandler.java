@@ -5,6 +5,8 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONObject;
 
+import java.net.UnknownHostException;
+
 /**
  * Created by yuan on 2015/5/19.
  */
@@ -14,7 +16,12 @@ public abstract class UElearningRestHandler extends AsyncHttpResponseHandler {
     @Override
     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
         if(statusCode == 0) {
-            this.onNoResponse();
+            if(error.getClass().isInstance(UnknownHostException.class)) {
+                this.onFailure(statusCode, headers, responseBody, error);
+            }
+            else {
+                this.onNoResponse();
+            }
         }
         else if(statusCode == 401) {
 

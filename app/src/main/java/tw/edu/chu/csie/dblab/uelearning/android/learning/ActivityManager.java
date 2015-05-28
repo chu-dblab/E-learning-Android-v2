@@ -108,10 +108,8 @@ public class ActivityManager {
                     if (statusCode == 401) {
                         handler.onNoLogin();
                     }
-                    else if (statusCode == 0) {
-                        handler.onNoResponse();
-                    } else {
-                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    else {
+                        handler.onFailure(statusCode, headers, responseBody, error);
                     }
                 }
 
@@ -255,10 +253,8 @@ public class ActivityManager {
                     if (statusCode == 401) {
                         handler.onNoLogin();
                     }
-                    else if (statusCode == 0) {
-                        handler.onNoResponse();
-                    } else {
-                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    else {
+                        handler.onFailure(statusCode, headers, responseBody, error);
                     }
                 }
 
@@ -381,10 +377,8 @@ public class ActivityManager {
                     if (statusCode == 401) {
                         handler.onNoLogin();
                     }
-                    else if (statusCode == 0) {
-                        handler.onNoResponse();
-                    } else {
-                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    else {
+                        handler.onFailure(statusCode, headers, responseBody, error);
                     }
                 }
 
@@ -454,10 +448,8 @@ public class ActivityManager {
                     else if (statusCode == 401) {
                         handler.onNoLogin();
                     }
-                    else if (statusCode == 0) {
-                        handler.onNoResponse();
-                    } else {
-                        handler.onOtherErr(statusCode, headers, responseBody, error);
+                    else {
+                        handler.onFailure(statusCode, headers, responseBody, error);
                     }
                 }
 

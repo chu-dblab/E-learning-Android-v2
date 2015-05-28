@@ -147,6 +147,11 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             }
 
             @Override
+            public void onRetry(int retryNo) {
+                Toast.makeText(MainActivity.this, "Retry:"+retryNo, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
             public void onNoLogin() {
                 super.onNoLogin();
                 mSwipe_activity.setRefreshing(false);
