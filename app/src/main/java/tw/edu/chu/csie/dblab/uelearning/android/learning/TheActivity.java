@@ -158,6 +158,11 @@ public class TheActivity {
                         handler.onOtherErr(statusCode, headers, responseBody, error);
                     }
                 }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
+                }
             });
         } catch (UnsupportedEncodingException e) {
             handler.onOtherErr(e);

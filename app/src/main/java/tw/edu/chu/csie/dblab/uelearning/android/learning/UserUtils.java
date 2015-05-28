@@ -157,6 +157,11 @@ public class UserUtils {
                     loginHandler.onOtherErr(statusCode, headers, responseBody, error);
                 }
             }
+
+            @Override
+            public void onRetry(int retryNo) {
+                loginHandler.onRetry(retryNo);
+            }
         });
     }
 
@@ -213,6 +218,11 @@ public class UserUtils {
                     else {
                         handler.onOtherErr(statusCode, headers, responseBody, error);
                     }
+                }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
                 }
             });
         } catch (NoLoginException e) {

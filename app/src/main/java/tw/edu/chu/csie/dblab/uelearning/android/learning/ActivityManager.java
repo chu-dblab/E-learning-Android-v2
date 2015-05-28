@@ -114,6 +114,11 @@ public class ActivityManager {
                         handler.onOtherErr(statusCode, headers, responseBody, error);
                     }
                 }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
+                }
             });
         } catch (NoLoginException e) {
             handler.onNoLogin();
@@ -256,6 +261,11 @@ public class ActivityManager {
                         handler.onOtherErr(statusCode, headers, responseBody, error);
                     }
                 }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
+                }
             });
         }
         catch (NoLoginException e) {
@@ -377,7 +387,13 @@ public class ActivityManager {
                         handler.onOtherErr(statusCode, headers, responseBody, error);
                     }
                 }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
+                }
             });
+
         } catch (NoLoginException e) {
             handler.onNoLogin();
         } catch (UnsupportedEncodingException e) {
@@ -443,6 +459,11 @@ public class ActivityManager {
                     } else {
                         handler.onOtherErr(statusCode, headers, responseBody, error);
                     }
+                }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
                 }
             });
 

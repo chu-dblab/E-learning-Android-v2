@@ -4,18 +4,24 @@ import android.content.Context;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -29,24 +35,49 @@ public class UElearningRestClient {
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
-    public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.get(getAbsoluteUrl(url), params, responseHandler);
+    public static RequestHandle get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
+        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
+        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
+        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
+        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        return client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
-    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.post(getAbsoluteUrl(url), params, responseHandler);
+    public static RequestHandle post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
+        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
+        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
+        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
+        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        return client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
-    public static void post(Context context, String url, StringEntity params, String type, AsyncHttpResponseHandler responseHandler) {
-        client.post(context, getAbsoluteUrl(url), params, type, responseHandler);
+    public static RequestHandle post(Context context, String url, StringEntity params, String type, AsyncHttpResponseHandler responseHandler) {
+        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
+        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
+        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
+        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
+        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        return client.post(context, getAbsoluteUrl(url), params, type, responseHandler);
     }
 
-    public static void put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.put(getAbsoluteUrl(url), params, responseHandler);
+    public static RequestHandle put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
+        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
+        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
+        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
+        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        return client.put(getAbsoluteUrl(url), params, responseHandler);
     }
 
-    public static void delete(String url, AsyncHttpResponseHandler responseHandler) {
-        client.delete(getAbsoluteUrl(url), responseHandler);
+    public static RequestHandle delete(String url, AsyncHttpResponseHandler responseHandler) {
+        AsyncHttpClient.allowRetryExceptionClass(IOException.class);
+        AsyncHttpClient.allowRetryExceptionClass(SocketTimeoutException.class);
+        AsyncHttpClient.allowRetryExceptionClass(ConnectTimeoutException.class);
+        AsyncHttpClient.blockRetryExceptionClass(UnknownHostException.class);
+        AsyncHttpClient.blockRetryExceptionClass(ConnectionPoolTimeoutException.class);
+        return client.delete(getAbsoluteUrl(url), responseHandler);
     }
 
     private static String getAbsoluteUrl(final String relativeUrl) {
@@ -59,7 +90,8 @@ public class UElearningRestClient {
      * @param userPasswd
      * @param responseHandler
      */
-    public static void userLogin(final String userId, final String userPasswd, final AsyncHttpResponseHandler responseHandler) {
+    public static RequestHandle userLogin(final String userId, final String userPasswd, final AsyncHttpResponseHandler responseHandler) {
+
         // 帶入登入參數
         RequestParams login_params = new RequestParams();
         login_params.put("user_id", userId);
@@ -67,7 +99,7 @@ public class UElearningRestClient {
         login_params.put("browser", "android");
 
         // 對伺服端進行登入動作
-        UElearningRestClient.post("/tokens", login_params, responseHandler);
+        return UElearningRestClient.post("/tokens", login_params, responseHandler);
     }
 
     /**
@@ -76,10 +108,10 @@ public class UElearningRestClient {
      * @param responseHandler
      * @throws UnsupportedEncodingException
      */
-    public static void userLogout(final String token, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+    public static RequestHandle userLogout(final String token, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
         // 對伺服端進行登入動作
-        UElearningRestClient.delete("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8), responseHandler);
+        return UElearningRestClient.delete("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8), responseHandler);
     }
 
     /**
@@ -87,9 +119,9 @@ public class UElearningRestClient {
      * @param token
      * @param responseHandler
      */
-    public static void getEnableActivityList(final String token, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+    public static RequestHandle getEnableActivityList(final String token, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
-        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", null, responseHandler);
+        return UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", null, responseHandler);
     }
 
     /**
@@ -103,7 +135,7 @@ public class UElearningRestClient {
      * @param _mMode
      * @param responseHandler
      */
-    public static void startStudyActivity(final String token, final int thId,
+    public static RequestHandle startStudyActivity(final String token, final int thId,
                                           final Integer _learnTime, final Boolean _timeForce,
                                           final Integer _lMode, final Boolean _lForce, final String _mMode,
                                           final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
@@ -123,7 +155,7 @@ public class UElearningRestClient {
         }
         if(_mMode != null)     startActivity_params.put("material_mode", _mMode);
 
-        UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", startActivity_params, responseHandler);
+        return UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys", startActivity_params, responseHandler);
     }
 
     /**
@@ -133,9 +165,9 @@ public class UElearningRestClient {
      * @param responseHandler
      * @throws UnsupportedEncodingException
      */
-    public static void getActivityInfo(final String token, final int saId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+    public static RequestHandle getActivityInfo(final String token, final int saId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
-        UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId, null, responseHandler);
+        return UElearningRestClient.get("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId, null, responseHandler);
     }
 
     /**
@@ -145,17 +177,17 @@ public class UElearningRestClient {
      * @param responseHandler
      * @throws UnsupportedEncodingException
      */
-    public static void finishStudyActivity(final String token, final int saId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+    public static RequestHandle finishStudyActivity(final String token, final int saId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
         RequestParams finish_params = new RequestParams();
-        UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId + "/finish",
+        return UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) + "/activitys/" + saId + "/finish",
                 finish_params, responseHandler);
     }
 
-    public static void getNextRecommandPoint (final String token, final int saId, final int currentTId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+    public static RequestHandle getNextRecommandPoint (final String token, final int saId, final int currentTId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
 
         final RequestParams recommand_params = new RequestParams();
-        UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+        return UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
                 "/activitys/" + saId + "/recommand?current_point=" + currentTId, recommand_params, responseHandler);
     }
 
