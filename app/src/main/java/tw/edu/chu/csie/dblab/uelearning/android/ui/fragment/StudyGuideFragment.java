@@ -40,9 +40,11 @@ import java.util.TimerTask;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.exception.NoStudyActivityException;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TheActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
+import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
@@ -84,12 +86,16 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_study_guide, container, false);
-        learningTime = TheActivity.getRemainderLearningTime(getActivity());
-        initUI(rootView);
-        // 若還沒有推薦的學習點
-        if(!TargetManager.isHaveRecommand(getActivity())) {
-            currentTId = TargetManager.getStartTargetId(getActivity());
-            updateNextPoint(currentTId);
+        try {
+            learningTime = TheActivity.getRemainderLearningTime(getActivity());
+            initUI(rootView);
+            // 若還沒有推薦的學習點
+            if(!TargetManager.isHaveRecommand(getActivity())) {
+                currentTId = TargetManager.getStartTargetId(getActivity());
+                updateNextPoint(currentTId);
+            }
+        } catch (NoStudyActivityException e) {
+            ErrorUtils.error(getActivity(), e);
         }
 
         return rootView;
@@ -118,7 +124,12 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mList_nextPoints.setAdapter(arrayData);
         mList_nextPoints.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList_nextPoints.setOnItemClickListener(this);
-        updateUI();
+
+        try {
+            updateUI();
+        } catch (NoStudyActivityException e) {
+            ErrorUtils.error(getActivity(), e);
+        }
 
     }
 
@@ -149,92 +160,56 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         if (enableVirtualInt > 0) enableVirtual = true;
         else enableVirtual = false;
 
-        final RequestParams recommand_params = new RequestParams();
-        try {
-            UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
-                    "/activitys/" + saId + "/recommand?current_point=" + currentTId, recommand_params, new AsyncHttpResponseHandler() {
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-                    String content = null;
-
-                    try {
-                        content = new String(responseBody, "UTF-8");
-                        JSONObject response = new JSONObject(content);
-                        JSONArray jsonAry_targets = response.getJSONArray("recommand_target");
-
-                        // 使用資料庫
-                        DBProvider db = new DBProvider(getActivity());
-                        db.removeAll_recommand();
-
-                        // 抓取是否已結束
-                        boolean isEnd = response.getBoolean("is_end");
-
-                        // 還沒結束的話
-                        if (!isEnd) {
-
-                            if(jsonAry_targets.length() <= 0) {
-
-                                // 自動重新推薦學習點
-                                //updateNextPoint(currentTId);
-                                //retryRecommandTimer = new Timer();
-                                //retryRecommandTimer.schedule(new RetryRecommandTask(), 0, 1 * 10000);
-                            }
-
-                            // 抓所有推薦的標的
-                            int recommandTid[] = new int[jsonAry_targets.length()];
-                            for (int i = 0; i < jsonAry_targets.length(); i++) {
-                                JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
-
-                                int tId = thisTarget.getInt("target_id");
-                                recommandTid[i] = tId;
-                                boolean isEntity = thisTarget.getBoolean("is_entity");
-
-                                // 記錄進資料庫
-                                db.insert_recommand(tId, isEntity);
-                            }
-                            LogUtils.Insert.recommandResult(getActivity(), saId, recommandTid);
-                        }
-                        // 已經結束的話
-                        else {
-
-                            // TODO: 改以隨時取得已學習標的數
-                            TheActivity.setLearnedPointTotal(getActivity(),
-                                    TheActivity.getPointTotal(getActivity()) - 1);
-                        }
-
-                    } catch (JSONException e) {
-                        ErrorUtils.error(getActivity(), e);
-                    } catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(getActivity(), e);
-                    }
-
-                    // 介面調整
-                    mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item = 0;
+        TheActivity.updateNextRecommandPoint(getActivity(), currentTId, new UElearningRestHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                // 介面調整
+                mSwipe_nextPoints.setRefreshing(false);
+                list_select_nextPoint_item = 0;
+                try {
                     updateUI();
+                } catch (NoStudyActivityException e) {
+                    ErrorUtils.error(getActivity(), e);
                 }
+            }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+            @Override
+            public void onNoResponse() {
 
-                    // 介面調整
-                    mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item = 0;
+            }
+
+            @Override
+            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                // 介面調整
+                mSwipe_nextPoints.setRefreshing(false);
+                list_select_nextPoint_item = 0;
+                ErrorUtils.error(getActivity(), error);
+                try {
                     updateUI();
+                } catch (NoStudyActivityException e) {
+                    ErrorUtils.error(getActivity(), e);
                 }
-            });
-        } catch (UnsupportedEncodingException e) {
-            ErrorUtils.error(getActivity(), e);
-        }
+            }
 
+            @Override
+            public void onOtherErr(Throwable error) {
+                // 介面調整
+                mSwipe_nextPoints.setRefreshing(false);
+                list_select_nextPoint_item = 0;
+                ErrorUtils.error(getActivity(), error);
+                try {
+                    updateUI();
+                } catch (NoStudyActivityException e) {
+                    ErrorUtils.error(getActivity(), e);
+                }
+            }
+        });
     }
 
     /**
      * 重新整理介面
      */
-    public void updateUI() {
+    public void updateUI() throws NoStudyActivityException {
 
         DBProvider db = new DBProvider(getActivity());
         Cursor query = db.getAll_recommand();
@@ -441,9 +416,13 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onResume() {
-        learningTime = TheActivity.getRemainderLearningTime(getActivity());
-        updateUITimer = new Timer();
-        updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
-        super.onResume();
+        try {
+            learningTime = TheActivity.getRemainderLearningTime(getActivity());
+            updateUITimer = new Timer();
+            updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
+            super.onResume();
+        } catch (NoStudyActivityException e) {
+            ErrorUtils.error(getActivity(), e);
+        }
     }
 }

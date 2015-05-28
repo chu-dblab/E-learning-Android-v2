@@ -76,6 +76,7 @@
 
     <!-- 學習畫面 -->
     <string name="study_guide">學習導覽</string>
+    <string name="no_study_activity_error">錯誤！沒有正在學習中的紀錄！</string>
     <string name="place_map">館區地圖</string>
     <string name="place_info">館場資訊</string>
     <string name="browse_material">瀏覽教材</string>

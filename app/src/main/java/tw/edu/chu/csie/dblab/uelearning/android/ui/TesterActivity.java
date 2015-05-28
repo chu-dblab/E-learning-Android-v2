@@ -21,6 +21,7 @@ import java.util.TimeZone;
 
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.exception.NoStudyActivityException;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TheActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.util.EncryptUtils;
@@ -125,37 +126,53 @@ public class TesterActivity extends ActionBarActivity implements View.OnClickLis
         }
         else if(id == R.id.btn_tester_time_start) {
 
-            Date startDate = TheActivity.getStartDate(TesterActivity.this);
-            Calendar nowCalendar = Calendar.getInstance();
-            nowCalendar.setTime(startDate);
-            String timeString = nowCalendar.get(Calendar.HOUR_OF_DAY)+":"+nowCalendar.get(Calendar.MINUTE)+":"+nowCalendar.get(Calendar.SECOND);
-            Toast.makeText(TesterActivity.this, timeString, Toast.LENGTH_SHORT).show();
+            Date startDate = null;
+            try {
+                startDate = TheActivity.getStartDate(TesterActivity.this);
+                Calendar nowCalendar = Calendar.getInstance();
+                nowCalendar.setTime(startDate);
+                String timeString = nowCalendar.get(Calendar.HOUR_OF_DAY)+":"+nowCalendar.get(Calendar.MINUTE)+":"+nowCalendar.get(Calendar.SECOND);
+                Toast.makeText(TesterActivity.this, timeString, Toast.LENGTH_SHORT).show();
+            } catch (NoStudyActivityException e) {
+                Toast.makeText(TesterActivity.this, R.string.no_study_activity_error, Toast.LENGTH_SHORT).show();
+            }
+
         }
         else if(id == R.id.btn_tester_time_learning) {
-            Date remainderDate = TheActivity.getLearningTime(TesterActivity.this);
+            Date remainderDate = null;
+            try {
+                remainderDate = TheActivity.getLearningTime(TesterActivity.this);
+                Calendar learningCal = Calendar.getInstance();
+                learningCal.setTime(remainderDate);
+                learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-            Calendar learningCal = Calendar.getInstance();
-            learningCal.setTime(remainderDate);
-            learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Toast.makeText(TesterActivity.this, "Learning: "+learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND), Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(TesterActivity.this, "Learning: "+learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND), Toast.LENGTH_SHORT).show();
+                int LearningMin = TheActivity.getLearningMinTime(TesterActivity.this);
+                Toast.makeText(TesterActivity.this, "Learning: "+ LearningMin, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
+            } catch (NoStudyActivityException e) {
+                Toast.makeText(TesterActivity.this, R.string.no_study_activity_error, Toast.LENGTH_SHORT).show();
+            }
 
-            int LearningMin = TheActivity.getLearningMinTime(TesterActivity.this);
-            Toast.makeText(TesterActivity.this, "Learning: "+ LearningMin, Toast.LENGTH_SHORT).show();
-            //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
         }
         else if(id == R.id.btn_tester_time_remainder) {
-            Date remainderDate = TheActivity.getRemainderLearningTime(TesterActivity.this);
+            Date remainderDate = null;
+            try {
+                remainderDate = TheActivity.getRemainderLearningTime(TesterActivity.this);
+                Calendar learningCal = Calendar.getInstance();
+                learningCal.setTime(remainderDate);
+                learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-            Calendar learningCal = Calendar.getInstance();
-            learningCal.setTime(remainderDate);
-            learningCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Toast.makeText(TesterActivity.this, "Remainder: "+learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND), Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(TesterActivity.this, "Remainder: "+learningCal.get(Calendar.HOUR_OF_DAY)+":"+learningCal.get(Calendar.MINUTE)+":"+learningCal.get(Calendar.SECOND), Toast.LENGTH_SHORT).show();
+                int LearningMin = TheActivity.getRemainderLearningMinTime(TesterActivity.this);
+                Toast.makeText(TesterActivity.this, "Remainder: "+ LearningMin, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
+            } catch (NoStudyActivityException e) {
+                Toast.makeText(TesterActivity.this, R.string.no_study_activity_error, Toast.LENGTH_SHORT).show();
+            }
 
-            int LearningMin = TheActivity.getRemainderLearningMinTime(TesterActivity.this);
-            Toast.makeText(TesterActivity.this, "Remainder: "+ LearningMin, Toast.LENGTH_SHORT).show();
-            //Toast.makeText(TesterActivity.this, "Limit: "+new LearningUtils(TesterActivity.this).getRemainderLearningMinTime(), 0).show();
         }
         else if(id == R.id.btn_tester_sha1) {
             String origin = "abcde";

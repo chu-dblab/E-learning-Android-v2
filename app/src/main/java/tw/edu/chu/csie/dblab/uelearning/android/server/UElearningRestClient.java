@@ -152,4 +152,11 @@ public class UElearningRestClient {
                 finish_params, responseHandler);
     }
 
+    public static void getNextRecommandPoint (final String token, final int saId, final int currentTId, final AsyncHttpResponseHandler responseHandler) throws UnsupportedEncodingException {
+
+        final RequestParams recommand_params = new RequestParams();
+        UElearningRestClient.post("/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                "/activitys/" + saId + "/recommand?current_point=" + currentTId, recommand_params, responseHandler);
+    }
+
 }

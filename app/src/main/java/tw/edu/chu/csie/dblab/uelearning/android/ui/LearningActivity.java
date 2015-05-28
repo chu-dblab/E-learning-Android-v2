@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import tw.edu.chu.csie.dblab.uelearning.android.R;
 import tw.edu.chu.csie.dblab.uelearning.android.config.Config;
 import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
+import tw.edu.chu.csie.dblab.uelearning.android.exception.NoStudyActivityException;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TheActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.learning.TargetManager;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
@@ -45,6 +46,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
 
 public class LearningActivity extends ActionBarActivity implements ActionBar.TabListener {
 
+    private int saId;
     public static final int RESULT_MATERIAL = 507;
 
     ProgressDialog mProgress_activity_finish;
@@ -70,51 +72,60 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learning);
 
-        // 清除已推薦的學習點
-        DBProvider db = new DBProvider(LearningActivity.this);
-        db.removeAll_recommand();
+        try {
+            saId = TheActivity.getActivityId(LearningActivity.this);
 
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            // 清除已推薦的學習點
+            DBProvider db = new DBProvider(LearningActivity.this);
+            db.removeAll_recommand();
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+            // Set up the action bar.
+            final ActionBar actionBar = getSupportActionBar();
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+            // Create the adapter that will return a fragment for each of the three
+            // primary sections of the activity.
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+            // Set up the ViewPager with the sections adapter.
+            mViewPager = (ViewPager) findViewById(R.id.pager);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+
+            // When swiping between different sections, select the corresponding
+            // tab. We can also use ActionBar.Tab#select() to do this if we have
+            // a reference to the Tab.
+            mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    actionBar.setSelectedNavigationItem(position);
+                }
+            });
+
+            // For each of the sections in the app, add a tab to the action bar.
+            for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+                // Create a tab with text corresponding to the page title defined by
+                // the adapter. Also specify this Activity object, which implements
+                // the TabListener interface, as the callback (listener) for when
+                // this tab is selected.
+                actionBar.addTab(
+                        actionBar.newTab()
+                                .setText(mSectionsPagerAdapter.getPageTitle(i))
+                                .setTabListener(this));
             }
-        });
 
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by
-            // the adapter. Also specify this Activity object, which implements
-            // the TabListener interface, as the callback (listener) for when
-            // this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
+            // 結束中畫面
+            mProgress_activity_finish = new ProgressDialog(LearningActivity.this);
+            mProgress_activity_finish.setMessage(getResources().getString(R.string.finishing_study_activity));
+            mProgress_activity_finish.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgress_activity_finish.setIndeterminate(true);
+            // TODO: 設計成可中途取消的功能
+            mProgress_activity_finish.setCancelable(false);
         }
-
-        // 結束中畫面
-        mProgress_activity_finish = new ProgressDialog(LearningActivity.this);
-        mProgress_activity_finish.setMessage(getResources().getString(R.string.finishing_study_activity));
-        mProgress_activity_finish.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgress_activity_finish.setIndeterminate(true);
-        // TODO: 設計成可中途取消的功能
-        mProgress_activity_finish.setCancelable(false);
+        // 若沒有此學習活動
+        catch (NoStudyActivityException e) {
+            Toast.makeText(LearningActivity.this, getString(R.string.no_study_activity_error), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     @Override
@@ -174,25 +185,31 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         else if (id == R.id.menu_finish_study_activity) {
 
             // 若尚未學習完成的話
-            if(TheActivity.getRemainingPointTotal(LearningActivity.this) > 0) {
-                // 顯示確認訊息提示
-                AlertDialog.Builder finishDBuilder = new AlertDialog.Builder(LearningActivity.this);
-                finishDBuilder.setCancelable(true);
-                finishDBuilder.setTitle(R.string.finish_study_activity);
-                finishDBuilder.setMessage(R.string.finish_study_activity_unfinished_message);
-                finishDBuilder.setPositiveButton(R.string.finish_study_activity, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finishStudyActivity();
-                    }
-                });
-                finishDBuilder.setNegativeButton(R.string.cancel, null);
+            try {
+                if(TheActivity.getRemainingPointTotal(LearningActivity.this) > 0) {
+                    // 顯示確認訊息提示
+                    AlertDialog.Builder finishDBuilder = new AlertDialog.Builder(LearningActivity.this);
+                    finishDBuilder.setCancelable(true);
+                    finishDBuilder.setTitle(R.string.finish_study_activity);
+                    finishDBuilder.setMessage(R.string.finish_study_activity_unfinished_message);
+                    finishDBuilder.setPositiveButton(R.string.finish_study_activity, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finishStudyActivity();
+                        }
+                    });
+                    finishDBuilder.setNegativeButton(R.string.cancel, null);
 
-                AlertDialog finishDialog = finishDBuilder.create();
-                finishDialog.show();
+                    AlertDialog finishDialog = finishDBuilder.create();
+                    finishDialog.show();
+                }
+                else {
+                    finishStudyActivity();
+                }
             }
-            else {
-                finishStudyActivity();
+            catch (NoStudyActivityException e) {
+                // 離開學習畫面
+                LearningActivity.this.finish();
             }
 
         }
