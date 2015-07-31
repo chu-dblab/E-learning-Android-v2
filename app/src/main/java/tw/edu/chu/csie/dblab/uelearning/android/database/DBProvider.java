@@ -28,6 +28,22 @@ public class DBProvider {
         db.removeAll_target();
     }
 
+    public void finishStudy() {
+        DBProvider db = this;
+        int saId = db.get_activity_id();
+        db.remove_enableActivity_inStudying_bySaId(saId);
+        db.removeAll_target();
+        db.removeAll_recommand();
+        db.removeAll_activity();
+    }
+
+    public void forceFinishStudy() {
+        DBProvider db = this;
+        db.removeAll_target();
+        db.removeAll_recommand();
+        db.removeAll_activity();
+    }
+
     // ============================================================================================
 
 

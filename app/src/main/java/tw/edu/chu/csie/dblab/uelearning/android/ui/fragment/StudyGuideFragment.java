@@ -1,6 +1,8 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui.fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -133,6 +135,21 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     }
 
+    protected void onNoStudyActivity() {
+        AlertDialog.Builder dialog = ErrorUtils.noStudyActivityDialog(getActivity());
+        dialog.setPositiveButton(R.string.finish_study_activity, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                ((LearningActivity)getActivity()).forceFinishStudyActivity();
+            }
+        });
+        dialog.show();
+    }
+    protected void onNoStudyActivity(NoStudyActivityException e) {
+        ErrorUtils.error(getActivity(), e);
+        onNoStudyActivity();
+    }
+
     // ============================================================================================
 
     /**
@@ -147,18 +164,15 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             Toast.makeText(getActivity(), "推薦中...", Toast.LENGTH_SHORT).show();
         }
 
-        final DBProvider db = new DBProvider(getActivity());
-        String token = db.get_token();
-        db.removeAll_recommand();
-
         // 取得目前學習活動資料
-        Cursor query_activity = db.get_activity();
-        query_activity.moveToFirst();
-        final int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
-        int enableVirtualInt = query_activity.getInt(query_activity.getColumnIndex("EnableVirtual"));
         boolean enableVirtual;
-        if (enableVirtualInt > 0) enableVirtual = true;
-        else enableVirtual = false;
+        try {
+            TheActivity theActivity = new TheActivity(getActivity());
+            enableVirtual = theActivity.isEnableVirtual();
+
+        } catch (NoStudyActivityException e) {
+            onNoStudyActivity(e);
+        }
 
         TheActivity.updateNextRecommandPoint(getActivity(), currentTId, new UElearningRestHandler() {
             @Override
@@ -169,13 +183,19 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                 try {
                     updateUI();
                 } catch (NoStudyActivityException e) {
-                    ErrorUtils.error(getActivity(), e);
+                    StudyGuideFragment.this.onNoStudyActivity(e);
                 }
             }
 
             @Override
             public void onNoResponse() {
+                // TODO: 重試功能實作
 
+            }
+
+            @Override
+            public void onNoStudyActivity() {
+                onNoStudyActivity();
             }
 
             @Override
@@ -187,7 +207,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                 try {
                     updateUI();
                 } catch (NoStudyActivityException e) {
-                    ErrorUtils.error(getActivity(), e);
+                    StudyGuideFragment.this.onNoStudyActivity(e);
                 }
             }
 
@@ -200,7 +220,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
                 try {
                     updateUI();
                 } catch (NoStudyActivityException e) {
-                    ErrorUtils.error(getActivity(), e);
+                    StudyGuideFragment.this.onNoStudyActivity(e);
                 }
             }
         });
@@ -422,6 +442,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
             updateUITimer.schedule(new UpdateUITask(), 0, 1 * 1000);
             super.onResume();
         } catch (NoStudyActivityException e) {
+            onNoStudyActivity(e);
             ErrorUtils.error(getActivity(), e);
         }
     }

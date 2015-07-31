@@ -30,6 +30,10 @@
     <string name="no_network_dialog_title">沒有網路</string>
     <string name="no_network_dialog_message">無法連線到伺服器，沒有連線的情況下，無法繼續進行導引學習。</string>
 
+    <!-- 錯誤訊息 -->
+    <string name="error_dialog_title">出錯囉～</string>
+    <string name="no_study_activity_dialog_message">此學習活動不存在</string>
+
     <!-- 教材包、地圖包下載 -->
     <string name="material_downloader">教材下載</string>
 

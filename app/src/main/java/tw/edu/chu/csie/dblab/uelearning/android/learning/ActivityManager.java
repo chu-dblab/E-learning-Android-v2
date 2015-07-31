@@ -17,7 +17,6 @@ import tw.edu.chu.csie.dblab.uelearning.android.database.DBProvider;
 import tw.edu.chu.csie.dblab.uelearning.android.exception.NoLoginException;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestHandler;
-import tw.edu.chu.csie.dblab.uelearning.android.ui.MainActivity;
 
 /**
  * Created by yuan on 2015/5/19.
@@ -416,11 +415,7 @@ public class ActivityManager {
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(context);
-                        int saId = db.get_activity_id();
-                        db.remove_enableActivity_inStudying_bySaId(saId);
-                        db.removeAll_target();
-                        db.removeAll_recommand();
-                        db.removeAll_activity();
+                        db.finishStudy();
 
                         handler.onSuccess(statusCode, headers, responseBody);
                     } catch (UnsupportedEncodingException e) {
@@ -437,13 +432,13 @@ public class ActivityManager {
 
                         // 紀錄進資料庫
                         DBProvider db = new DBProvider(context);
-                        int saId = db.get_activity_id();
-                        db.remove_enableActivity_inStudying_bySaId(saId);
-                        db.removeAll_target();
-                        db.removeAll_recommand();
-                        db.removeAll_activity();
+                        db.finishStudy();
 
                         handler.onSuccess(statusCode, headers, responseBody);
+                    }
+                    // 沒有此學習活動
+                    else if (statusCode == 404) {
+                        handler.onNoStudyActivity();
                     }
                     else if (statusCode == 401) {
                         handler.onNoLogin();
@@ -465,6 +460,16 @@ public class ActivityManager {
             handler.onOtherErr(e);
         }
 
+    }
+
+    /**
+     * 強制結束活動（不與伺服端聯絡）
+     * @param context
+     * @param saId
+     */
+    public static void forceFinishStudyActivity(final Context context, final int saId) {
+        DBProvider db = new DBProvider(context);
+        db.forceFinishStudy();
     }
 
 }

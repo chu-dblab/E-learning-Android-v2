@@ -296,6 +296,16 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
     }
 
     /**
+     * 強制結束學習活動
+     */
+    public void forceFinishStudyActivity() {
+        // 強制在客戶端結束學習活動
+        TheActivity.forceFinishTheActivity(LearningActivity.this);
+        // 離開學習畫面
+        LearningActivity.this.finish();
+    }
+
+    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */

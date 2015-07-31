@@ -1,5 +1,6 @@
 package tw.edu.chu.csie.dblab.uelearning.android.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -32,5 +33,13 @@ public class ErrorUtils {
 
     public static void error(Context context, Throwable e) {
         error(context, context.getResources().getString(R.string.inside_error).toString(), e);
+    }
+
+    // =============================================================================================
+
+    public static AlertDialog.Builder noStudyActivityDialog(final Context context) {
+        return new AlertDialog.Builder(context)
+                .setTitle(R.string.error_dialog_title)
+                .setMessage(R.string.no_study_activity_dialog_message);
     }
 }
