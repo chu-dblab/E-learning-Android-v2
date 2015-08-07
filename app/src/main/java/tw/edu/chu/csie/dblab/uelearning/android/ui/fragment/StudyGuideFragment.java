@@ -165,65 +165,68 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         }
 
         // 取得目前學習活動資料
-        boolean enableVirtual;
         try {
             TheActivity theActivity = new TheActivity(getActivity());
-            enableVirtual = theActivity.isEnableVirtual();
+
+            theActivity.updateNextRecommandPoint(currentTId, new UElearningRestHandler() {
+                @Override
+                public void onStart() {
+                    super.onStart();
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item = 0;
+                    try {
+                        updateUI();
+                    } catch (NoStudyActivityException e) {
+                        StudyGuideFragment.this.onNoStudyActivity(e);
+                    }
+                }
+
+                @Override
+                public void onNoResponse() {
+                    // TODO: 重試功能實作
+                }
+
+                @Override
+                public void onNoStudyActivity() {
+                    onNoStudyActivity();
+                }
+
+                @Override
+                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item = 0;
+                    ErrorUtils.error(getActivity(), error);
+                    try {
+                        updateUI();
+                    } catch (NoStudyActivityException e) {
+                        StudyGuideFragment.this.onNoStudyActivity(e);
+                    }
+                }
+
+                @Override
+                public void onOtherErr(Throwable error) {
+                    // 介面調整
+                    mSwipe_nextPoints.setRefreshing(false);
+                    list_select_nextPoint_item = 0;
+                    ErrorUtils.error(getActivity(), error);
+                    try {
+                        updateUI();
+                    } catch (NoStudyActivityException e) {
+                        StudyGuideFragment.this.onNoStudyActivity(e);
+                    }
+                }
+            });
 
         } catch (NoStudyActivityException e) {
             onNoStudyActivity(e);
         }
 
-        TheActivity.updateNextRecommandPoint(getActivity(), currentTId, new UElearningRestHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                // 介面調整
-                mSwipe_nextPoints.setRefreshing(false);
-                list_select_nextPoint_item = 0;
-                try {
-                    updateUI();
-                } catch (NoStudyActivityException e) {
-                    StudyGuideFragment.this.onNoStudyActivity(e);
-                }
-            }
-
-            @Override
-            public void onNoResponse() {
-                // TODO: 重試功能實作
-
-            }
-
-            @Override
-            public void onNoStudyActivity() {
-                onNoStudyActivity();
-            }
-
-            @Override
-            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                // 介面調整
-                mSwipe_nextPoints.setRefreshing(false);
-                list_select_nextPoint_item = 0;
-                ErrorUtils.error(getActivity(), error);
-                try {
-                    updateUI();
-                } catch (NoStudyActivityException e) {
-                    StudyGuideFragment.this.onNoStudyActivity(e);
-                }
-            }
-
-            @Override
-            public void onOtherErr(Throwable error) {
-                // 介面調整
-                mSwipe_nextPoints.setRefreshing(false);
-                list_select_nextPoint_item = 0;
-                ErrorUtils.error(getActivity(), error);
-                try {
-                    updateUI();
-                } catch (NoStudyActivityException e) {
-                    StudyGuideFragment.this.onNoStudyActivity(e);
-                }
-            }
-        });
     }
 
     /**

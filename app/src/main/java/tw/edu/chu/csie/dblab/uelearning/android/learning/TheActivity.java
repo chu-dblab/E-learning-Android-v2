@@ -90,107 +90,6 @@ public class TheActivity {
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
-
-    public static void updateNextRecommandPoint(final Context context, final int currentTId, final UElearningRestHandler handler) {
-
-        try {
-            String token = UserUtils.getToken(context);
-            final DBProvider db = new DBProvider(context);
-            db.removeAll_recommand();
-
-            // 取得目前學習活動資料
-            Cursor query_activity = getActivityQuery(context);
-            query_activity.moveToFirst();
-            final int saId = query_activity.getInt(query_activity.getColumnIndex("SaID"));
-            int enableVirtualInt = query_activity.getInt(query_activity.getColumnIndex("EnableVirtual"));
-            boolean enableVirtual;
-            if (enableVirtualInt > 0) enableVirtual = true;
-            else enableVirtual = false;
-
-
-            UElearningRestClient.getNextRecommandPoint(token, saId, currentTId, new AsyncHttpResponseHandler() {
-                @Override
-                public void onStart() {
-                    handler.onStart();
-                }
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    try {
-                        String content = new String(responseBody, "UTF-8");
-                        JSONObject response = new JSONObject(content);
-                        JSONArray jsonAry_targets = response.getJSONArray("recommand_target");
-
-                        // 使用資料庫
-                        db.removeAll_recommand();
-
-                        // 抓取是否已結束
-                        boolean isEnd = response.getBoolean("is_end");
-
-                        // 還沒結束的話
-                        if (!isEnd) {
-
-                            if (jsonAry_targets.length() <= 0) {
-
-                            }
-
-                            // 抓所有推薦的標的
-                            int recommandTid[] = new int[jsonAry_targets.length()];
-                            for (int i = 0; i < jsonAry_targets.length(); i++) {
-                                JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
-
-                                int tId = thisTarget.getInt("target_id");
-                                recommandTid[i] = tId;
-                                boolean isEntity = thisTarget.getBoolean("is_entity");
-
-                                // 記錄進資料庫
-                                db.insert_recommand(tId, isEntity);
-                            }
-                            LogUtils.Insert.recommandResult(context, saId, recommandTid);
-                        }
-                        // 已經結束的話
-                        else {
-
-                            // TODO: 改以隨時取得已學習標的數
-                            TheActivity.setLearnedPointTotal(context,
-                                    TheActivity.getPointTotal(context) - 1);
-                        }
-                    } catch (NoStudyActivityException e) {
-                        handler.onNoStudyActivity();
-                    } catch (UnsupportedEncodingException | JSONException e) {
-                        handler.onOtherErr(e);
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    // 沒有此學習活動
-                    if (statusCode == 404) {
-                        handler.onNoStudyActivity();
-                    } else if (statusCode == 401) {
-                        handler.onNoLogin();
-                    } else if (statusCode == 0) {
-                        handler.onNoResponse();
-                    } else {
-                        handler.onFailure(statusCode, headers, responseBody, error);
-                    }
-                }
-
-                @Override
-                public void onRetry(int retryNo) {
-                    handler.onRetry(retryNo);
-                }
-            });
-        } catch (UnsupportedEncodingException e) {
-            handler.onOtherErr(e);
-        } catch (NoLoginException e) {
-            handler.onNoLogin();
-        } catch (NoStudyActivityException e) {
-            handler.onNoStudyActivity();
-        }
-    }
-
     // =============================================================================================
 
     /**
@@ -324,10 +223,9 @@ public class TheActivity {
         DBProvider db = new DBProvider(context);
         query = db.get_activity();
 
-        Cursor the_query = db.get_activity();
-        if(the_query.getCount() > 0) {
-            the_query.moveToNext();
-            saId = Integer.valueOf(the_query.getString(the_query.getColumnIndex("SaID")));
+        if(query.getCount() > 0) {
+            query.moveToNext();
+            saId = Integer.valueOf(query.getString(query.getColumnIndex("SaID")));
             startDateDB = query.getString(query.getColumnIndex("StartTime"));
             limitMin = query.getInt(query.getColumnIndex("LearnTime"));
 
@@ -489,6 +387,97 @@ public class TheActivity {
     public boolean isLearningTimeOver() {
         if(getRemainderLearningTime().getTime() <= 0) return true;
         else return false;
+    }
+
+    // =============================================================================================
+    public void updateNextRecommandPoint(final int currentTId, final UElearningRestHandler handler) {
+
+        try {
+            String token = UserUtils.getToken(context);
+            final DBProvider db = new DBProvider(context);
+            db.removeAll_recommand();
+
+            // 取得目前學習活動資料
+            final int saId = getActivityId();
+            boolean enableVirtual = isEnableVirtual();;
+
+            UElearningRestClient.getNextRecommandPoint(token, saId, currentTId, new AsyncHttpResponseHandler() {
+                @Override
+                public void onStart() {
+                    handler.onStart();
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    try {
+                        String content = new String(responseBody, "UTF-8");
+                        JSONObject response = new JSONObject(content);
+                        JSONArray jsonAry_targets = response.getJSONArray("recommand_target");
+
+                        // 使用資料庫
+                        db.removeAll_recommand();
+
+                        // 抓取是否已結束
+                        boolean isEnd = response.getBoolean("is_end");
+
+                        // 還沒結束的話
+                        if (!isEnd) {
+
+                            if (jsonAry_targets.length() <= 0) {
+
+                            }
+
+                            // 抓所有推薦的標的
+                            int recommandTid[] = new int[jsonAry_targets.length()];
+                            for (int i = 0; i < jsonAry_targets.length(); i++) {
+                                JSONObject thisTarget = jsonAry_targets.getJSONObject(i);
+
+                                int tId = thisTarget.getInt("target_id");
+                                recommandTid[i] = tId;
+                                boolean isEntity = thisTarget.getBoolean("is_entity");
+
+                                // 記錄進資料庫
+                                db.insert_recommand(tId, isEntity);
+                            }
+                            LogUtils.Insert.recommandResult(context, saId, recommandTid);
+                            handler.onSuccess(statusCode, headers, responseBody);
+                        }
+                        // 已經結束的話
+                        else {
+
+                            // TODO: 改以隨時取得已學習標的數
+                            setLearnedPointTotal(getPointTotal() - 1);
+                            handler.onSuccess(statusCode, headers, responseBody);
+                        }
+                    } catch (UnsupportedEncodingException | JSONException e) {
+                        handler.onOtherErr(e);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    // 沒有此學習活動
+                    if (statusCode == 404) {
+                        handler.onNoStudyActivity();
+                    } else if (statusCode == 401) {
+                        handler.onNoLogin();
+                    } else if (statusCode == 0) {
+                        handler.onNoResponse();
+                    } else {
+                        handler.onFailure(statusCode, headers, responseBody, error);
+                    }
+                }
+
+                @Override
+                public void onRetry(int retryNo) {
+                    handler.onRetry(retryNo);
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            handler.onOtherErr(e);
+        } catch (NoLoginException e) {
+            handler.onNoLogin();
+        }
     }
 
     // =============================================================================================
