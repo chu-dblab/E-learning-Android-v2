@@ -28,7 +28,9 @@
     <string name="exit">離開</string>
     <string name="cancel">取消</string>
     <string name="no_network_dialog_title">沒有網路</string>
-    <string name="no_network_dialog_message">無法連線到伺服器，沒有連線的情況下，無法繼續進行導引學習。</string>
+    <string name="no_network_dialog_message">您現在沒有連上網路，請確定有開啟Wifi或行動網路。 \n沒有連線的情況下，無法繼續進行導引學習。</string>
+    <string name="no_network_response_dialog_title">伺服器沒有回應</string>
+    <string name="no_network_response_dialog_message">網路狀況不穩，也有可能伺服器位址設定錯誤或被擋。要重試看看嗎？</string>
 
     <!-- 錯誤訊息 -->
     <string name="error_dialog_title">出錯囉～</string>

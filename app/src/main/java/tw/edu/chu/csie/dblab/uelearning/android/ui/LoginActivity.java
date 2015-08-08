@@ -1,6 +1,9 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -37,6 +40,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.server.UElearningRestClient;
 import tw.edu.chu.csie.dblab.uelearning.android.ui.fragment.BrowseMaterialFragment;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.HelpUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.NetworkUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 public class LoginActivity extends ActionBarActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
@@ -157,71 +161,95 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         // 初步驗證正常，開始對伺服端進行登入
         if(isOK) {
 
-            new UserUtils().userLogin(LoginActivity.this, mID, mPassword, new UserUtils.UserLoginHandler() {
+            // 有沒有網路
+            if(NetworkUtils.isNetworkConnected(LoginActivity.this)) {
+                new UserUtils().userLogin(LoginActivity.this, mID, mPassword, new UserUtils.UserLoginHandler() {
 
-                // 開始登入
-                @Override
-                public void onStart() {
-                    mProgress_login.show();
-                }
+                    // 開始登入
+                    @Override
+                    public void onStart() {
+                        mProgress_login.show();
+                    }
 
-                // 登入成功
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    mProgress_login.dismiss();
-                    // 前往MainActivity
-                    finish();
-                    Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(to_mainActivity);
-                }
+                    // 登入成功
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        mProgress_login.dismiss();
+                        // 前往MainActivity
+                        finish();
+                        Intent to_mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(to_mainActivity);
+                    }
 
-                @Override
-                public void onRetry(int retryNo) {
-                    Toast.makeText(LoginActivity.this, "重試中"+retryNo, Toast.LENGTH_SHORT).show();
-                }
+                    // 找不到此帳號
+                    @Override
+                    public void onNoUser() {
+                        mProgress_login.dismiss();
+                        mEdit_account.setError(getString(R.string.error_no_account));
+                        mEdit_account.requestFocus();
+                    }
 
-                // 找不到此帳號
-                @Override
-                public void onNoUser() {
-                    mProgress_login.dismiss();
-                    mEdit_account.setError(getString(R.string.error_no_account));
-                    mEdit_account.requestFocus();
-                }
+                    // 密碼錯誤
+                    @Override
+                    public void onPasswordErr() {
+                        mProgress_login.dismiss();
+                        mEdit_password.setError(getString(R.string.error_password));
+                        mEdit_password.requestFocus();
+                    }
 
-                // 密碼錯誤
-                @Override
-                public void onPasswordErr() {
-                    mProgress_login.dismiss();
-                    mEdit_password.setError(getString(R.string.error_password));
-                    mEdit_password.requestFocus();
-                }
+                    // 此帳號被停用
+                    @Override
+                    public void onNoEnable() {
+                        mProgress_login.dismiss();
+                        mEdit_account.setError(getString(R.string.error_account_no_enable));
+                        mEdit_account.requestFocus();
+                    }
 
-                // 此帳號被停用
-                @Override
-                public void onNoEnable() {
-                    mProgress_login.dismiss();
-                    mEdit_account.setError(getString(R.string.error_account_no_enable));
-                    mEdit_account.requestFocus();
-                }
+                    @Override
+                    public void onNoResponse() {
+                        Context context = LoginActivity.this;
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle(context.getString(R.string.no_network_response_dialog_title))
+                                .setMessage(context.getString(R.string.no_network_response_dialog_message))
+                                .setCancelable(true)
+                                .setPositiveButton(context.getString(R.string.retry), new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        mlogin();
+                                    }
+                                })
+                                .setNeutralButton(context.getString(R.string.cancel), null);
+                        builder.create().show();
+                    }
 
-                @Override
-                public void onNoResponse() {
-                    mProgress_login.dismiss();
-                }
+                    @Override
+                    public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        mProgress_login.dismiss();
+                        Toast.makeText(LoginActivity.this, "Status:"+statusCode, Toast.LENGTH_SHORT).show();
+                        ErrorUtils.error(LoginActivity.this, error);
+                    }
 
-                @Override
-                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    mProgress_login.dismiss();
-                    Toast.makeText(LoginActivity.this, "Status:"+statusCode, Toast.LENGTH_SHORT).show();
-                    ErrorUtils.error(LoginActivity.this, error);
-                }
-
-                @Override
-                public void onOtherErr(Throwable e) {
-                    mProgress_login.dismiss();
-                    ErrorUtils.error(LoginActivity.this, e);
-                }
-            });
+                    @Override
+                    public void onOtherErr(Throwable e) {
+                        mProgress_login.dismiss();
+                        ErrorUtils.error(LoginActivity.this, e);
+                    }
+                });
+            }
+            // 若沒有網路
+            else {
+                Context context = LoginActivity.this;
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(context.getString(R.string.no_network_dialog_title))
+                        .setMessage(context.getString(R.string.no_network_dialog_message))
+                        .setCancelable(true)
+                        .setPositiveButton(context.getString(R.string.retry), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                mlogin();
+                            }
+                        })
+                        .setNeutralButton(context.getString(R.string.cancel), null);
+                builder.create().show();
+            }
         }
 
 

@@ -51,6 +51,7 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.LearningActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.NetworkUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
 /**
@@ -140,7 +141,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         dialog.setPositiveButton(R.string.finish_study_activity, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ((LearningActivity)getActivity()).forceFinishStudyActivity();
+                ((LearningActivity) getActivity()).forceFinishStudyActivity();
             }
         });
         dialog.show();
@@ -168,62 +169,85 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         try {
             TheActivity theActivity = new TheActivity(getActivity());
 
-            theActivity.updateNextRecommandPoint(currentTId, new UElearningRestHandler() {
-                @Override
-                public void onStart() {
-                    super.onStart();
-                }
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    // 介面調整
-                    mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item = 0;
-                    try {
-                        updateUI();
-                    } catch (NoStudyActivityException e) {
-                        StudyGuideFragment.this.onNoStudyActivity(e);
+            // 有沒有網路
+            if(NetworkUtils.isNetworkConnected(getActivity())) {
+                theActivity.updateNextRecommandPoint(currentTId, new UElearningRestHandler() {
+                    @Override
+                    public void onStart() {
+                        super.onStart();
                     }
-                }
 
-                @Override
-                public void onNoResponse() {
-                    // TODO: 重試功能實作
-                }
-
-                @Override
-                public void onNoStudyActivity() {
-                    onNoStudyActivity();
-                }
-
-                @Override
-                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    // 介面調整
-                    mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item = 0;
-                    ErrorUtils.error(getActivity(), error);
-                    try {
-                        updateUI();
-                    } catch (NoStudyActivityException e) {
-                        StudyGuideFragment.this.onNoStudyActivity(e);
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        // 介面調整
+                        mSwipe_nextPoints.setRefreshing(false);
+                        list_select_nextPoint_item = 0;
+                        try {
+                            updateUI();
+                        } catch (NoStudyActivityException e) {
+                            StudyGuideFragment.this.onNoStudyActivity(e);
+                        }
                     }
-                }
 
-                @Override
-                public void onOtherErr(Throwable error) {
-                    // 介面調整
-                    mSwipe_nextPoints.setRefreshing(false);
-                    list_select_nextPoint_item = 0;
-                    ErrorUtils.error(getActivity(), error);
-                    try {
-                        updateUI();
-                    } catch (NoStudyActivityException e) {
-                        StudyGuideFragment.this.onNoStudyActivity(e);
+                    @Override
+                    public void onNoResponse() {
+                        mSwipe_nextPoints.setRefreshing(false);
+                        NetworkUtils.showNoResponseDialog(getActivity(),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        updateNextPoint(currentTId);
+                                    }
+                                });
                     }
-                }
-            });
+
+                    @Override
+                    public void onNoStudyActivity() {
+                        mSwipe_nextPoints.setRefreshing(false);
+                        onNoStudyActivity();
+                    }
+
+                    @Override
+                    public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        // 介面調整
+                        mSwipe_nextPoints.setRefreshing(false);
+                        list_select_nextPoint_item = 0;
+                        ErrorUtils.error(getActivity(), error);
+                        try {
+                            updateUI();
+                        } catch (NoStudyActivityException e) {
+                            StudyGuideFragment.this.onNoStudyActivity(e);
+                        }
+                    }
+
+                    @Override
+                    public void onOtherErr(Throwable error) {
+                        // 介面調整
+                        mSwipe_nextPoints.setRefreshing(false);
+                        list_select_nextPoint_item = 0;
+                        ErrorUtils.error(getActivity(), error);
+                        try {
+                            updateUI();
+                        } catch (NoStudyActivityException e) {
+                            StudyGuideFragment.this.onNoStudyActivity(e);
+                        }
+                    }
+                });
+            }
+            // 若沒有網路
+            else {
+                mSwipe_nextPoints.setRefreshing(false);
+                NetworkUtils.showNoNetworkDialog(getActivity(),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                updateNextPoint(currentTId);
+                            }
+                        }, true);
+            }
 
         } catch (NoStudyActivityException e) {
+            mSwipe_nextPoints.setRefreshing(false);
             onNoStudyActivity(e);
         }
 

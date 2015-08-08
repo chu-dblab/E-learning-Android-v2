@@ -3,6 +3,8 @@ package tw.edu.chu.csie.dblab.uelearning.android.ui;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -130,56 +132,72 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
      */
     public void getStudyActivityList() {
 
-        ActivityManager.updateEnableActivityList(MainActivity.this, new UElearningRestHandler() {
+        // 有沒有網路
+        if(NetworkUtils.isNetworkConnected(MainActivity.this)) {
+            ActivityManager.updateEnableActivityList(MainActivity.this, new UElearningRestHandler() {
 
-            @Override
-            public void onStart() {
-                super.onStart();
-                mSwipe_activity.setRefreshing(true);
-            }
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    mSwipe_activity.setRefreshing(true);
+                }
 
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                mSwipe_activity.setRefreshing(false);
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    mSwipe_activity.setRefreshing(false);
 
-                // 更新目前可用的學習活動清單到介面上
-                updateStudyActivityUI();
-            }
+                    // 更新目前可用的學習活動清單到介面上
+                    updateStudyActivityUI();
+                }
 
-            @Override
-            public void onNoLogin() {
-                super.onNoLogin();
-                mSwipe_activity.setRefreshing(false);
-            }
+                @Override
+                public void onNoLogin() {
+                    super.onNoLogin();
+                    mSwipe_activity.setRefreshing(false);
+                }
 
-            @Override
-            public void onNoResponse() {
-                mSwipe_activity.setRefreshing(false);
-            }
+                @Override
+                public void onNoResponse() {
+                    mSwipe_activity.setRefreshing(false);
+                    NetworkUtils.showNoResponseDialog(MainActivity.this,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    getStudyActivityList();
+                                }
+                            });
+                }
 
-            @Override
-            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                ErrorUtils.error(MainActivity.this, error);
-            }
+                @Override
+                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    ErrorUtils.error(MainActivity.this, error);
+                }
 
-            @Override
-            public void onOtherErr(Throwable e) {
-                mSwipe_activity.setRefreshing(false);
+                @Override
+                public void onOtherErr(Throwable e) {
+                    mSwipe_activity.setRefreshing(false);
 
-                ErrorUtils.error(MainActivity.this, e);
-            }
-        });
+                    ErrorUtils.error(MainActivity.this, e);
+                }
+            });
+        }
+        // 若沒有網路
+        else {
+            mSwipe_activity.setRefreshing(false);
+            NetworkUtils.showNoNetworkDialog(MainActivity.this,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            getStudyActivityList();
+                        }
+                    }, true);
+        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(NetworkUtils.isNetworkConnected(MainActivity.this)){
-            updateStudyActivityUI();
-        }
-        else {
-            NetworkUtils.showNoNetworkDialog(MainActivity.this, false);
-        }
     }
 
 
@@ -315,75 +333,115 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                                    final Integer _learnTime, final Boolean _timeForce,
                                    final Integer _lMode, final Boolean _lForce, final String _mMode) {
 
+        if(NetworkUtils.isNetworkConnected(MainActivity.this)) {
+            ActivityManager.startStudyActivity(MainActivity.this, thId, _learnTime, _timeForce, _lMode, _lForce, _mMode, new UElearningRestHandler() {
 
-        ActivityManager.startStudyActivity(MainActivity.this, thId, _learnTime, _timeForce, _lMode, _lForce, _mMode, new UElearningRestHandler() {
+                @Override
+                public void onStart() {
+                    mProgress_start_studyActivity.show();
+                }
 
-            @Override
-            public void onStart() {
-                mProgress_start_studyActivity.show();
-            }
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    mProgress_start_studyActivity.dismiss();
 
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                mProgress_start_studyActivity.dismiss();
+                    // 進入學習畫面
+                    Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                    startActivity(toLearning);
+                }
 
-                // 進入學習畫面
-                Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
-                startActivity(toLearning);
-            }
+                @Override
+                public void onNoResponse() {
+                    mProgress_start_studyActivity.dismiss();
+                    NetworkUtils.showNoResponseDialog(MainActivity.this,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    startStudyActivity(thId, thName, _learnTime, _timeForce, _lMode, _lForce, _mMode);
+                                }
+                            });
+                }
 
-            @Override
-            public void onNoResponse() {
-                mProgress_start_studyActivity.dismiss();
-            }
+                @Override
+                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    mProgress_start_studyActivity.dismiss();
+                    ErrorUtils.error(MainActivity.this, error);
+                }
 
-            @Override
-            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                mProgress_start_studyActivity.dismiss();
-                ErrorUtils.error(MainActivity.this, error);
-            }
-
-            @Override
-            public void onOtherErr(Throwable e) {
-                mProgress_start_studyActivity.dismiss();
-                ErrorUtils.error(MainActivity.this, e);
-            }
-        });
+                @Override
+                public void onOtherErr(Throwable e) {
+                    mProgress_start_studyActivity.dismiss();
+                    ErrorUtils.error(MainActivity.this, e);
+                }
+            });
+        }
+        // 若沒有網路
+        else {
+            mSwipe_activity.setRefreshing(false);
+            NetworkUtils.showNoNetworkDialog(MainActivity.this,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startStudyActivity(thId, thName, _learnTime, _timeForce, _lMode, _lForce, _mMode);
+                        }
+                    }, true);
+        }
 
     }
 
     public void resumeStudyActivity(final int saId) {
+        if(NetworkUtils.isNetworkConnected(MainActivity.this)) {
+            ActivityManager.resumeStudyActivity(MainActivity.this, saId, new UElearningRestHandler() {
+                @Override
+                public void onStart() {
+                    mProgress_start_studyActivity.show();
+                }
 
-        ActivityManager.resumeStudyActivity(MainActivity.this, saId, new UElearningRestHandler() {
-            @Override
-            public void onStart() {
-                mProgress_start_studyActivity.show();
-            }
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    mProgress_start_studyActivity.dismiss();
 
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                mProgress_start_studyActivity.dismiss();
+                    // 進入學習畫面
+                    Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
+                    startActivity(toLearning);
+                }
 
-                // 進入學習畫面
-                Intent toLearning = new Intent(MainActivity.this, LearningActivity.class);
-                startActivity(toLearning);
-            }
+                @Override
+                public void onNoResponse() {
+                    mProgress_start_studyActivity.dismiss();
+                    NetworkUtils.showNoResponseDialog(MainActivity.this,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    resumeStudyActivity(saId);
+                                }
+                            });
+                }
 
-            @Override
-            public void onNoResponse() {
+                @Override
+                public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    mProgress_start_studyActivity.dismiss();
+                    ErrorUtils.error(MainActivity.this, error);
+                }
 
-            }
-
-            @Override
-            public void onOtherErr(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                ErrorUtils.error(MainActivity.this, error);
-            }
-
-            @Override
-            public void onOtherErr(Throwable e) {
-                ErrorUtils.error(MainActivity.this, e);
-            }
-        });
+                @Override
+                public void onOtherErr(Throwable e) {
+                    mProgress_start_studyActivity.dismiss();
+                    ErrorUtils.error(MainActivity.this, e);
+                }
+            });
+        }
+        // 若沒有網路
+        else {
+            mSwipe_activity.setRefreshing(false);
+            NetworkUtils.showNoNetworkDialog(MainActivity.this,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            resumeStudyActivity(saId);
+                        }
+                    }, true);
+        }
     }
 
     @Override

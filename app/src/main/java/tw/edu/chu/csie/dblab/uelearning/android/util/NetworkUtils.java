@@ -30,6 +30,16 @@ public class NetworkUtils {
         }
     }
 
+    public static void showNoResponseDialog(final Context context, final DialogInterface.OnClickListener retryAction) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getString(R.string.no_network_response_dialog_title))
+                .setMessage(context.getString(R.string.no_network_response_dialog_message))
+                .setCancelable(true)
+                .setPositiveButton(context.getString(R.string.retry), retryAction)
+                .setNeutralButton(context.getString(R.string.cancel), null);
+        builder.create().show();
+    }
+
     /**
      * 跳出沒有網路的Dialog
      * @param context
@@ -82,5 +92,59 @@ public class NetworkUtils {
 
         // 顯示Dialog
         builder.create().show();
+    }
+
+    public static void showNoNetworkDialog(final Context context,
+                                           final DialogInterface.OnClickListener retryAction,
+                                           final boolean isShowLogoutButton,
+                                           final boolean isAllowDismiss) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getString(R.string.no_network_dialog_title))
+                .setMessage(context.getString(R.string.no_network_dialog_message))
+                .setCancelable(isAllowDismiss)
+                // 重試按鈕
+                .setPositiveButton(context.getString(R.string.retry), retryAction);
+        // 登出按鈕
+        if(isShowLogoutButton) {
+            builder.setNegativeButton(context.getString(R.string.logout), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // 清除App資料
+                    new DBProvider(context).removeAllUserData();
+
+                    // 重新執行App
+                    Intent mStartActivity = new Intent(context, StartActivity.class);
+                    int mPendingIntentId = 123456;
+                    PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+                    AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+                    System.exit(0);
+                }
+            });
+        }
+        // 取消/離開按鈕
+        if(isAllowDismiss) {
+            builder.setNeutralButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+        }
+        else {
+            builder.setNeutralButton(context.getString(R.string.exit), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    System.exit(0);
+                }
+            });
+        }
+
+        // 顯示Dialog
+        builder.create().show();
+    }
+
+    public static void showNoNetworkDialog(final Context context,
+                                           final DialogInterface.OnClickListener retryAction,
+                                           final boolean showLogoutButton) {
+        showNoNetworkDialog(context, retryAction, showLogoutButton, true);
     }
 }

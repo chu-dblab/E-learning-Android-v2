@@ -29,7 +29,6 @@ public class UserUtils {
     public static abstract class UserLoginHandler extends UElearningRestHandler {
         private static final String LOG_TAG = "Uelearning-Login";
         public abstract void onStart();
-        public abstract void onRetry(int retryNo);
         public abstract void onNoUser();
         public abstract void onPasswordErr();
         public abstract void onNoEnable();
