@@ -380,6 +380,34 @@ public class DBProvider {
         return returnData;
     }
 
+    public long insert_answer(Integer tID,String qDate,String aDate,Integer qID,String ans,Boolean correct) {
+
+        ContentValues contentvalues = new ContentValues();
+        contentvalues.put("TID", tID);
+        contentvalues.put("QDate", qDate);
+        contentvalues.put("ADate", aDate);
+        contentvalues.put("QID", qID);
+        contentvalues.put("Ans", ans);
+        contentvalues.put("Correct", correct);
+
+        long returnData = db.insert("Question", null, contentvalues);
+
+        return returnData;
+    }
+
+    public long removeAll_answer() {
+
+        long returnData = db.delete("Question", null, null);
+        return returnData;
+    }
+
+    public Cursor getAll_answer() {
+
+        Cursor returnData =
+                db.query("Question", null, null, null, null, null, null);
+        return returnData;
+    }
+
     public String get_serverInfo(String name) {
 
         Cursor the_query = db.query("ServerInfo", new String[]{"Value"}, "Name='"+name+"'", null, null, null, null);

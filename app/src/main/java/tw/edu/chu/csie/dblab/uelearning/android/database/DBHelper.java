@@ -118,6 +118,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 "IsEntity Boolean NOT NULL DEFAULT 0" +
                 ")";
 
+        String sql_create_question = "CREATE TABLE Question (" +
+                "TID INTEGER NOT NULL," +
+                "QDate Timestamp," +
+                "ADate Timestamp," +
+                "QID INTEGER," +
+                "Ans TEXT," +
+                "Correct Boolean" +
+                ")";
+
         String sql_create_log = "CREATE TABLE Log(" +
                 "LID Varchar(40)  PRIMARY KEY," +
                 "UID Varchar(30)," +
@@ -166,6 +175,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sql_create_material_kind);
         db.execSQL(sql_create_target);
         db.execSQL(sql_create_recommand);
+        db.execSQL(sql_create_question);
         db.execSQL(sql_create_log);
         db.execSQL(sql_create_server_info);
         db.execSQL(sql_insert_server_info_1);

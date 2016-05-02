@@ -66,6 +66,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     private int[] itemEnableActivity_tid = {0};
     private Date learningTime;
 
+    private TextView mText_nextPoint_title;
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
     private SwipeRefreshLayout mSwipe_nextPoints;
@@ -106,6 +107,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     protected void initUI(View rootView) {
 
+        mText_nextPoint_title = (TextView) rootView.findViewById(R.id.text_next_point_title);
         mList_nextPoints = (ListView) rootView.findViewById(R.id.list_learning_next_points);
         mList_nextPoints.setOnItemClickListener(this);
         mSwipe_nextPoints = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_next_points);
@@ -129,6 +131,17 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mList_nextPoints.setOnItemClickListener(this);
 
         try {
+            TheActivity theActivity = new TheActivity(getActivity());
+            int lMode = theActivity.getLearnMode();
+            if(lMode == 0) {
+                mText_nextPoint_title.setText(R.string.learning_unfinish_point);
+            }
+            else if(lMode == 1) {
+                mText_nextPoint_title.setText(R.string.learning_next_point);
+            }
+            else {
+                mText_nextPoint_title.setText(R.string.learning_next_suggest_point);
+            }
             updateUI();
         } catch (NoStudyActivityException e) {
             ErrorUtils.error(getActivity(), e);

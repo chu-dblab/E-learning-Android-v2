@@ -100,7 +100,9 @@
 
     <!-- 學習導引 -->
     <string name="start_target">入口</string>
-    <string name="learning_next_point">下個學習點:</string>
+    <string name="learning_next_point">請前往下個學習點:</string>
+    <string name="learning_next_suggest_point">建議前往的學習點:</string>
+    <string name="learning_unfinish_point">尚未學習過的學習點:</string>
     <string name="learning_next_point_time">下個點預估所需時間:</string>
     <string name="learning_remaining_time">學習時間尚有:</string>
     <string name="learning_remaining_point">學習點剩餘:</string>

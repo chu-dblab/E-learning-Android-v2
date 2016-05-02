@@ -17,23 +17,35 @@ public class MaterialJSHandler {
 
     protected int studyActivityId;
     protected int targetId;
+    protected String qTimeString;
     private MaterialActivity context;
+    private DBProvider db;
 
     public MaterialJSHandler(MaterialActivity context, int targetId) {
         this.context = context;
+        db = new DBProvider(context);
         this.targetId = targetId;
         DBProvider db = new DBProvider(context);
         this.studyActivityId = db.get_activity_id();
+        this.qTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
+    }
+
+    @JavascriptInterface
+    public void startQuestion() {
+        this.qTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
     }
 
     @JavascriptInterface
     public void pressFinishButton() {
         LogUtils.Insert.material_pressFinishButton(context, studyActivityId, targetId);
+        this.qTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
     }
 
     @JavascriptInterface
     public void answerCorrect(int topicId, String atIndex) {
         LogUtils.Insert.material_answer(context, studyActivityId, targetId, topicId, atIndex, true);
+        String aTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
+        db.insert_answer(targetId, qTimeString, aTimeString, topicId, atIndex, true);
     }
 
     @JavascriptInterface
@@ -41,6 +53,8 @@ public class MaterialJSHandler {
         DBProvider db = new DBProvider(context);
         int saId = db.get_activity_id();
         LogUtils.Insert.material_answer(context, saId, targetId, topicId, atIndex, true);
+        String aTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
+        db.insert_answer(targetId, qTimeString, aTimeString, topicId, atIndex, false);
     }
 
     /**

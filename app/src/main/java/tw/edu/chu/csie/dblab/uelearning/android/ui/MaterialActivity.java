@@ -20,7 +20,10 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -255,64 +258,104 @@ public class MaterialActivity extends ActionBarActivity {
 
         // 紀錄
         LogUtils.Insert.toOutTarget(MaterialActivity.this, saId, tId);
+        Cursor query_allAns = db.getAll_answer();
+        int ans_total = query_allAns.getCount();
+
+        JSONObject postData = new JSONObject();
+        JSONArray ans_list = new JSONArray();
+        try {
+            for(int i=0; i<ans_total; i++) {
+                query_allAns.moveToPosition(i);
+
+                int tId = query_allAns.getInt(query_allAns.getColumnIndex("TID"));
+                String qDate = query_allAns.getString(query_allAns.getColumnIndex("QDate"));
+                String aDate = query_allAns.getString(query_allAns.getColumnIndex("ADate"));
+                Integer qId = query_allAns.getInt(query_allAns.getColumnIndex("QID"));
+                String ans = query_allAns.getString(query_allAns.getColumnIndex("Ans"));
+                int corrInt = query_allAns.getInt(query_allAns.getColumnIndex("Correct"));
+
+                JSONObject thisAns = new JSONObject();
+                thisAns.put("target_id", tId);
+                thisAns.put("question_time", qDate);
+                thisAns.put("answer_time", aDate);
+                thisAns.put("quest_id", qId);
+                thisAns.put("answer", ans);
+                thisAns.put("correct", corrInt);
+
+                ans_list.put(thisAns);
+            }
+            postData.put("answers", ans_list);
+        } catch (JSONException e) {
+            ErrorUtils.error(MaterialActivity.this, e);
+        }
 
         // 帶入參數
         final RequestParams out_params = new RequestParams();
-
-        // 告訴伺服端我已離開學習點
+        StringEntity entity = null;
         try {
-            final String url = "/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
-                    "/activitys/" + saId + "/points/" + tId + "/toout";
-            UElearningRestClient.post(url, out_params, new AsyncHttpResponseHandler() {
+            entity = new StringEntity(postData.toString());
+            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
-                @Override
-                public void onStart() {
+            // 告訴伺服端我已離開學習點
+            try {
+                final String url = "/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
+                        "/activitys/" + saId + "/points/" + tId + "/toout";
+                UElearningRestClient.post(MaterialActivity.this, url, entity, "application/json", new AsyncHttpResponseHandler() {
 
-                    if(Config.DEBUG_SHOW_MESSAGE) {
-                        Toast.makeText(MaterialActivity.this, "正在通知伺服端: "+url, Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    String content = null;
-
-                    try {
-                        content = new String(responseBody, "UTF-8");
-                        JSONObject response = new JSONObject(content);
+                    @Override
+                    public void onStart() {
 
                         if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MaterialActivity.this, "已成功通知: ", Toast.LENGTH_SHORT).show();
-                        }
-
-                    } catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MaterialActivity.this, e);
-                    } catch (JSONException e) {
-                        ErrorUtils.error(MaterialActivity.this, e);
-                    }
-
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-                    try {
-                        // TODO: 錯誤處理
-                        String content = new String(responseBody, HTTP.UTF_8);
-                        if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MaterialActivity.this,
-                                    "s: " + statusCode + "\n" + content,
-                                    Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MaterialActivity.this, "正在通知伺服端: "+url, Toast.LENGTH_SHORT).show();
                         }
                     }
-                    catch (UnsupportedEncodingException e) {
-                        ErrorUtils.error(MaterialActivity.this, e);
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        String content = null;
+
+                        try {
+                            content = new String(responseBody, "UTF-8");
+                            JSONObject response = new JSONObject(content);
+
+                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                Toast.makeText(MaterialActivity.this, "已成功通知: ", Toast.LENGTH_SHORT).show();
+                            }
+
+                            db.removeAll_answer();
+
+                        } catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MaterialActivity.this, e);
+                        } catch (JSONException e) {
+                            ErrorUtils.error(MaterialActivity.this, e);
+                        }
+
                     }
-                }
-            });
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                        try {
+                            // TODO: 錯誤處理
+                            String content = new String(responseBody, HTTP.UTF_8);
+                            if(Config.DEBUG_SHOW_MESSAGE) {
+                                Toast.makeText(MaterialActivity.this,
+                                        "s: " + statusCode + "\n" + content,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        catch (UnsupportedEncodingException e) {
+                            ErrorUtils.error(MaterialActivity.this, e);
+                        }
+                    }
+                });
+            } catch (UnsupportedEncodingException e) {
+                ErrorUtils.error(MaterialActivity.this, e);
+            }
+
         } catch (UnsupportedEncodingException e) {
             ErrorUtils.error(MaterialActivity.this, e);
         }

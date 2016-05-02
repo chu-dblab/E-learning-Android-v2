@@ -213,6 +213,7 @@ public class TheActivity {
     private Context context;
     private Cursor query;
     private int saId;
+    private int lMode;
     private String startDateDB;
     private int limitMin;
     private boolean enableVirtual;
@@ -226,6 +227,7 @@ public class TheActivity {
         if(query.getCount() > 0) {
             query.moveToNext();
             saId = Integer.valueOf(query.getString(query.getColumnIndex("SaID")));
+            lMode = Integer.valueOf(query.getString(query.getColumnIndex("LMode")));
             startDateDB = query.getString(query.getColumnIndex("StartTime"));
             limitMin = query.getInt(query.getColumnIndex("LearnTime"));
 
@@ -257,6 +259,13 @@ public class TheActivity {
         return query;
     }
 
+    /**
+     * 取得此活動採用何種學習導引模式
+     * @return 將會推薦幾個學習點
+     */
+    public int getLearnMode() {
+        return lMode;
+    }
     /**
      * 取得此活動是否有啟用虛擬教材功能
      * @return 是否有啟用虛擬教材功能
