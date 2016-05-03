@@ -66,11 +66,10 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
     private int[] itemEnableActivity_tid = {0};
     private Date learningTime;
 
-    private TextView mText_nextPoint_title;
     private ListView mList_nextPoints;
     int list_select_nextPoint_item = -1; //一開始未選擇任何一個item所以為-1
     private SwipeRefreshLayout mSwipe_nextPoints;
-    private TextView mText_remainedTime;
+    protected TextView mText_nextPoint_header, mText_remainedTime;
     private LinearLayout mLayout__nextPoint;
     private ImageView mImage_map;
     private Timer updateUITimer;
@@ -107,11 +106,11 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
 
     protected void initUI(View rootView) {
 
-        mText_nextPoint_title = (TextView) rootView.findViewById(R.id.text_next_point_title);
         mList_nextPoints = (ListView) rootView.findViewById(R.id.list_learning_next_points);
         mList_nextPoints.setOnItemClickListener(this);
         mSwipe_nextPoints = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_next_points);
         mSwipe_nextPoints.setOnRefreshListener(this);
+        mText_nextPoint_header = (TextView) rootView.findViewById(R.id.text_next_point_header);
         mText_remainedTime = (TextView) rootView.findViewById(R.id.text_learning_remaining_time);
         mLayout__nextPoint = (LinearLayout) rootView.findViewById(R.id.layout_learning_next_point);
         mImage_map = (ImageView) rootView.findViewById(R.id.image_learning_next_points);
@@ -131,17 +130,7 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
         mList_nextPoints.setOnItemClickListener(this);
 
         try {
-            TheActivity theActivity = new TheActivity(getActivity());
-            int lMode = theActivity.getLearnMode();
-            if(lMode == 0) {
-                mText_nextPoint_title.setText(R.string.learning_unfinish_point);
-            }
-            else if(lMode == 1) {
-                mText_nextPoint_title.setText(R.string.learning_next_point);
-            }
-            else {
-                mText_nextPoint_title.setText(R.string.learning_next_suggest_point);
-            }
+
             updateUI();
         } catch (NoStudyActivityException e) {
             ErrorUtils.error(getActivity(), e);
@@ -270,6 +259,20 @@ public class StudyGuideFragment  extends Fragment implements AdapterView.OnItemC
      * 重新整理介面
      */
     public void updateUI() throws NoStudyActivityException {
+
+        TheActivity theActivity = new TheActivity(getActivity());
+        int lMode = theActivity.getLearnMode();
+        String nextPoint_header;
+        if(lMode == 0) {
+            nextPoint_header = "尚未學習過的學習點";
+        }
+        else if(lMode == 1) {
+            nextPoint_header = "請前往下個學習點:";
+        }
+        else {
+            nextPoint_header = "建議前往的學習點:";
+        }
+        mText_nextPoint_header.setText(nextPoint_header);
 
         DBProvider db = new DBProvider(getActivity());
         Cursor query = db.getAll_recommand();
