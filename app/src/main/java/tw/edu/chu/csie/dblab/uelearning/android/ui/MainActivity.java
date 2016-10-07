@@ -198,6 +198,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (NetworkUtils.isNetworkConnected(MainActivity.this)) {
+            getStudyActivityList();
+        }
     }
 
 
@@ -374,6 +378,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                     ErrorUtils.error(MainActivity.this, e);
                 }
             });
+
+            getStudyActivityList();
         }
         // 若沒有網路
         else {
@@ -430,6 +436,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                     ErrorUtils.error(MainActivity.this, e);
                 }
             });
+
+            getStudyActivityList();
         }
         // 若沒有網路
         else {

@@ -156,6 +156,7 @@ public class LearningActivity extends ActionBarActivity implements ActionBar.Tab
         }
         if(!Config.Earlier_FINISH_ACTIVITY_ENABLE) {
             menu.findItem(R.id.menu_finish_study_activity).setVisible(false);
+            menu.findItem(R.id.menu_pause_study_activity).setVisible(false);
         }
         if(Config.DEBUG_ACTIVITY) {
             menu.findItem(R.id.menu_inside_tester).setVisible(true);
