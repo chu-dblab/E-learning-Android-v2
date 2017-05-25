@@ -86,6 +86,11 @@ public class Config {
      */
     public static final boolean EXIT_ENABLE = true;
 
+    /**
+     *  是否啟用內部歷程紀錄
+     */
+    public static final boolean LOG_ENABLE = false;
+
     // 無帳號登入 =================================================================================
     /**
      *  是否啟用自動填入預設帳號密碼

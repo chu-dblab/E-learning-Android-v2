@@ -27,6 +27,8 @@ import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
+import static tw.edu.chu.csie.dblab.uelearning.android.config.Config.LOG_ENABLE;
+
 /**
  * Created by yuan on 2015/1/16.
  */
@@ -448,7 +450,9 @@ public class TheActivity {
                                 // 記錄進資料庫
                                 db.insert_recommand(tId, isEntity);
                             }
-                            LogUtils.Insert.recommandResult(context, saId, recommandTid);
+                            if(LOG_ENABLE) {
+                                LogUtils.Insert.recommandResult(context, saId, recommandTid);
+                            }
                             handler.onSuccess(statusCode, headers, responseBody);
                         }
                         // 已經結束的話

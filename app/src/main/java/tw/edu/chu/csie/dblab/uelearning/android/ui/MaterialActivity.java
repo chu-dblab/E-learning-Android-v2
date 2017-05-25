@@ -1,5 +1,6 @@
 package tw.edu.chu.csie.dblab.uelearning.android.ui;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -41,7 +42,10 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.js_handler.MaterialJSHandler;
 import tw.edu.chu.csie.dblab.uelearning.android.util.ErrorUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.FileUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
+import tw.edu.chu.csie.dblab.uelearning.android.util.NetworkUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
+
+import static tw.edu.chu.csie.dblab.uelearning.android.config.Config.LOG_ENABLE;
 
 public class MaterialActivity extends ActionBarActivity {
 
@@ -170,7 +174,9 @@ public class MaterialActivity extends ActionBarActivity {
         int saId = db.get_activity_id();
 
         // 紀錄
-        LogUtils.Insert.toInTarget(MaterialActivity.this, saId, tId);
+        if(LOG_ENABLE) {
+            LogUtils.Insert.toInTarget(MaterialActivity.this, saId, tId);
+        }
 
         // 帶入參數
         final RequestParams sId_params = new RequestParams();
@@ -257,7 +263,9 @@ public class MaterialActivity extends ActionBarActivity {
         int saId = db.get_activity_id();
 
         // 紀錄
-        LogUtils.Insert.toOutTarget(MaterialActivity.this, saId, tId);
+        if(LOG_ENABLE) {
+            LogUtils.Insert.toOutTarget(MaterialActivity.this, saId, tId);
+        }
         Cursor query_allAns = db.getAll_answer();
         int ans_total = query_allAns.getCount();
 
@@ -300,13 +308,14 @@ public class MaterialActivity extends ActionBarActivity {
             try {
                 final String url = "/tokens/" + URLEncoder.encode(token, HTTP.UTF_8) +
                         "/activitys/" + saId + "/points/" + tId + "/toout";
+
                 UElearningRestClient.post(MaterialActivity.this, url, entity, "application/json", new AsyncHttpResponseHandler() {
 
                     @Override
                     public void onStart() {
 
                         if(Config.DEBUG_SHOW_MESSAGE) {
-                            Toast.makeText(MaterialActivity.this, "正在通知伺服端: "+url, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MaterialActivity.this, "正在通知伺服端: "+ url, Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -321,8 +330,15 @@ public class MaterialActivity extends ActionBarActivity {
                             if(Config.DEBUG_SHOW_MESSAGE) {
                                 Toast.makeText(MaterialActivity.this, "已成功通知: ", Toast.LENGTH_SHORT).show();
                             }
-
                             db.removeAll_answer();
+
+
+                            // 告知上一個活動說剛剛學習到的是哪個標地
+                            Intent returnIntent = new Intent();
+                            returnIntent.putExtra("LearnedPointId", tId);
+                            setResult(RESULT_OK, returnIntent);
+
+                            finish();
 
                         } catch (UnsupportedEncodingException e) {
                             ErrorUtils.error(MaterialActivity.this, e);
@@ -337,11 +353,26 @@ public class MaterialActivity extends ActionBarActivity {
 
                         try {
                             // TODO: 錯誤處理
-                            String content = new String(responseBody, HTTP.UTF_8);
+                            NetworkUtils.showNoNetworkDialog(MaterialActivity.this,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            finishLearn();
+                                        }
+                                    }, true);
+
                             if(Config.DEBUG_SHOW_MESSAGE) {
-                                Toast.makeText(MaterialActivity.this,
-                                        "s: " + statusCode + "\n" + content,
-                                        Toast.LENGTH_LONG).show();
+                                if(responseBody != null) {
+                                    String content = new String(responseBody, HTTP.UTF_8);
+                                    Toast.makeText(MaterialActivity.this,
+                                            "s: " + statusCode + "\n" + content,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                                else {
+                                    Toast.makeText(MaterialActivity.this,
+                                            "s: " + statusCode,
+                                            Toast.LENGTH_LONG).show();
+                                }
                             }
                             else {
                                 Toast.makeText(MaterialActivity.this, R.string.inside_error, Toast.LENGTH_SHORT).show();
@@ -352,6 +383,8 @@ public class MaterialActivity extends ActionBarActivity {
                         }
                     }
                 });
+
+
             } catch (UnsupportedEncodingException e) {
                 ErrorUtils.error(MaterialActivity.this, e);
             }
@@ -359,13 +392,6 @@ public class MaterialActivity extends ActionBarActivity {
         } catch (UnsupportedEncodingException e) {
             ErrorUtils.error(MaterialActivity.this, e);
         }
-
-        // 告知上一個活動說剛剛學習到的是哪個標地
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("LearnedPointId", tId);
-        setResult(RESULT_OK, returnIntent);
-
-        finish();
     }
 
     /**

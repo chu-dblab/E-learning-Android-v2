@@ -10,6 +10,8 @@ import tw.edu.chu.csie.dblab.uelearning.android.ui.MaterialActivity;
 import tw.edu.chu.csie.dblab.uelearning.android.util.LogUtils;
 import tw.edu.chu.csie.dblab.uelearning.android.util.TimeUtils;
 
+import static tw.edu.chu.csie.dblab.uelearning.android.config.Config.LOG_ENABLE;
+
 /**
  * Created by yuan on 2015/1/24.
  */
@@ -37,13 +39,17 @@ public class MaterialJSHandler {
 
     @JavascriptInterface
     public void pressFinishButton() {
-        LogUtils.Insert.material_pressFinishButton(context, studyActivityId, targetId);
+        if(LOG_ENABLE) {
+            LogUtils.Insert.material_pressFinishButton(context, studyActivityId, targetId);
+        }
         this.qTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
     }
 
     @JavascriptInterface
     public void answerCorrect(int topicId, String atIndex) {
-        LogUtils.Insert.material_answer(context, studyActivityId, targetId, topicId, atIndex, true);
+        if(LOG_ENABLE) {
+            LogUtils.Insert.material_answer(context, studyActivityId, targetId, topicId, atIndex, true);
+        }
         String aTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
         db.insert_answer(targetId, qTimeString, aTimeString, topicId, atIndex, true);
     }
@@ -52,7 +58,9 @@ public class MaterialJSHandler {
     public void answerError(int topicId, String atIndex) {
         DBProvider db = new DBProvider(context);
         int saId = db.get_activity_id();
-        LogUtils.Insert.material_answer(context, saId, targetId, topicId, atIndex, true);
+        if(LOG_ENABLE) {
+            LogUtils.Insert.material_answer(context, saId, targetId, topicId, atIndex, true);
+        }
         String aTimeString = TimeUtils.dateToString(TimeUtils.getNowServerTime(context));
         db.insert_answer(targetId, qTimeString, aTimeString, topicId, atIndex, false);
     }
@@ -82,6 +90,8 @@ public class MaterialJSHandler {
 
     @JavascriptInterface
     public void goBack() {
-        LogUtils.Insert.material_goBack(context, studyActivityId, targetId);
+        if(LOG_ENABLE) {
+            LogUtils.Insert.material_goBack(context, studyActivityId, targetId);
+        }
     }
 }
